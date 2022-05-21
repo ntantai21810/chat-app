@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "main": "build/main.js",
+  "author": "taint10",
+  "description": "chat-app using reactjs, electron, typescript",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
@@ -12,18 +14,22 @@
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.4",
     "electron-is-dev": "^2.0.0",
+    "electron-squirrel-startup": "^1.0.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build & tsc --project electron",
+    "start": "electron-forge start",
+    "build": "react-scripts build & tsc --project electron & electron-forge make",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "dev": "tsc --project electron & concurrently \"cross-env BROWSER=none react-scripts start\" \"electron build/main.js\""
+    "dev": "tsc --project electron & concurrently \"cross-env BROWSER=none react-scripts start\" \"electron build/main.js\"",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
+  "homepage": "./",
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -44,8 +50,40 @@
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.63",
+    "@electron-forge/maker-deb": "^6.0.0-beta.63",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.63",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+    "@electron-forge/maker-zip": "^6.0.0-beta.63",
     "concurrently": "^7.2.0",
+    "cross-env": "^7.0.3",
     "electron": "^18.2.4",
     "typescript": "^4.6.4"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "chat_app"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
   }
 }

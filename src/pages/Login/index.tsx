@@ -15,6 +15,10 @@ export interface ILoginFormData {
 export default function LoginPage(props: ILoginPageProps) {
   const handleLogin = (data: ILoginFormData) => console.log(data);
 
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className={styles.container}>
       <div className={styles.logoContainer}>

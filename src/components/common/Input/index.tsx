@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import * as React from "react";
 import styles from "./style.module.scss";
 
@@ -5,7 +6,8 @@ export interface IInputProps {
   type?: "text" | "number" | "password";
   placeholder?: string;
   label?: string;
-  error?: string;
+  error?: boolean;
+  helperText?: string;
   [key: string]: any;
 }
 
@@ -14,7 +16,8 @@ function Input(props: IInputProps, ref: any) {
     type = "text",
     placeholder = "",
     label = "",
-    error,
+    error = false,
+    helperText = "",
     ...otherProps
   } = props;
 
@@ -29,7 +32,16 @@ function Input(props: IInputProps, ref: any) {
           ref={ref}
           {...otherProps}
         />
-        {error && <span className={styles.error}>{error}</span>}
+        {helperText && (
+          <span
+            className={classNames({
+              [styles.helperText]: true,
+              [styles.error]: error,
+            })}
+          >
+            {helperText}
+          </span>
+        )}
       </label>
     </div>
   );

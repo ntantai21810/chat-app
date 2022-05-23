@@ -48,13 +48,15 @@ export default function LoginForm(props: ILoginFormProps) {
       <Input
         label="Số điện thoại"
         {...register("phone")}
-        error={errors.phone?.message}
+        error={!!errors.phone}
+        helperText={errors.phone?.message}
       />
       <Input
         label="Mật khẩu"
         type="password"
         {...register("password")}
-        error={errors.password?.message}
+        error={!!errors.password}
+        helperText={errors.password?.message}
       />
 
       <p className={styles.forgotPassword}>Quên mật khẩu?</p>

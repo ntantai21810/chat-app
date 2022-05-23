@@ -1,6 +1,4 @@
 import * as React from "react";
-import styles from "./style.module.scss";
-import "../../../assets/styles/color.scss";
 
 export interface IDividerProps {
   color?: string;
@@ -18,7 +16,6 @@ export default function Divider(props: IDividerProps) {
         height: width,
         margin: margin,
       }}
-      className={styles.divider}
     ></div>
   );
 }

@@ -54,19 +54,22 @@ export default function RegisterForm(props: IRegisterFormProps) {
       <Input
         label="Số điện thoại"
         {...register("phone")}
-        error={errors.phone?.message}
+        error={!!errors.phone}
+        helperText={errors.phone?.message}
       />
       <Input
         label="Mật khẩu"
         type="password"
         {...register("password")}
-        error={errors.password?.message}
+        error={!!errors.password}
+        helperText={errors.password?.message}
       />
       <Input
         label="Nhập lại mật khẩu"
         type="password"
         {...register("confirmPassword")}
-        error={errors.confirmPassword?.message}
+        error={!!errors.confirmPassword}
+        helperText={errors.confirmPassword?.message}
       />
 
       <Button type="submit">Đăng ký</Button>

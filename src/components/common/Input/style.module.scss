@@ -29,13 +29,16 @@
       }
     }
 
-    .error {
+    .helperText {
       margin-top: 1.2rem;
 
       font-size: 1.6rem;
-      color: $error;
 
       transition: all linear 0.25s;
+
+      &.error {
+        color: $error;
+      }
     }
   }
 }

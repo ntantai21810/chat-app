@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Input from "../common/Input";
 import Button from "../common/Button";
+import { Link } from "react-router-dom";
 
 export interface ILoginFormProps {
   onSubmit: (data: ILoginFormData) => any;
@@ -48,16 +49,20 @@ export default function LoginForm(props: ILoginFormProps) {
       <Input
         label="Số điện thoại"
         {...register("phone")}
-        error={errors.phone?.message}
+        error={!!errors.phone}
+        helperText={errors.phone?.message}
       />
       <Input
         label="Mật khẩu"
         type="password"
         {...register("password")}
-        error={errors.password?.message}
+        error={!!errors.password}
+        helperText={errors.password?.message}
       />
 
-      <p className={styles.forgotPassword}>Quên mật khẩu?</p>
+      <Link to="#" className={styles.forgotPassword}>
+        Quên mật khẩu?
+      </Link>
 
       <Button type="submit">Đăng nhập</Button>
     </form>

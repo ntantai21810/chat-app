@@ -1,0 +1,28 @@
+@import "../../assets/styles/color.scss";
+
+.form {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: flex-start;
+
+  .forgotPassword {
+    text-align: end;
+
+    transition: all 0.25s linear;
+    cursor: pointer;
+    &:hover {
+      color: $primary;
+    }
+  }
+
+  div {
+    &:not(:last-child) {
+      margin-bottom: 2.4rem;
+    }
+  }
+
+  button {
+    margin-top: 2rem;
+  }
+}

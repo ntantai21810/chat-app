@@ -1,0 +1,42 @@
+@import "../../assets/styles/color.scss";
+
+.container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 3.2rem 2.4rem;
+
+  .logoContainer {
+    text-align: center;
+
+    .logo {
+      width: 18rem;
+      height: 18rem;
+
+      border-radius: 50%;
+      object-fit: contain;
+      object-position: center;
+    }
+  }
+
+  .title {
+    font-size: 3.2rem;
+    font-weight: 500;
+    text-align: center;
+
+    margin-bottom: 3.2rem;
+  }
+
+  .signUp {
+    text-align: end;
+
+    span {
+      margin-left: 0.6rem;
+
+      color: $primary;
+      text-decoration: underline;
+
+      cursor: pointer;
+    }
+  }
+}

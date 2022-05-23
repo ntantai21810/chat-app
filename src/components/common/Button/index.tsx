@@ -6,11 +6,10 @@ export interface IButtonProps {
   children: React.ReactNode;
   fullWidth?: boolean;
   type?: "button" | "submit" | "reset";
-  [key: string]: any;
 }
 
 export default function Button(props: IButtonProps) {
-  const { children, fullWidth, type, ...otherProps } = props;
+  const { children, fullWidth, type } = props;
 
   return (
     <button
@@ -19,7 +18,6 @@ export default function Button(props: IButtonProps) {
         [styles.fullWidth]: fullWidth,
       })}
       type={type}
-      {...otherProps}
     >
       {children}
     </button>

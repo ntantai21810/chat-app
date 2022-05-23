@@ -8,8 +8,10 @@
 
   .forgotPassword {
     text-align: end;
+    text-decoration: none;
+    color: #000;
 
-    transition: all 0.25s linear;
+    transition: all 0.15s linear;
     cursor: pointer;
     &:hover {
       color: $primary;

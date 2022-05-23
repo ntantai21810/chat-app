@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../assets/images/Logo.png";
 import Divider from "../../components/common/Divider";
 import LoginForm from "../../components/LoginForm";
@@ -13,7 +13,13 @@ export interface ILoginFormData {
 }
 
 export default function LoginPage(props: ILoginPageProps) {
-  const handleLogin = (data: ILoginFormData) => console.log(data);
+  const navigate = useNavigate();
+
+  const handleLogin = (data: ILoginFormData) => {
+    console.log(data);
+
+    navigate("/chat");
+  };
 
   React.useEffect(() => {
     window.scrollTo(0, 0);

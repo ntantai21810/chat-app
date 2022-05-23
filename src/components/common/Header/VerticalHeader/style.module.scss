@@ -57,14 +57,22 @@ $hover-color: #1269c0;
       svg {
         width: 2.6rem;
         height: 2.6rem;
+
+        transition: all linear 0.1s;
       }
 
       &.active {
         background-color: $active-color;
+
+        border-left: 4px solid #fff;
       }
 
       &:hover {
         background-color: $hover-color;
+
+        svg {
+          transform: translateX(4px);
+        }
       }
     }
   }

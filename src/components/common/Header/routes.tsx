@@ -1,7 +1,7 @@
 import * as React from "react";
 import { BsChatDots } from "react-icons/bs";
 
-export default [
+const routes = [
   {
     to: "/chat",
     icon: <BsChatDots color="#fff" />,
@@ -19,3 +19,5 @@ export default [
     icon: <BsChatDots color="#fff" />,
   },
 ];
+
+export default routes;

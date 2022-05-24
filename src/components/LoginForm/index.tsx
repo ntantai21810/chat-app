@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 
 export interface ILoginFormProps {
   onSubmit: (data: ILoginFormData) => any;
+  errorMessage?: string;
 }
 
 export interface ILoginFormData {
@@ -26,7 +27,7 @@ const schema = yup
   .required();
 
 export default function LoginForm(props: ILoginFormProps) {
-  const { onSubmit } = props;
+  const { onSubmit, errorMessage } = props;
 
   const {
     register,
@@ -59,6 +60,10 @@ export default function LoginForm(props: ILoginFormProps) {
         error={!!errors.password}
         helperText={errors.password?.message}
       />
+
+      {errorMessage && (
+        <span className={styles.errorMessage}>{errorMessage}</span>
+      )}
 
       <Link to="#" className={styles.forgotPassword}>
         Quên mật khẩu?

@@ -2,7 +2,7 @@ import axios from "axios";
 import { store } from "../redux/store";
 
 const clientRequest = axios.create({
-  baseURL: process.env.BASE_URL || "",
+  baseURL: process.env.REACT_APP_BASE_URL || "",
 });
 
 clientRequest.interceptors.request.use(

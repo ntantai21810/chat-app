@@ -8,6 +8,7 @@ import Button from "../common/Button";
 
 export interface IRegisterFormProps {
   onSubmit: (data: IRegisterFormData) => any;
+  errorMessage?: string;
 }
 
 export interface IRegisterFormData {
@@ -30,7 +31,7 @@ const schema = yup
   .required();
 
 export default function RegisterForm(props: IRegisterFormProps) {
-  const { onSubmit } = props;
+  const { onSubmit, errorMessage } = props;
 
   const {
     register,
@@ -71,6 +72,10 @@ export default function RegisterForm(props: IRegisterFormProps) {
         error={!!errors.confirmPassword}
         helperText={errors.confirmPassword?.message}
       />
+
+      {errorMessage && (
+        <span className={styles.errorMessage}>{errorMessage}</span>
+      )}
 
       <Button type="submit">Đăng ký</Button>
     </form>

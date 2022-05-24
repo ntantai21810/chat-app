@@ -1,0 +1,65 @@
+@import "../../assets//styles//color.scss";
+
+.container {
+  display: flex;
+  align-items: center;
+
+  padding: 1rem 1.2rem;
+
+  cursor: pointer;
+  transition: all linear 0.1s;
+
+  &.active {
+    background-color: #d1e4f2;
+  }
+
+  & > div {
+    transition: all linear 0.2s;
+  }
+
+  &:hover {
+    background-color: #eee;
+
+    & > div {
+      transform: translateX(4px);
+    }
+  }
+
+  .right {
+    margin-left: 1.2rem;
+    overflow: hidden;
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      margin-bottom: 1.2rem;
+
+      .title {
+        font-size: 1.6rem;
+        font-weight: 500;
+
+        max-width: calc(100% - 4.8rem);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .time {
+        font-size: 1.4rem;
+        color: $text-gray-color;
+      }
+    }
+
+    .message {
+      font-size: 1.4rem;
+      color: $text-gray-color;
+
+      width: calc(100% - 4.8rem);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}

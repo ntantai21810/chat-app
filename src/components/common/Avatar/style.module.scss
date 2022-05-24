@@ -1,0 +1,20 @@
+.container {
+  position: relative;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  border: 2px solid #fff;
+
+  cursor: pointer;
+
+  .avatar {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+
+    border-radius: inherit;
+  }
+}

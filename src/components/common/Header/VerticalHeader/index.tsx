@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import routes from "../routes";
 import styles from "./style.module.scss";
 import { AiFillSetting } from "react-icons/ai";
+import Avatar from "../../Avatar";
 
 export interface IVerticalHeaderProps {}
 
@@ -16,13 +17,12 @@ export default function VerticalHeader(props: IVerticalHeaderProps) {
 
   return (
     <div className={styles.header} style={{ width: VerticalHeaderWidth }}>
-      <div className={styles.logoContainer}>
-        <img
-          src={
-            "https://images.unsplash.com/photo-1644982648791-a010e61aa845?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170"
-          }
+      <div className={styles.avatarContainer}>
+        <Avatar
+          width="6rem"
+          hegiht="6rem"
+          src="https://images.unsplash.com/photo-1644982648791-a010e61aa845?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170"
           alt="Chat app logo"
-          className={styles.logo}
         />
       </div>
 

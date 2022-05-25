@@ -8,7 +8,11 @@ export interface IInputProps {
   label?: string;
   error?: boolean;
   helperText?: string;
-  [key: string]: any;
+  border?: boolean;
+  name?: string;
+  icon?: React.ReactNode;
+  onChange?: React.ChangeEventHandler<any>;
+  onBlur?: React.FocusEventHandler<any>;
 }
 
 function Input(props: IInputProps, ref: any) {
@@ -18,20 +22,37 @@ function Input(props: IInputProps, ref: any) {
     label = "",
     error = false,
     helperText = "",
-    ...otherProps
+    border = true,
+    name,
+    icon,
+    onChange,
+    onBlur,
   } = props;
 
   return (
     <div className={styles.container}>
       <label className={styles.label}>
-        <span>{label}</span>
-        <input
-          className={styles.input}
-          type={type}
-          placeholder={placeholder}
-          ref={ref}
-          {...otherProps}
-        />
+        {label && <span>{label}</span>}
+
+        <div className={styles.main}>
+          <input
+            className={classNames({
+              [styles.input]: true,
+              [styles.error]: error,
+              [styles.border]: border,
+            })}
+            type={type}
+            placeholder={placeholder}
+            ref={ref}
+            onChange={onChange}
+            onBlur={onBlur}
+            name={name}
+            style={{ paddingRight: !!icon ? "5rem" : "" }}
+          />
+
+          {icon && <div className={styles.icon}>{icon}</div>}
+        </div>
+
         {helperText && (
           <span
             className={classNames({

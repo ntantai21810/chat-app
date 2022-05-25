@@ -19,16 +19,30 @@
     }
   }
 
-  .chatSection {
+  .conversationSection {
     flex-grow: 1;
     height: 100vh;
 
     display: flex;
     flex-direction: column;
 
-    .chatContent {
+    .conversationTitle {
+      border-bottom: 1px solid $border-color;
+    }
+
+    .conversationContent {
       flex-grow: 1;
       overflow: hidden;
+    }
+
+    .conversationAction {
+      border-top: 1px solid $border-color;
+      border-bottom: 1px solid $border-color;
+    }
+
+    .conversationInput {
+      padding: 0.8rem 0.8rem 0.8rem 0.2rem;
+      flex-grow: 0;
     }
   }
 }

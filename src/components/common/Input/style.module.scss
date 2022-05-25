@@ -13,19 +13,51 @@
       margin-bottom: 1.2rem;
     }
 
-    .input {
-      width: 100%;
-      padding: 1.4rem 1.2rem;
+    .main {
+      position: relative;
 
-      font-size: 1.8rem;
+      .input {
+        width: 100%;
+        padding: 1.4rem;
 
-      border-radius: 5px;
-      border: 1px solid #000;
-      outline: none;
-      transition: all linear 0.25s;
+        font-size: 1.8rem;
 
-      &:focus {
-        border: 1px solid $primary;
+        outline: none;
+        transition: all linear 0.25s;
+        border: none;
+
+        &.border {
+          border-radius: 5px;
+          border: 1px solid #000;
+        }
+
+        &.border:focus {
+          border: 1px solid $primary;
+        }
+
+        &.border.error {
+          border-color: $error;
+        }
+      }
+
+      .icon {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+
+        padding: 0.8rem;
+        border-radius: 5px;
+
+        position: absolute;
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%);
+
+        cursor: pointer;
+
+        &:hover {
+          background-color: #e5e5e5;
+        }
       }
     }
 

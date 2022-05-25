@@ -1,11 +1,11 @@
-import * as React from "react";
-import styles from "./style.module.scss";
-import * as yup from "yup";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import Input from "../common/Input";
-import Button from "../common/Button";
+import * as React from "react";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import * as yup from "yup";
+import Button from "../common/Button";
+import Input from "../common/Input";
+import styles from "./style.module.scss";
 
 export interface ILoginFormProps {
   onSubmit: (data: ILoginFormData) => any;

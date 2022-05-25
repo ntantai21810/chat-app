@@ -1,0 +1,17 @@
+.container {
+  padding: 2.4rem 1.8rem 4.8rem 1.8rem;
+  max-height: 100%;
+  overflow-y: scroll;
+
+  background: linear-gradient(rgba(75, 66, 199, 0.4), rgba(75, 66, 199, 0.4)),
+    url("https://images.unsplash.com/photo-1649859397268-251f729c4e09?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  .chatMessage {
+    &:not(:last-child) {
+      margin-bottom: 2.2rem;
+    }
+  }
+}

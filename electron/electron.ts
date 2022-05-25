@@ -28,6 +28,9 @@ const createWindow = () => {
       : `file://${path.join(__dirname, "index.html")}`
   );
 
+  //Show in dev mode to use devTools
+  if (!isDev) mainWindow.setMenu(null);
+
   // Open the DevTools.
   if (isDev) mainWindow.webContents.openDevTools();
 };

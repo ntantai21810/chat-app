@@ -1,0 +1,21 @@
+@import "../../assets/styles/color.scss";
+
+.container {
+  padding: 0.8rem 1.6rem;
+  border-bottom: 1px solid $border-color;
+
+  display: flex;
+  align-items: center;
+
+  .header {
+    margin-left: 1.4rem;
+    max-width: 600px;
+
+    .name {
+      font-size: 1.8rem;
+      font-weight: 500;
+
+      margin-bottom: 1.2rem;
+    }
+  }
+}

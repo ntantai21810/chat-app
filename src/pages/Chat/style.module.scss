@@ -1,9 +1,14 @@
+@import "../../assets/styles/color.scss";
+
 .container {
+  display: flex;
+
   .chattedUserList {
     width: 34rem;
     height: 100vh;
-    border-right: 1px solid #e5e5e5;
+    border-right: 1px solid $border-color;
 
+    flex-shrink: 0;
     overflow-y: scroll;
 
     -ms-overflow-style: none; /* IE and Edge */
@@ -11,6 +16,19 @@
 
     &::-webkit-scrollbar {
       display: none;
+    }
+  }
+
+  .chatSection {
+    flex-grow: 1;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    .chatContent {
+      flex-grow: 1;
+      overflow: hidden;
     }
   }
 }

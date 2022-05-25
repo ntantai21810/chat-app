@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+  align-items: flex-start;
+
+  &.justifyContentEnd {
+    flex-direction: row-reverse;
+
+    .messageList {
+      margin-right: 1.2rem;
+    }
+  }
+
+  .messageList {
+    margin-left: 1.2rem;
+    max-width: 80%;
+  }
+}

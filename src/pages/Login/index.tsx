@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 import { login } from "../../apis/auth";
+import { SocketContext } from "../../App";
 import Logo from "../../assets/images/Logo.png";
 import Divider from "../../components/common/Divider";
 import LoginForm from "../../components/LoginForm";
@@ -21,6 +23,8 @@ export default function LoginPage(props: ILoginPageProps) {
 
   const disptach = useAppDispatch();
 
+  const { setSocket } = React.useContext(SocketContext);
+
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const handleLogin = async (data: ILoginFormData) => {
@@ -33,6 +37,7 @@ export default function LoginPage(props: ILoginPageProps) {
           accessToken: res.data.accessToken,
         })
       );
+      if (setSocket) setSocket(io("http://localhost:8000"));
 
       navigate("/chat");
     } catch (e: any) {

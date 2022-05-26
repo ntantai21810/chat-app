@@ -6,10 +6,13 @@ import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import styles from "./style.module.scss";
 import { AiOutlineSend } from "react-icons/ai";
+import { useState } from "react";
 
 export interface IChatPageProps {}
 
 export default function ChatPage(props: IChatPageProps) {
+  const [message, setMessage] = useState("");
+
   return (
     <div className={styles.container}>
       <div className={styles.chattedUserList}>
@@ -34,6 +37,9 @@ export default function ChatPage(props: IChatPageProps) {
             border={false}
             icon={<AiOutlineSend />}
             placeholder="Nhập tin nhắn ..."
+            value={message}
+            onSubmit={() => console.log(message)}
+            onChange={(e) => setMessage(e.target.value)}
           />
         </div>
       </div>

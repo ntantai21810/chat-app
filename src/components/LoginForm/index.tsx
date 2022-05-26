@@ -48,16 +48,16 @@ export default function LoginForm(props: ILoginFormProps) {
       onSubmit={handleSubmit(onSubmit)}
     >
       <Input
-        label="Số điện thoại"
         {...register("phone")}
         error={!!errors.phone}
+        placeholder="Nhập số điện thoại"
         helperText={errors.phone?.message}
       />
       <Input
-        label="Mật khẩu"
         type="password"
         {...register("password")}
         error={!!errors.password}
+        placeholder="Nhập mật khẩu"
         helperText={errors.password?.message}
       />
 

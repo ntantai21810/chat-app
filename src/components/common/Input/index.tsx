@@ -13,6 +13,8 @@ export interface IInputProps {
   icon?: React.ReactNode;
   onChange?: React.ChangeEventHandler<any>;
   onBlur?: React.FocusEventHandler<any>;
+  onSubmit?: () => any;
+  value?: string;
 }
 
 function Input(props: IInputProps, ref: any) {
@@ -25,8 +27,10 @@ function Input(props: IInputProps, ref: any) {
     border = true,
     name,
     icon,
+    value,
     onChange,
     onBlur,
+    onSubmit,
   } = props;
 
   return (
@@ -48,9 +52,22 @@ function Input(props: IInputProps, ref: any) {
             onBlur={onBlur}
             name={name}
             style={{ paddingRight: !!icon ? "5rem" : "" }}
+            value={value}
+            onKeyDown={(e) => {
+              if (e.code === "Enter" && onSubmit) onSubmit();
+            }}
           />
 
-          {icon && <div className={styles.icon}>{icon}</div>}
+          {icon && (
+            <div
+              className={styles.icon}
+              onClick={() => {
+                if (onSubmit) onSubmit();
+              }}
+            >
+              {icon}
+            </div>
+          )}
         </div>
 
         {helperText && (

@@ -13,6 +13,7 @@ export interface IRegisterFormProps {
 
 export interface IRegisterFormData {
   phone: string;
+  fullName: string;
   password: string;
   confirmPassword: string;
 }
@@ -22,6 +23,7 @@ const schema = yup
     phone: yup
       .string()
       .matches(/(84|0[3|5|7|8|9])+([0-9]{8})\b/, "Số điện thoại không hợp lệ"),
+    fullName: yup.string().required("Vui lòng nhập họ tên"),
     password: yup.string().min(8, "Mật khẩu phải có ít nhất 8 kí tự"),
     confirmPassword: yup
       .string()
@@ -40,6 +42,7 @@ export default function RegisterForm(props: IRegisterFormProps) {
   } = useForm<IRegisterFormData>({
     defaultValues: {
       phone: "",
+      fullName: "",
       password: "",
       confirmPassword: "",
     },
@@ -56,6 +59,12 @@ export default function RegisterForm(props: IRegisterFormProps) {
         {...register("phone")}
         error={!!errors.phone}
         placeholder="Nhập số điện thoại"
+        helperText={errors.phone?.message}
+      />
+      <Input
+        {...register("fullName")}
+        error={!!errors.phone}
+        placeholder="Nhập họ và tên"
         helperText={errors.phone?.message}
       />
       <Input

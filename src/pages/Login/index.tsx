@@ -37,7 +37,30 @@ export default function LoginPage(props: ILoginPageProps) {
           accessToken: res.data.accessToken,
         })
       );
-      if (setSocket) setSocket(io("http://localhost:8000"));
+
+      //Connect socket
+      if (setSocket) {
+        const socket = io(
+          process.env.REACT_APP_SOCKET_URL || "http://localhost:8000"
+        );
+
+        socket.emit("join", res.data.user?._id);
+
+        socket.on("online users", (users) => {
+          console.log(users);
+        });
+
+        setSocket(socket);
+      }
+
+      //Remember auth
+      localStorage.setItem(
+        "auth",
+        JSON.stringify({
+          ...res.data.user,
+          accessToken: res.data.accessToken,
+        })
+      );
 
       navigate("/chat");
     } catch (e: any) {

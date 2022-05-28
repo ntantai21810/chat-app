@@ -3,7 +3,7 @@ import { Provider } from "react-redux";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
 import { Socket } from "socket.io-client";
-import EmptyLayout from "./layouts/Empty";
+import AuthProvider from "./components/common/AuthProvider";
 import { persistor, store } from "./redux/store";
 import routes from "./routes";
 
@@ -25,10 +25,12 @@ function App() {
                 <Route
                   path={route.path}
                   element={
-                    route.layout ? (
-                      route.layout(route.component)
+                    route.private ? (
+                      <AuthProvider>
+                        {route.layout(route.component)}
+                      </AuthProvider>
                     ) : (
-                      <EmptyLayout>{route.component}</EmptyLayout>
+                      route.layout(route.component)
                     )
                   }
                   key={index}

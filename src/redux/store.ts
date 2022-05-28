@@ -9,12 +9,13 @@ import {
   REGISTER,
   REHYDRATE,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage";
+import storage from "redux-persist/lib/storage/session";
 import authReducer from "./auth";
 
 const persistConfig = {
   key: "root",
   storage: storage,
+  blacklist: ["auth"],
 };
 
 const rootReducer = combineReducers({

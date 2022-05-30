@@ -1,8 +1,6 @@
 import jwtDecode from "jwt-decode";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
-import { SocketContext } from "../../../App";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { setAuth } from "../../../redux/auth";
 
@@ -17,9 +15,6 @@ export default function AuthProvider({ children }: IAuthProviderProps) {
   const currentAccessToken = useAppSelector((state) => state.auth.accessToken);
   const dispatch = useAppDispatch();
 
-  //Socket
-  const { socket: currentSocket, setSocket } = React.useContext(SocketContext);
-
   //Token
   const auth = localStorage.getItem("auth");
   const token = auth && JSON.parse(auth).accessToken;
@@ -32,25 +27,10 @@ export default function AuthProvider({ children }: IAuthProviderProps) {
 
       navigate("/login");
     } else {
-      //Connect socket
-      if (!currentSocket && setSocket) {
-        const socket = io(
-          process.env.REACT_APP_SOCKET_URL || "http://localhost:8000"
-        );
-
-        socket.emit("join", JSON.parse(auth)._id);
-
-        socket.on("online users", (users) => {
-          console.log(users);
-        });
-
-        setSocket(socket);
-      }
-
       //Dispatch to redux if not have
       if (!currentAccessToken) dispatch(setAuth(JSON.parse(auth)));
     }
-  }, [navigate]);
+  }, [navigate, isValidToken, auth, currentAccessToken, dispatch]);
 
   if (isValidToken) {
     return <div>{children}</div>;

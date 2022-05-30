@@ -1,8 +1,6 @@
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
 import { register } from "../../apis/auth";
-import { SocketContext } from "../../App";
 import Logo from "../../assets/images/Logo.png";
 import Divider from "../../components/common/Divider";
 import RegisterForm, { IRegisterFormData } from "../../components/RegisterForm";
@@ -18,11 +16,11 @@ export default function RegisterPage(props: IRegisterPageProps) {
 
   const disptach = useAppDispatch();
 
-  const { setSocket } = React.useContext(SocketContext);
-
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const handleRegister = async (data: IRegisterFormData) => {
+    setErrorMessage("");
+
     try {
       const res = await register(data);
 
@@ -32,21 +30,6 @@ export default function RegisterPage(props: IRegisterPageProps) {
           accessToken: res.data.accessToken,
         })
       );
-
-      //Connect socket
-      if (setSocket) {
-        const socket = io(
-          process.env.REACT_APP_SOCKET_URL || "http://localhost:8000"
-        );
-
-        socket.emit("join", res.data.user?._id);
-
-        socket.on("online users", (users) => {
-          console.log(users);
-        });
-
-        setSocket(socket);
-      }
 
       //Remember auth
       localStorage.setItem(
@@ -62,7 +45,6 @@ export default function RegisterPage(props: IRegisterPageProps) {
       setErrorMessage(
         e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR
       );
-      setTimeout(() => setErrorMessage(""), 2500);
     }
   };
 

@@ -3,13 +3,23 @@
 .container {
   display: flex;
 
-  .chattedUserList {
-    width: 34rem;
-    height: 100vh;
-    border-right: 1px solid $border-color;
-
+  .userListSection {
     flex-shrink: 0;
-    overflow-y: auto;
+    flex-basis: 34rem;
+    overflow: hidden;
+    height: 100vh;
+
+    .onlineUsers {
+      padding: 1.6rem 1.6rem 0 1.6rem;
+    }
+
+    .chattedUserList {
+      width: 34rem;
+      border-right: 1px solid $border-color;
+
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
   }
 
   .conversationSection {

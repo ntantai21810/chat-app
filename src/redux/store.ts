@@ -11,6 +11,7 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage/session";
 import authReducer from "./auth";
+import onlineUserReducer from "./onlineUser";
 
 const persistConfig = {
   key: "root",
@@ -20,6 +21,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  onlineUser: onlineUserReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -1,5 +1,4 @@
-export interface IAuth {
-  fullName?: string;
-  phone: string;
+import { IUser } from "./User";
+export interface IAuth extends Omit<IUser, "createdAt" | "updatedAt"> {
   accessToken: string;
 }

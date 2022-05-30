@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IAuth } from "../models/Auth";
 
 const initialState: IAuth = {
+  _id: "",
   phone: "",
   fullName: "",
   accessToken: "",

@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  align-items: flex-start;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  padding-bottom: 12px;
+  scroll-behavior: smooth;
+
+  .item {
+    cursor: pointer;
+
+    &:not(:last-child) {
+      margin-right: 1.2rem;
+    }
+
+    .name {
+      text-align: center;
+      margin-top: 0.8rem;
+
+      font-size: 1.4rem;
+    }
+  }
+}

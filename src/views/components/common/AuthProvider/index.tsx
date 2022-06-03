@@ -1,8 +1,8 @@
 import jwtDecode from "jwt-decode";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { setAuth } from "../../../redux/auth";
+import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
+import { setAuth } from "../../../../redux/auth";
 
 export interface IAuthProviderProps {
   children: React.ReactNode;

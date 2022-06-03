@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useEffect } from "react";
 import { useRef } from "react";
-import { IMessage } from "../../models/Message";
-import { IUser } from "../../models/User";
+import { IMessage } from "../../../models/Message";
+import { IUser } from "../../../models/User";
 import ChatMessage from "../ChatMessage";
 import styles from "./styles.module.scss";
 

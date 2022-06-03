@@ -1,6 +1,6 @@
 import * as React from "react";
-import { IConversation } from "../../models/Conversation";
-import { IUser } from "../../models/User";
+import { IConversation } from "../../../models/Conversation";
+import { IUser } from "../../../models/User";
 import ChattedUserItem from "../ChattedUserItem";
 
 export interface IChattedUserListProps {

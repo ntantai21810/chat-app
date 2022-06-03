@@ -1,7 +1,7 @@
 import * as React from "react";
 import VerticalHeader, {
   VerticalHeaderWidth,
-} from "../../components/common/Header/VerticalHeader";
+} from "../../views/components/common/Header/VerticalHeader";
 
 export interface IMainLayoutProps {
   children: React.ReactNode;

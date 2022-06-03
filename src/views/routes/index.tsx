@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import EmptyLayout from "../layouts/Empty";
-import MainLayout from "../layouts/Main";
+import EmptyLayout from "../../layouts/Empty";
+import MainLayout from "../../layouts/Main";
 import ChatPage from "../pages/Chat";
 import LoginPage from "../pages/Login";
 import MainPage from "../pages/Main";

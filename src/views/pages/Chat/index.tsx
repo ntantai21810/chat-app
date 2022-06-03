@@ -2,32 +2,35 @@ import * as React from "react";
 import { useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { io } from "socket.io-client";
-import { getUser } from "../../apis/user";
-import { DBContext, SocketContext } from "../../App";
+import { getUser } from "../../../apis/user";
+import { DBContext, SocketContext } from "../../../App";
 import ChattedUserList from "../../components/ChattedUserList";
 import Input from "../../components/common/Input";
 import ConversationAction from "../../components/ConversationAction";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import OnlineUser from "../../components/OnlineUser";
-import { Moment } from "../../configs/moment";
-import { SOCKET_CONSTANTS } from "../../constants";
-import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { IConversation } from "../../models/Conversation";
-import { IMessage, MessageType } from "../../models/Message";
-import { IUser } from "../../models/User";
-import { addConversation, updateConversation } from "../../redux/conversation";
+import { Moment } from "../../../configs/moment";
+import { SOCKET_CONSTANTS } from "../../../constants";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { IConversation } from "../../../models/Conversation";
+import { IMessage, MessageType } from "../../../models/Message";
+import { IUser } from "../../../models/User";
+import {
+  addConversation,
+  updateConversation,
+} from "../../../redux/conversation";
 import {
   addManyMessage,
   addMessageByReceive,
   addMessageBySend,
-} from "../../redux/message";
+} from "../../../redux/message";
 import {
   addManyOnlineUser,
   addOneOnlineUser,
   removeOneOnlineUser,
   selectAllOnlineUsers,
-} from "../../redux/onlineUser";
+} from "../../../redux/onlineUser";
 import styles from "./style.module.scss";
 
 export interface IChatPageProps {}

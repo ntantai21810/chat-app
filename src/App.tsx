@@ -3,10 +3,10 @@ import { Provider } from "react-redux";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
 import { Socket } from "socket.io-client";
-import AuthProvider from "./components/common/AuthProvider";
+import AuthProvider from "./views/components/common/AuthProvider";
 import { connectDB } from "./configs/indexedDB";
 import { persistor, store } from "./redux/store";
-import routes from "./routes";
+import routes from "./views/routes";
 
 export const SocketContext = createContext<{
   socket?: Socket;

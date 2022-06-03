@@ -1,28 +1,33 @@
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from "../../apis/auth";
+import { login } from "../../../apis/auth";
 import Logo from "../../assets/images/Logo.png";
 import Divider from "../../components/common/Divider";
-import RegisterForm, { IRegisterFormData } from "../../components/RegisterForm";
-import { CONSTANTS } from "../../constants";
-import { useAppDispatch } from "../../hooks/redux";
-import { setAuth } from "../../redux/auth";
+import LoginForm from "../../components/LoginForm";
+import { CONSTANTS } from "../../../constants";
+import { useAppDispatch } from "../../../hooks/redux";
+import { setAuth } from "../../../redux/auth";
 import styles from "./style.module.scss";
 
-export interface IRegisterPageProps {}
+export interface ILoginPageProps {}
 
-export default function RegisterPage(props: IRegisterPageProps) {
+export interface ILoginFormData {
+  phone: string;
+  password: string;
+}
+
+export default function LoginPage(props: ILoginPageProps) {
   const navigate = useNavigate();
 
   const disptach = useAppDispatch();
 
   const [errorMessage, setErrorMessage] = React.useState("");
 
-  const handleRegister = async (data: IRegisterFormData) => {
+  const handleLogin = async (data: ILoginFormData) => {
     setErrorMessage("");
 
     try {
-      const res = await register(data);
+      const res = await login(data);
 
       disptach(
         setAuth({
@@ -57,14 +62,14 @@ export default function RegisterPage(props: IRegisterPageProps) {
       <div className={styles.logoContainer}>
         <img className={styles.logo} src={Logo} alt="Chat app logo" />
       </div>
-      <h1 className={styles.title}>Đăng ký tài khoản</h1>
+      <h1 className={styles.title}>Đăng nhập tài khoản</h1>
 
-      <RegisterForm onSubmit={handleRegister} errorMessage={errorMessage} />
+      <LoginForm onSubmit={handleLogin} errorMessage={errorMessage} />
 
       <Divider margin="4.2rem 0" width="2px" />
 
-      <p className={styles.signIn}>
-        Đã có tài khoản? <Link to="/">Đăng nhập ngay</Link>
+      <p className={styles.signUp}>
+        Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
       </p>
     </div>
   );

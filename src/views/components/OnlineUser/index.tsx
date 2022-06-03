@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IUser } from "../../models/User";
+import { IUser } from "../../../models/User";
 import Avatar from "../common/Avatar";
 import styles from "./style.module.scss";
 

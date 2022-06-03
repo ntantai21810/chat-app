@@ -3,5 +3,5 @@ import { IUser } from "./User";
 export interface IConversation {
   user: IUser;
   lastMessage: IMessage;
-  lastOnlineTime: Date;
+  lastOnlineTime: string;
 }

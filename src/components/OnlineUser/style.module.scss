@@ -10,6 +10,7 @@
 
   .item {
     cursor: pointer;
+    width: 70px;
 
     &:not(:last-child) {
       margin-right: 1.2rem;

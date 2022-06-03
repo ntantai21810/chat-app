@@ -6,13 +6,15 @@ import styles from "./style.module.scss";
 
 export interface IConversationTitleProps {
   user?: IUser;
-  lastOnlineTime?: Date;
+  lastOnlineTime?: string;
 }
 
 export default function ConversationTitle(props: IConversationTitleProps) {
   const { user, lastOnlineTime } = props;
 
-  const lastOnlineMinutes = Moment().diff(Moment(lastOnlineTime)) / 1000 / 60;
+  const lastOnlineMinutes = Math.floor(
+    Moment().diff(Moment(lastOnlineTime)) / 1000 / 60
+  );
 
   return (
     <div className={styles.container}>

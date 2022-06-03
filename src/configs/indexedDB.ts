@@ -33,11 +33,8 @@ const connectDB = (
       const messageObjectStore = db.createObjectStore("message", {
         keyPath: ["fromId", "toId", "sendTime"],
       });
-      messageObjectStore.createIndex("messageContent", "content", {
-        unique: false,
-      });
       messageObjectStore.createIndex("messageId", ["fromId", "toId"], {
-        unique: true,
+        unique: false,
       });
     };
   }

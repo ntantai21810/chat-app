@@ -5,10 +5,11 @@ import styles from "./style.module.scss";
 
 export interface IOnlineUserProps {
   users: IUser[];
+  onUserClick?: (user: IUser) => any;
 }
 
 export default function OnlineUser(props: IOnlineUserProps) {
-  const { users } = props;
+  const { users, onUserClick } = props;
 
   const ref = React.useRef<HTMLDivElement | null>(null);
 
@@ -21,7 +22,11 @@ export default function OnlineUser(props: IOnlineUserProps) {
   return (
     <div className={styles.container} onWheel={handleWheel} ref={ref}>
       {users.map((user) => (
-        <div className={styles.item} key={user._id}>
+        <div
+          className={styles.item}
+          key={user._id}
+          onClick={onUserClick ? () => onUserClick(user) : undefined}
+        >
           <Avatar
             src={
               user.avatar ||

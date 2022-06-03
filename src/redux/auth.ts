@@ -5,6 +5,7 @@ const initialState: IAuth = {
   _id: "",
   phone: "",
   fullName: "",
+  avatar: "",
   accessToken: "",
 };
 

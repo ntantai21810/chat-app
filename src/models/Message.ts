@@ -9,5 +9,5 @@ export interface IMessage {
   toId: string;
   type: MessageType;
   content: string;
-  sendTime: Date;
+  sendTime: string;
 }

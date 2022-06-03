@@ -2,16 +2,10 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IConversation } from "./../models/Conversation";
 
 interface IConversationState {
-  conversations: {
-    [userId: string]: IConversation;
-  };
-  activeConversationId: string;
+  [userId: string]: IConversation;
 }
 
-const initialState: IConversationState = {
-  conversations: {},
-  activeConversationId: "",
-};
+const initialState: IConversationState = {};
 
 const conversationSlice = createSlice({
   name: "conversation",
@@ -27,26 +21,22 @@ const conversationSlice = createSlice({
           {}
         );
 
-        state.conversations = {
-          ...state.conversations,
+        return {
+          ...state,
           ...data,
         };
       } else {
-        state.conversations[action.payload.user._id] = action.payload;
+        state[action.payload.user._id] = action.payload;
       }
     },
 
     updateConversation(state, action: PayloadAction<Partial<IConversation>>) {
       if (action.payload.user?._id) {
-        state.conversations[action.payload.user._id] = {
-          ...state.conversations[action.payload.user._id],
+        state[action.payload.user._id] = {
+          ...state[action.payload.user._id],
           ...action.payload,
         };
       }
-    },
-
-    setActiveConversation(state, action: PayloadAction<string>) {
-      state.activeConversationId = action.payload;
     },
 
     reset() {
@@ -61,7 +51,6 @@ export const {
   reset: resetAllConversation,
   add: addConversation,
   updateConversation,
-  setActiveConversation,
 } = conversationSlice.actions;
 
 export default conversationReducer;

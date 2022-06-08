@@ -1,38 +1,23 @@
-import jwtDecode from "jwt-decode";
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
-import { setAuth } from "../../../../redux/auth";
+import { useAuth } from "../../../../adapter/authAdapter";
+import { useNav } from "../../../../adapter/frameworkAdapter";
 
 export interface IAuthProviderProps {
   children: React.ReactNode;
 }
 
 export default function AuthProvider({ children }: IAuthProviderProps) {
-  const navigate = useNavigate();
+  const navigate = useNav();
 
-  //Redux
-  const currentAccessToken = useAppSelector((state) => state.auth.accessToken);
-  const dispatch = useAppDispatch();
-
-  //Token
-  const auth = localStorage.getItem("auth");
-  const token = auth && JSON.parse(auth).accessToken;
-  const isValidToken =
-    !!token && !(jwtDecode<any>(token).exp < Date.now() / 1000);
+  const accessToken = useAuth().auth.accessToken;
 
   React.useEffect(() => {
-    if (!isValidToken) {
-      localStorage.removeItem("auth");
-
+    if (!accessToken) {
       navigate("/login");
-    } else {
-      //Dispatch to redux if not have
-      if (!currentAccessToken) dispatch(setAuth(JSON.parse(auth)));
     }
-  }, [navigate, isValidToken, auth, currentAccessToken, dispatch]);
+  }, [navigate, accessToken]);
 
-  if (isValidToken) {
+  if (accessToken) {
     return <div>{children}</div>;
   }
 

@@ -63,9 +63,9 @@ export default function RegisterForm(props: IRegisterFormProps) {
       />
       <Input
         {...register("fullName")}
-        error={!!errors.phone}
+        error={!!errors.fullName}
         placeholder="Nhập họ và tên"
-        helperText={errors.phone?.message}
+        helperText={errors.fullName?.message}
       />
       <Input
         type="password"

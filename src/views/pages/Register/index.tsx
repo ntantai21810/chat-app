@@ -1,56 +1,33 @@
 import * as React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { register } from "../../../apis/auth";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../../adapter/authAdapter";
+import { useNav } from "../../../adapter/frameworkAdapter";
+import { authController } from "../../../bootstrap";
 import Logo from "../../assets/images/Logo.png";
 import Divider from "../../components/common/Divider";
 import RegisterForm, { IRegisterFormData } from "../../components/RegisterForm";
-import { CONSTANTS } from "../../../constants";
-import { setAuth } from "../../../redux/auth";
 import styles from "./style.module.scss";
-import { useAppDispatch } from "../../../hooks/redux";
 
 export interface IRegisterPageProps {}
 
 export default function RegisterPage(props: IRegisterPageProps) {
-  const navigate = useNavigate();
+  //Adapter
+  const auth = useAuth();
+  const navigate = useNav();
 
-  const disptach = useAppDispatch();
-
-  const [errorMessage, setErrorMessage] = React.useState("");
-
-  const handleRegister = async (data: IRegisterFormData) => {
-    setErrorMessage("");
-
-    try {
-      const res = await register(data);
-
-      disptach(
-        setAuth({
-          ...res.data.user,
-          accessToken: res.data.accessToken,
-        })
-      );
-
-      //Remember auth
-      localStorage.setItem(
-        "auth",
-        JSON.stringify({
-          ...res.data.user,
-          accessToken: res.data.accessToken,
-        })
-      );
-
-      navigate("/chat");
-    } catch (e: any) {
-      setErrorMessage(
-        e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR
-      );
-    }
+  const handleRegister = (data: IRegisterFormData) => {
+    authController.register(data.phone, data.fullName, data.password);
   };
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  React.useEffect(() => {
+    if (auth.auth.accessToken) {
+      navigate("/chat");
+    }
+  }, [auth.auth.accessToken, navigate]);
 
   return (
     <div className={styles.container}>
@@ -59,7 +36,7 @@ export default function RegisterPage(props: IRegisterPageProps) {
       </div>
       <h1 className={styles.title}>Đăng ký tài khoản</h1>
 
-      <RegisterForm onSubmit={handleRegister} errorMessage={errorMessage} />
+      <RegisterForm onSubmit={handleRegister} errorMessage={auth.error} />
 
       <Divider margin="4.2rem 0" width="2px" />
 

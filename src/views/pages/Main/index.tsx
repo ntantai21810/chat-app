@@ -1,14 +1,14 @@
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNav } from "../../../adapter/frameworkAdapter";
 
 export interface IMainPageProps {}
 
 export default function MainPage(props: IMainPageProps) {
-  const navigate = useNavigate();
+  const navigate = useNav();
 
   React.useEffect(() => {
-    navigate("/chat");
+    navigate("/login");
   }, [navigate]);
 
-  return <div></div>;
+  return <div>Main page</div>;
 }

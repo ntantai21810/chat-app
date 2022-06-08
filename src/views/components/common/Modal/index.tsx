@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useDetectClickOutside } from "../../../../hooks/common";
+import { useDetectClickOutside } from "../../../../helper/hooks/index.ts";
 import styles from "./style.module.scss";
 
 export interface IModalProps {

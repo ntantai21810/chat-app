@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Moment } from "../../../configs/moment";
-import { IUser } from "../../../models/User";
+import { IUser } from "../../../domains/User";
+import { Moment } from "../../../helper/configs/moment";
 import Avatar from "../common/Avatar";
 import styles from "./style.module.scss";
 

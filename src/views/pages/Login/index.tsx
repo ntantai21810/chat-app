@@ -1,12 +1,12 @@
 import * as React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { login } from "../../../apis/auth";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../../adapter/authAdapter";
+import { useDispatch, useNav } from "../../../adapter/frameworkAdapter";
+import { authController } from "../../../bootstrap";
+import { setAuthError } from "../../../framework/redux/auth";
 import Logo from "../../assets/images/Logo.png";
 import Divider from "../../components/common/Divider";
 import LoginForm from "../../components/LoginForm";
-import { CONSTANTS } from "../../../constants";
-import { useAppDispatch } from "../../../hooks/redux";
-import { setAuth } from "../../../redux/auth";
 import styles from "./style.module.scss";
 
 export interface ILoginPageProps {}
@@ -17,45 +17,23 @@ export interface ILoginFormData {
 }
 
 export default function LoginPage(props: ILoginPageProps) {
-  const navigate = useNavigate();
+  //Adapter
+  const auth = useAuth();
+  const navigate = useNav();
 
-  const disptach = useAppDispatch();
-
-  const [errorMessage, setErrorMessage] = React.useState("");
-
-  const handleLogin = async (data: ILoginFormData) => {
-    setErrorMessage("");
-
-    try {
-      const res = await login(data);
-
-      disptach(
-        setAuth({
-          ...res.data.user,
-          accessToken: res.data.accessToken,
-        })
-      );
-
-      //Remember auth
-      localStorage.setItem(
-        "auth",
-        JSON.stringify({
-          ...res.data.user,
-          accessToken: res.data.accessToken,
-        })
-      );
-
-      navigate("/chat");
-    } catch (e: any) {
-      setErrorMessage(
-        e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR
-      );
-    }
+  const handleLogin = (data: ILoginFormData) => {
+    authController.login(data.phone, data.password);
   };
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  React.useEffect(() => {
+    if (auth.auth.accessToken) {
+      navigate("/chat");
+    }
+  }, [auth.auth.accessToken, navigate]);
 
   return (
     <div className={styles.container}>
@@ -64,7 +42,7 @@ export default function LoginPage(props: ILoginPageProps) {
       </div>
       <h1 className={styles.title}>Đăng nhập tài khoản</h1>
 
-      <LoginForm onSubmit={handleLogin} errorMessage={errorMessage} />
+      <LoginForm onSubmit={handleLogin} errorMessage={auth.error} />
 
       <Divider margin="4.2rem 0" width="2px" />
 

@@ -4,9 +4,10 @@ import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
 import { Socket } from "socket.io-client";
 import AuthProvider from "./views/components/common/AuthProvider";
-import { connectDB } from "./configs/indexedDB";
-import { persistor, store } from "./redux/store";
+import { connectDB } from "./helper/configs/indexedDB";
+import { persistor, store } from "./framework/redux/store";
 import routes from "./views/routes";
+import { authController } from "./bootstrap";
 
 export const SocketContext = createContext<{
   socket?: Socket;
@@ -28,6 +29,8 @@ function App() {
   };
 
   useEffect(() => {
+    authController.loadAuth();
+
     connectDB(handleSuccessEvent, handleErrorEvent);
   }, []);
 

@@ -1,8 +1,8 @@
 import classNames from "classnames";
 import * as React from "react";
-import { Moment } from "../../../configs/moment";
-import { IMessage } from "../../../models/Message";
-import { IUser } from "../../../models/User";
+import { IMessage } from "../../../domains/Message";
+import { IUser } from "../../../domains/User";
+import { Moment } from "../../../helper/configs/moment";
 import Avatar from "../common/Avatar";
 import styles from "./style.module.scss";
 

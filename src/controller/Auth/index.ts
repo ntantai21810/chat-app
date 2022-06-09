@@ -1,4 +1,4 @@
-import { AuthDataSource } from "../../dataSource";
+import { AuthAPIDataSource } from "../../dataSource";
 import { API } from "../../network/api";
 import { AuthRepository } from "../../repository";
 import LocalStorage from "../../storage/localStorage";
@@ -12,34 +12,34 @@ export default class AuthController {
     this.presenter = presenter;
   }
 
-  async login(phone: string, password: string) {
+  login(phone: string, password: string) {
     const authUseCase = new AuthUseCase(
       new AuthRepository(
-        new AuthDataSource(API.getIntance()),
+        new AuthAPIDataSource(API.getIntance()),
         new LocalStorage()
       ),
       this.presenter
     );
 
-    await authUseCase.login(phone, password);
+    authUseCase.login(phone, password);
   }
 
-  async register(phone: string, fullName: string, password: string) {
+  register(phone: string, fullName: string, password: string) {
     const authUseCase = new AuthUseCase(
       new AuthRepository(
-        new AuthDataSource(API.getIntance()),
+        new AuthAPIDataSource(API.getIntance()),
         new LocalStorage()
       ),
       this.presenter
     );
 
-    await authUseCase.register(phone, fullName, password);
+    authUseCase.register(phone, fullName, password);
   }
 
-  async loadAuth() {
+  loadAuth() {
     const authUseCase = new AuthUseCase(
       new AuthRepository(
-        new AuthDataSource(API.getIntance()),
+        new AuthAPIDataSource(API.getIntance()),
         new LocalStorage()
       ),
       this.presenter

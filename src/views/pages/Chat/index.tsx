@@ -1,5 +1,11 @@
 import * as React from "react";
 import { AiOutlineSend } from "react-icons/ai";
+import { useAuth } from "../../../adapter/authAdapter";
+import { useConversation } from "../../../adapter/conversationAdapter";
+import { useMessage } from "../../../adapter/messageAdapter";
+import { conversationController, messageController } from "../../../bootstrap";
+import { IConversation } from "../../../domains/Conversation";
+import { IUser } from "../../../domains/User";
 import ChattedUserList from "../../components/ChattedUserList";
 import Input from "../../components/common/Input";
 import ConversationAction from "../../components/ConversationAction";
@@ -11,9 +17,12 @@ import styles from "./style.module.scss";
 export interface IChatPageProps {}
 
 export default function ChatPage(props: IChatPageProps) {
+  const conversations = useConversation();
+  const auth = useAuth();
+  const messages = useMessage();
   // const [message, setMessage] = useState("");
-  // const [activeConversation, setActiveConversation] =
-  //   useState<Pick<IConversation, "user" | "lastOnlineTime">>();
+  const [activeConversation, setActiveConversation] =
+    React.useState<Pick<IConversation, "user" | "lastOnlineTime">>();
 
   // const auth = useAuth();
   // const onlineUser = useAppSelector(selectAllOnlineUsers);
@@ -96,12 +105,12 @@ export default function ChatPage(props: IChatPageProps) {
   //   });
   // };
 
-  // const handleConversationClick = (user: IUser) => {
-  //   setActiveConversation({
-  //     user: user,
-  //     lastOnlineTime: conversations[user._id].lastOnlineTime,
-  //   });
-  // };
+  const handleClickOnUser = (user: IUser) => {
+    setActiveConversation({
+      user: user,
+      lastOnlineTime: Date(),
+    });
+  };
 
   // //Connect socket
   // React.useEffect(() => {
@@ -180,23 +189,24 @@ export default function ChatPage(props: IChatPageProps) {
   //   }
   // }, [auth.auth.user._id, setSocket, socket, dispatch, db, conversations]);
 
-  // //Get conversation from DB
-  // React.useEffect(() => {
-  //   if (db) {
-  //     const request = db
-  //       .transaction("conversation")
-  //       .objectStore("conversation")
-  //       .getAll();
+  //Get conversation from DB
+  React.useEffect(() => {
+    console.log(conversations.isDbLoaded);
+    if (conversations.isDbLoaded) {
+      conversationController.getConversations();
+    }
+  }, [conversations.isDbLoaded]);
 
-  //     request.onsuccess = (event) => {
-  //       dispatch(addConversation((event.target as IDBRequest).result));
-  //     };
+  React.useEffect(() => {
+    if (activeConversation && messages.isDbLoaded) {
+      messageController.getMessages(
+        auth.auth.user._id,
+        activeConversation.user._id
+      );
+    }
+  }, [activeConversation, messages.isDbLoaded]);
 
-  //     request.onerror = (event) => {
-  //       console.log(event);
-  //     };
-  //   }
-  // }, [db, dispatch]);
+  console.log({ conversations });
 
   // // //Handle change conversation
   // React.useEffect(() => {
@@ -242,63 +252,62 @@ export default function ChatPage(props: IChatPageProps) {
   // }, [db, activeConversation, allMessages, auth.auth.user._id, dispatch]);
 
   return (
-    // <div className={styles.container}>
-    //   <div className={styles.userListSection}>
-    //     {onlineUser.length > 0 && (
-    //       <div className={styles.onlineUsers}>
-    //         <OnlineUser
-    //           users={onlineUser}
-    //           onUserClick={handleOnlineUserClick}
-    //         />
-    //       </div>
-    //     )}
-    //     <div className={styles.chattedUserList}>
-    //       <ChattedUserList
-    //         conversations={Object.values(conversations)}
-    //         onConversationClick={handleConversationClick}
-    //       />
-    //     </div>
-    //   </div>
+    <div className={styles.container}>
+      <div className={styles.userListSection}>
+        {/* {onlineUser.length > 0 && (
+          <div className={styles.onlineUsers}>
+            <OnlineUser
+              users={onlineUser}
+              onUserClick={handleOnlineUserClick}
+            />
+          </div>
+        )} */}
+        <div className={styles.chattedUserList}>
+          <ChattedUserList
+            conversations={Object.values(conversations.conversations)}
+            onConversationClick={handleClickOnUser}
+          />
+        </div>
+      </div>
 
-    //   <div className={styles.conversationSection}>
-    //     <div className={styles.conversationTitle}>
-    //       <ConversationTitle
-    //         user={activeConversation?.user}
-    //         lastOnlineTime={activeConversation?.lastOnlineTime}
-    //       />
-    //     </div>
+      {/* <div className={styles.conversationSection}>
+        <div className={styles.conversationTitle}>
+          <ConversationTitle
+            user={activeConversation?.user}
+            lastOnlineTime={activeConversation?.lastOnlineTime}
+          />
+        </div>
 
-    //     <div className={styles.conversationContent}>
-    //       <ConversationContent
-    //         messages={allMessages[activeConversation?.user._id || ""] || []}
-    //         fromUser={{
-    //           _id: auth.auth.user._id,
-    //           avatar: auth.auth.user.avatar,
-    //         }}
-    //         toUserAvatar={activeConversation?.user.avatar || ""}
-    //       />
-    //     </div>
+        <div className={styles.conversationContent}>
+          <ConversationContent
+            messages={allMessages[activeConversation?.user._id || ""] || []}
+            fromUser={{
+              _id: auth.auth.user._id,
+              avatar: auth.auth.user.avatar,
+            }}
+            toUserAvatar={activeConversation?.user.avatar || ""}
+          />
+        </div>
 
-    //     {activeConversation && (
-    //       <>
-    //         <div className={styles.conversationAction}>
-    //           <ConversationAction />
-    //         </div>
+        {activeConversation && (
+          <>
+            <div className={styles.conversationAction}>
+              <ConversationAction />
+            </div>
 
-    //         <div className={styles.conversationInput}>
-    //           <Input
-    //             border={false}
-    //             icon={<AiOutlineSend />}
-    //             placeholder="Nhập tin nhắn ..."
-    //             value={message}
-    //             onSubmit={handleSubmitMessage}
-    //             onChange={handleChangeMessage}
-    //           />
-    //         </div>
-    //       </>
-    //     )}
-    //   </div>
-    // </div>
-    <div>123</div>
+            <div className={styles.conversationInput}>
+              <Input
+                border={false}
+                icon={<AiOutlineSend />}
+                placeholder="Nhập tin nhắn ..."
+                value={message}
+                onSubmit={handleSubmitMessage}
+                onChange={handleChangeMessage}
+              />
+            </div>
+          </>
+        )}
+      </div> */}
+    </div>
   );
 }

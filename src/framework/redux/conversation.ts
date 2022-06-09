@@ -2,41 +2,45 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IConversation } from "../../domains/Conversation";
 
 interface IConversationState {
-  [userId: string]: IConversation;
+  conversations: {
+    [userId: string]: IConversation;
+  };
+  error: string;
+  isLoading: boolean;
+  isDbLoaded: boolean;
 }
 
-const initialState: IConversationState = {};
+const initialState: IConversationState = {
+  conversations: {},
+  error: "",
+  isLoading: false,
+  isDbLoaded: false,
+};
 
 const conversationSlice = createSlice({
   name: "conversation",
   initialState: initialState,
   reducers: {
-    add(state, action: PayloadAction<IConversation | IConversation[]>) {
-      if (Array.isArray(action.payload)) {
-        const data = action.payload.reduce(
-          (prev, conversation) => ({
-            ...prev,
-            [conversation.user._id]: conversation,
-          }),
-          {}
-        );
+    setConversations(state, action: PayloadAction<IConversation[]>) {
+      const data: { [userId: string]: IConversation } = {};
 
-        return {
-          ...state,
-          ...data,
-        };
-      } else {
-        state[action.payload.user._id] = action.payload;
+      for (let conversation of action.payload) {
+        data[conversation.user._id] = conversation;
       }
+
+      state.conversations = data;
     },
 
-    updateConversation(state, action: PayloadAction<Partial<IConversation>>) {
-      if (action.payload.user?._id) {
-        state[action.payload.user._id] = {
-          ...state[action.payload.user._id],
-          ...action.payload,
-        };
-      }
+    setError(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+    },
+
+    setLoading(state, action: PayloadAction<boolean>) {
+      state.isLoading = action.payload;
+    },
+
+    setisDBLoaded(state, action: PayloadAction<boolean>) {
+      state.isDbLoaded = action.payload;
     },
 
     reset() {
@@ -48,9 +52,11 @@ const conversationSlice = createSlice({
 const conversationReducer = conversationSlice.reducer;
 
 export const {
-  reset: resetAllConversation,
-  add: addConversation,
-  updateConversation,
+  reset: resetConversations,
+  setConversations,
+  setError: setConversationError,
+  setLoading: setConversationLoading,
+  setisDBLoaded: setConversationDBLoaded,
 } = conversationSlice.actions;
 
 export default conversationReducer;

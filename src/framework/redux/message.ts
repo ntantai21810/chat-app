@@ -1,45 +1,55 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IMessage } from "../../domains/Message";
-import { Moment } from "../../helper/configs/moment";
 
 interface IMessageState {
-  [userId: string]: IMessage[];
+  message: {
+    [userId: string]: IMessage[];
+  };
+  isLoading: boolean;
+  isDbLoaded: boolean;
+  error: string;
 }
 
-const initialState: IMessageState = {};
+interface IPayload {
+  userId: string;
+  message: IMessage | IMessage[];
+}
+
+const initialState: IMessageState = {
+  message: {},
+  isLoading: false,
+  isDbLoaded: false,
+  error: "",
+};
 
 const messageSlice = createSlice({
   name: "message",
   initialState: initialState,
   reducers: {
-    addBySend(state, action: PayloadAction<IMessage>) {
-      if (state[action.payload.toId])
-        state[action.payload.toId].push(action.payload);
-      else state[action.payload.toId] = [action.payload];
+    addMessage(state, action: PayloadAction<IPayload>) {
+      if (Array.isArray(action.payload.message)) {
+        if (state.message[action.payload.userId]) {
+          state.message[action.payload.userId] = state.message[
+            action.payload.userId
+          ].concat(action.payload.message);
+        } else {
+          state.message[action.payload.userId] = [...action.payload.message];
+        }
+      } else {
+        state.message[action.payload.userId].push(action.payload.message);
+      }
     },
 
-    addByReceive(state, action: PayloadAction<IMessage>) {
-      if (state[action.payload.fromId])
-        state[action.payload.fromId].push(action.payload);
-      else state[action.payload.fromId] = [action.payload];
+    setLoading(state, action: PayloadAction<boolean>) {
+      state.isLoading = action.payload;
     },
 
-    addMany(
-      state,
-      action: PayloadAction<{
-        toUserId: string;
-        messages: IMessage[];
-      }>
-    ) {
-      const newState = (state[action.payload.toUserId] ?? []).concat(
-        action.payload.messages
-      );
+    setDBLoaded(state, action: PayloadAction<boolean>) {
+      state.isDbLoaded = action.payload;
+    },
 
-      newState.sort(
-        (a, b) => Moment(a.sendTime).valueOf() - Moment(b.sendTime).valueOf()
-      );
-
-      state[action.payload.toUserId] = newState;
+    setError(state, action: PayloadAction<string>) {
+      state.error = action.payload;
     },
 
     reset() {
@@ -52,9 +62,10 @@ const messageReducer = messageSlice.reducer;
 
 export const {
   reset: resetAllMessage,
-  addBySend: addMessageBySend,
-  addByReceive: addMessageByReceive,
-  addMany: addManyMessage,
+  addMessage,
+  setLoading: setMessageLoading,
+  setDBLoaded: setMessageDBLoaded,
+  setError: setMessageError,
 } = messageSlice.actions;
 
 export default messageReducer;

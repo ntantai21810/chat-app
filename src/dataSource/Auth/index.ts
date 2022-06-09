@@ -1,3 +1,3 @@
-export { default as AuthDataSource } from "./authDataSouce";
+export { default as AuthAPIDataSource } from "./authAPIDataSouce";
 
 export * from "./IAuthDataSource";

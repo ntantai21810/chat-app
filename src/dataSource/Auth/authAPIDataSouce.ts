@@ -2,7 +2,7 @@ import { IAuth } from "../../domains/Auth";
 import { IAPI } from "../../network/api";
 import { IAuthDataSouce } from "./IAuthDataSource";
 
-export default class AuthDataSource implements IAuthDataSouce {
+export default class AuthAPIDataSource implements IAuthDataSouce {
   private api: IAPI;
 
   constructor(api: IAPI) {

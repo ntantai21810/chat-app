@@ -1,4 +1,4 @@
-import { IStorage } from "./../../storage/IStorage";
+import { IAuthStorage } from "./../../storage/IStorage";
 import { modelAuthData } from "../../controller/Auth/helper";
 import { IAuthDataSouce } from "../../dataSource";
 import { IAuthRepository } from "./IAuthRepository";
@@ -6,9 +6,9 @@ import { AuthModel } from "../../domains/Auth";
 
 export default class AuthRepository implements IAuthRepository {
   private dataSource: IAuthDataSouce;
-  private storage: IStorage;
+  private storage: IAuthStorage;
 
-  constructor(dataSource?: IAuthDataSouce, storage?: IStorage) {
+  constructor(dataSource?: IAuthDataSouce, storage?: IAuthStorage) {
     if (dataSource) this.dataSource = dataSource;
 
     if (storage) this.storage = storage;

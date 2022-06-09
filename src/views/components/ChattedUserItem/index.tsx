@@ -9,7 +9,7 @@ import styles from "./style.module.scss";
 export interface IChattedUserItemProps {
   user: IUser;
   lastMessage: IMessage;
-  onClick: (user: IUser) => any;
+  onClick?: (user: IUser) => any;
 }
 
 export default function ChattedUserItem(props: IChattedUserItemProps) {
@@ -21,7 +21,7 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
         [styles.container]: true,
         [styles.active]: false, //active
       })}
-      onClick={() => onClick(user)}
+      onClick={() => (onClick ? onClick(user) : "")}
     >
       <div>
         <Avatar

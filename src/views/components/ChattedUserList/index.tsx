@@ -5,7 +5,7 @@ import ChattedUserItem from "../ChattedUserItem";
 
 export interface IChattedUserListProps {
   conversations: IConversation[];
-  onConversationClick: (user: IUser) => any;
+  onConversationClick?: (user: IUser) => any;
 }
 
 export default function ChattedUserList(props: IChattedUserListProps) {

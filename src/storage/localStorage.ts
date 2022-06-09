@@ -1,7 +1,7 @@
 import { IAuth } from "../domains/Auth";
-import { IStorage } from "./IStorage";
+import { IAuthStorage } from "./IStorage";
 
-export default class LocalStorage implements IStorage {
+export default class LocalStorage implements IAuthStorage {
   constructor() {}
 
   getAuth(): IAuth | null {

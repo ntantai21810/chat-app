@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IAuth } from "../../domains/Auth";
 
-export interface IAuthStore {
+export interface IAuthState {
   auth: IAuth;
   error: string;
   isLogging: boolean;
 }
 
-const initialState: IAuthStore = {
+const initialState: IAuthState = {
   auth: {
     user: {
       _id: "",

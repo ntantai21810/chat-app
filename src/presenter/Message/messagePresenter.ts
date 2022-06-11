@@ -1,4 +1,4 @@
-import { normalizeMessageData } from "../../controller/Message/helper";
+import { normalizeMessageData } from "../../domains/Message/helper";
 import { IMessage, MessageModel } from "../../domains/Message";
 import {
   addMessage,

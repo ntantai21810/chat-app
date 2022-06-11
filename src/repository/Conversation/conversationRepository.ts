@@ -1,29 +1,34 @@
-import { modelConversationData } from "../../controller/Conversation/helper";
-import { ConversationModel } from "../../domains/Conversation";
-import { IConversationStorage } from "./../../storage/IStorage";
-import { IConversationRepository } from "./IConversationRepository";
+import { IConversationDataSouce } from "../../dataSource";
+import {
+  ConversationModel,
+  modelConversationData,
+} from "../../domains/Conversation";
+import { IGetConversationRepo } from "../../useCases";
+import { IConnectDBConversationRepo } from "../../useCases/Conversation/connectDBUseCase";
 
-export default class ConversationRepository implements IConversationRepository {
-  private storage: IConversationStorage;
+export default class ConversationRepository
+  implements IConnectDBConversationRepo, IGetConversationRepo
+{
+  private dataSource: IConversationDataSouce;
 
-  constructor(storage: IConversationStorage) {
-    this.storage = storage;
+  constructor(dataSource: IConversationDataSouce) {
+    this.dataSource = dataSource;
   }
 
   connect(): Promise<any> {
-    return this.storage.connect();
+    return this.dataSource.connect();
   }
 
   async getConversations(): Promise<ConversationModel[]> {
-    const res = await this.storage.getConversations();
-
-    console.log({ res });
-
     const conversationModels: ConversationModel[] = [];
 
+    const res = await this.dataSource.getConversations();
+
     for (let conversation of res) {
-      conversationModels.push(modelConversationData(conversation));
+      const conversationModel = modelConversationData(conversation);
+      conversationModels.push(conversationModel);
     }
+
     return conversationModels;
   }
 }

@@ -1,3 +1,2 @@
-export { default as MessageUseCase } from "./messageUseCase";
-
-export * from "./IMessageUseCase";
+export * from "./connectDBUseCase";
+export * from "./getMessageUseCase";

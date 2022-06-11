@@ -1,3 +1,2 @@
-export { default as ConversationUseCase } from "./conversationUseCase";
-
-export * from "./IConversationUseCase";
+export * from "./connectDBUseCase";
+export * from "./getConversationUseCase";

@@ -1,11 +1,11 @@
 import { IMessage } from "../../domains/Message";
-import { IMessageStorage } from "../../storage/IStorage";
+import { IMessageIndexedDBStorage } from "../../storage/IStorage";
 import { IMessageDataSouce } from "./IMessageDataSource";
 
 export default class MessageIndexedDBDataSource implements IMessageDataSouce {
-  private storage: IMessageStorage;
+  private storage: IMessageIndexedDBStorage;
 
-  constructor(storage: IMessageStorage) {
+  constructor(storage: IMessageIndexedDBStorage) {
     this.storage = storage;
   }
 
@@ -13,7 +13,7 @@ export default class MessageIndexedDBDataSource implements IMessageDataSouce {
     return this.storage.connect();
   }
 
-  getMessage(myId: string, otherId: string): Promise<IMessage[]> {
+  getMessages(myId: string, otherId: string): Promise<IMessage[]> {
     return this.storage.getMessages(myId, otherId);
   }
 }

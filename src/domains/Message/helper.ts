@@ -1,4 +1,4 @@
-import { IMessage, MessageModel } from "../../domains/Message";
+import { IMessage, MessageModel } from ".";
 
 export function modelMessageData(message: IMessage): MessageModel {
   const { fromId, toId, type, content, sendTime } = message;

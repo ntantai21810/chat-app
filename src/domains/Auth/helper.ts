@@ -1,5 +1,5 @@
-import { AuthModel, IAuth } from "../../domains/Auth";
-import { IUser, UserModel } from "../../domains/User";
+import { AuthModel, IAuth } from ".";
+import { IUser, UserModel } from "../User";
 
 export function modelAuthData(auth: IAuth): AuthModel {
   const user = auth.user;

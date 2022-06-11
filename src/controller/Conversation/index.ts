@@ -1,6 +1,17 @@
-import { ConversationRepository } from "../../repository";
+//Data source
+import { ConversationIndexedDataSource } from "../../dataSource";
+
+//Repo
+import ConversationRepository from "../../repository/Conversation/conversationRepository";
+
+//DB
 import IndexedDB from "../../storage/indexedDB";
-import ConversationUseCase from "../../useCases/Conversation/conversationUseCase";
+
+//Use case
+import ConnectDBConversationUseCase from "../../useCases/Conversation/connectDBUseCase";
+import GetConversationUseCase from "../../useCases/Conversation/getConversationUseCase";
+
+//Presenter
 import { IConversationPresenter } from "./../../presenter/Conversation/IConversationPresenter";
 
 export default class ConversationController {
@@ -11,20 +22,24 @@ export default class ConversationController {
   }
 
   connectDB() {
-    const conversationUseCase = new ConversationUseCase(
-      new ConversationRepository(IndexedDB.getInstance()),
+    const connectDBConversationUseCase = new ConnectDBConversationUseCase(
+      new ConversationRepository(
+        new ConversationIndexedDataSource(IndexedDB.getInstance())
+      ),
       this.presenter
     );
 
-    conversationUseCase.connect();
+    connectDBConversationUseCase.execute();
   }
 
   getConversations() {
-    const conversationUseCase = new ConversationUseCase(
-      new ConversationRepository(IndexedDB.getInstance()),
+    const getConversationUseCase = new GetConversationUseCase(
+      new ConversationRepository(
+        new ConversationIndexedDataSource(IndexedDB.getInstance())
+      ),
       this.presenter
     );
 
-    conversationUseCase.getConversation();
+    getConversationUseCase.execute();
   }
 }

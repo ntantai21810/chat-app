@@ -9,15 +9,35 @@ export default class AuthAPIDataSource implements IAuthDataSouce {
     this.api = api;
   }
 
-  login(phone: string, password: string): Promise<IAuth> {
-    return this.api.post("/login", { phone, password });
+  async login(phone: string, password: string): Promise<IAuth> {
+    const res: IAuth = await this.api.post("/login", { phone, password });
+
+    this.api.setAccessToken(res.accessToken);
+
+    return res;
   }
 
-  register(phone: string, fullName: string, password: string): Promise<IAuth> {
-    return this.api.post("/register", { phone, fullName, password });
+  async register(
+    phone: string,
+    fullName: string,
+    password: string
+  ): Promise<IAuth> {
+    const res: IAuth = await this.api.post("/register", {
+      phone,
+      fullName,
+      password,
+    });
+
+    this.api.setAccessToken(res.accessToken);
+
+    return res;
   }
 
-  setAccessToken(accessToken: string): void {
-    this.api.setAccessToken(accessToken);
+  loadAuth(): Promise<IAuth | null> {
+    return this.api.get("/get-auth");
+  }
+
+  logout(): Promise<boolean> {
+    return this.api.get("/logout");
   }
 }

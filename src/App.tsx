@@ -3,7 +3,6 @@ import { Provider } from "react-redux";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import AuthProvider from "./views/components/common/AuthProvider";
-import { connectDB } from "./helper/configs/indexedDB";
 import { store } from "./framework/redux/store";
 import routes from "./views/routes";
 import {

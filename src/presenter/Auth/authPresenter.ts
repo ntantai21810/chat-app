@@ -1,9 +1,11 @@
-import { normalizeAuthData } from "../../controller/Auth/helper";
+import { normalizeAuthData } from "../../domains/Auth/helper";
 import { AuthModel } from "../../domains/Auth";
 import {
   setAuth,
   setAuthError,
-  setAuthIsLogging,
+  setAuthIsLoading,
+  setAuthIsLoggingIn,
+  setAuthIsLoggingOut,
 } from "../../framework/redux/auth";
 import { store } from "../../framework/redux/store";
 import { IAuthPresenter } from "./IAuthPresenter";
@@ -25,7 +27,15 @@ export default class AuthPresenter implements IAuthPresenter {
     this.dispatch(setAuthError(error));
   }
 
-  setIsLogging(isLogging: boolean): void {
-    this.dispatch(setAuthIsLogging(isLogging));
+  setIsLoggingIn(isLoggingIn: boolean): void {
+    this.dispatch(setAuthIsLoggingIn(isLoggingIn));
+  }
+
+  setIsLoadingAuth(isLoading: boolean): void {
+    this.dispatch(setAuthIsLoading(isLoading));
+  }
+
+  setIsLoggingOut(isLoggingOut: boolean): void {
+    this.dispatch(setAuthIsLoggingOut(isLoggingOut));
   }
 }

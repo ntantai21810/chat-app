@@ -2,7 +2,7 @@ import { IConversation } from "./../../domains/Conversation/IConversation";
 import { ConversationModel } from "../../domains/Conversation";
 import { store } from "../../framework/redux/store";
 import { IConversationPresenter } from "./IConversationPresenter";
-import { normalizeConversationData } from "../../controller/Conversation/helper";
+import { normalizeConversationData } from "../../domains/Conversation/helper";
 import {
   setConversationDBLoaded,
   setConversationError,

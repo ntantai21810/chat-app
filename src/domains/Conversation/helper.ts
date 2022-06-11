@@ -1,6 +1,6 @@
-import { ConversationModel, IConversation } from "../../domains/Conversation";
-import { MessageModel } from "../../domains/Message";
-import { UserModel } from "../../domains/User";
+import { ConversationModel, IConversation } from ".";
+import { MessageModel } from "../Message";
+import { UserModel } from "../User";
 
 export function modelConversationData(
   conversation: IConversation

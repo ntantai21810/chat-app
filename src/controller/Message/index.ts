@@ -1,7 +1,18 @@
+//Data source
+import MessageIndexedDBDataSource from "../../dataSource/Message/messageStorageDataSouce";
+
+//Presenter
 import { IMessagePresenter } from "../../presenter";
-import { MessageRepository } from "../../repository";
+
+//Repo
+import MessageRepository from "../../repository/Message/messageRepository";
+
+//DB
 import IndexedDB from "../../storage/indexedDB";
-import { MessageUseCase } from "../../useCases";
+
+//Use case
+import ConnectDBMessageUseCase from "../../useCases/Message/connectDBUseCase";
+import GetMessageUseCase from "../../useCases/Message/getMessageUseCase";
 
 export default class MessageController {
   private presenter: IMessagePresenter;
@@ -11,20 +22,24 @@ export default class MessageController {
   }
 
   connectDB() {
-    const messageUseCase = new MessageUseCase(
-      new MessageRepository(IndexedDB.getInstance()),
+    const connectDBUseCase = new ConnectDBMessageUseCase(
+      new MessageRepository(
+        new MessageIndexedDBDataSource(IndexedDB.getInstance())
+      ),
       this.presenter
     );
 
-    messageUseCase.connect();
+    connectDBUseCase.execute();
   }
 
   getMessages(myId: string, otherId: string) {
-    const messageUseCase = new MessageUseCase(
-      new MessageRepository(IndexedDB.getInstance()),
+    const messageUseCase = new GetMessageUseCase(
+      new MessageRepository(
+        new MessageIndexedDBDataSource(IndexedDB.getInstance())
+      ),
       this.presenter
     );
 
-    messageUseCase.getMessages(myId, otherId);
+    messageUseCase.execute(myId, otherId);
   }
 }

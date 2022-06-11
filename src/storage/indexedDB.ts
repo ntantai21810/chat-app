@@ -1,9 +1,12 @@
 import { IConversation } from "../domains/Conversation";
 import { IMessage } from "../domains/Message";
-import { IConversationStorage, IMessageStorage } from "./IStorage";
+import {
+  IConversationIndexedDBStorage,
+  IMessageIndexedDBStorage,
+} from "./IStorage";
 
 export default class IndexedDB
-  implements IConversationStorage, IMessageStorage
+  implements IConversationIndexedDBStorage, IMessageIndexedDBStorage
 {
   private static instace: IndexedDB;
   private db: IDBDatabase;
@@ -29,7 +32,7 @@ export default class IndexedDB
     return this.instace;
   }
 
-  public connect(): Promise<any> {
+  public connect(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
         const request = window.indexedDB.open(

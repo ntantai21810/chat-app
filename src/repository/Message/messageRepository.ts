@@ -1,21 +1,24 @@
-import { modelMessageData } from "../../controller/Message/helper";
+import { IMessageDataSouce } from "../../dataSource";
 import { MessageModel } from "../../domains/Message";
-import { IMessageStorage } from "../../storage/IStorage";
-import { IMessageRepository } from "./IMessageRepository";
+import { modelMessageData } from "../../domains/Message/helper";
+import { IConnectDBMessageRepo } from "../../useCases/Message/connectDBUseCase";
+import { IGetMessageRepo } from "../../useCases/Message/getMessageUseCase";
 
-export default class MessageRepository implements IMessageRepository {
-  private storage: IMessageStorage;
+export default class MessageRepository
+  implements IConnectDBMessageRepo, IGetMessageRepo
+{
+  private dataSource: IMessageDataSouce;
 
-  constructor(storage: IMessageStorage) {
-    this.storage = storage;
+  constructor(dataSource: IMessageDataSouce) {
+    this.dataSource = dataSource;
   }
 
   connect(): Promise<any> {
-    return this.storage.connect();
+    return this.dataSource.connect();
   }
 
   async getMessages(myId: string, otherId: string): Promise<MessageModel[]> {
-    const res = await this.storage.getMessages(myId, otherId);
+    const res = await this.dataSource.getMessages(myId, otherId);
 
     const messageModels: MessageModel[] = [];
 

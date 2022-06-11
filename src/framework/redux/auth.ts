@@ -4,7 +4,9 @@ import { IAuth } from "../../domains/Auth";
 export interface IAuthState {
   auth: IAuth;
   error: string;
-  isLogging: boolean;
+  isLoggingIn: boolean;
+  isLoadingAuth: boolean;
+  isLoggingOut: boolean;
 }
 
 const initialState: IAuthState = {
@@ -18,7 +20,9 @@ const initialState: IAuthState = {
     accessToken: "",
   },
   error: "",
-  isLogging: false,
+  isLoggingIn: false,
+  isLoadingAuth: false,
+  isLoggingOut: false,
 };
 
 const authSlice = createSlice({
@@ -33,8 +37,16 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
 
-    setisLogging(state, action: PayloadAction<boolean>) {
-      state.isLogging = action.payload;
+    setIsLoggingIn(state, action: PayloadAction<boolean>) {
+      state.isLoggingIn = action.payload;
+    },
+
+    setIsLoadingAuth(state, action: PayloadAction<boolean>) {
+      state.isLoadingAuth = action.payload;
+    },
+
+    setIsLoggingOut(state, action: PayloadAction<boolean>) {
+      state.isLoggingOut = action.payload;
     },
 
     reset() {
@@ -49,7 +61,9 @@ export const {
   reset: resetAuth,
   setAuth,
   setError: setAuthError,
-  setisLogging: setAuthIsLogging,
+  setIsLoggingIn: setAuthIsLoggingIn,
+  setIsLoadingAuth: setAuthIsLoading,
+  setIsLoggingOut: setAuthIsLoggingOut,
 } = authSlice.actions;
 
 export default authReducer;

@@ -1,47 +1,52 @@
-import { IAuthStorage } from "./../../storage/IStorage";
-import { modelAuthData } from "../../controller/Auth/helper";
 import { IAuthDataSouce } from "../../dataSource";
-import { IAuthRepository } from "./IAuthRepository";
 import { AuthModel } from "../../domains/Auth";
+import { modelAuthData } from "../../domains/Auth/helper";
+import {
+  CredentialModel,
+  normalizeCredentialData,
+} from "../../domains/Credential";
+import {
+  ILoadAuthRepo,
+  ILoginRepo,
+  ILogoutRepo,
+  IRegisterRepo,
+} from "../../useCases";
 
-export default class AuthRepository implements IAuthRepository {
+export default class AuthRepository
+  implements ILoginRepo, IRegisterRepo, ILoadAuthRepo, ILogoutRepo
+{
   private dataSource: IAuthDataSouce;
-  private storage: IAuthStorage;
 
-  constructor(dataSource?: IAuthDataSouce, storage?: IAuthStorage) {
-    if (dataSource) this.dataSource = dataSource;
-
-    if (storage) this.storage = storage;
+  constructor(dataSource: IAuthDataSouce) {
+    this.dataSource = dataSource;
   }
 
-  async login(phone: string, password: string) {
+  async login(credentialModel: CredentialModel) {
+    const { phone, password } = normalizeCredentialData(credentialModel);
+
     const auth = await this.dataSource.login(phone, password);
 
-    this.dataSource.setAccessToken(auth.accessToken);
-    this.storage.setAuth(auth);
-
     const authModel = modelAuthData(auth);
 
     return authModel;
   }
 
-  async register(
-    phone: string,
-    fullName: string,
-    password: string
-  ): Promise<AuthModel> {
+  async register(credentialModel: CredentialModel): Promise<AuthModel> {
+    const {
+      phone,
+      password,
+      fullName = "",
+    } = normalizeCredentialData(credentialModel);
+
     const auth = await this.dataSource.register(phone, fullName, password);
 
-    this.dataSource.setAccessToken(auth.accessToken);
-    this.storage.setAuth(auth);
-
     const authModel = modelAuthData(auth);
 
     return authModel;
   }
 
-  getAuth(): AuthModel | null {
-    const auth = this.storage.getAuth();
+  async loadAuth(): Promise<AuthModel | null> {
+    const auth = await this.dataSource.loadAuth();
 
     if (!auth) return null;
 
@@ -50,7 +55,7 @@ export default class AuthRepository implements IAuthRepository {
     return authModel;
   }
 
-  clearAuth(): void {
-    this.storage.clearAuth();
+  logout(): Promise<boolean> {
+    return this.dataSource.logout();
   }
 }

@@ -9,7 +9,7 @@ import IndexedDB from "../../storage/indexedDB";
 
 //Use case
 import ConnectDBConversationUseCase from "../../useCases/Conversation/connectDBUseCase";
-import GetConversationUseCase from "../../useCases/Conversation/getConversationUseCase";
+import GetAllConversationUseCase from "../../useCases/Conversation/getAllConversationUseCase";
 
 //Presenter
 import { IConversationPresenter } from "./../../presenter/Conversation/IConversationPresenter";
@@ -33,7 +33,7 @@ export default class ConversationController {
   }
 
   getConversations() {
-    const getConversationUseCase = new GetConversationUseCase(
+    const getConversationUseCase = new GetAllConversationUseCase(
       new ConversationRepository(
         new ConversationIndexedDataSource(IndexedDB.getInstance())
       ),

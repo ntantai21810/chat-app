@@ -1,19 +1,19 @@
-import { normalizeMessageData } from "../../domains/Message/helper";
+import { getDispatch } from "../../adapter/frameworkAdapter";
 import { IMessage, MessageModel } from "../../domains/Message";
+import { normalizeMessageData } from "../../domains/Message/helper";
 import {
   addMessage,
   setMessageDBLoaded,
   setMessageError,
   setMessageLoading,
 } from "../../framework/redux/message";
-import { store } from "../../framework/redux/store";
 import { IMessagePresenter } from "./IMessagePresenter";
 
 export default class MessagePresenter implements IMessagePresenter {
   private dispatch;
 
   constructor() {
-    this.dispatch = store.dispatch;
+    this.dispatch = getDispatch();
   }
 
   setMessages(otherUserId: string, messageModels: MessageModel[]): void {
@@ -43,5 +43,16 @@ export default class MessagePresenter implements IMessagePresenter {
 
   setDBLoaded(isLoaded: boolean): void {
     this.dispatch(setMessageDBLoaded(isLoaded));
+  }
+
+  addMessage(otherUserId: string, messageModel: MessageModel): void {
+    const message = normalizeMessageData(messageModel);
+
+    this.dispatch(
+      addMessage({
+        userId: otherUserId,
+        message: message,
+      })
+    );
   }
 }

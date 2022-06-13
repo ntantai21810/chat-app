@@ -6,4 +6,5 @@ export interface IAuthPresenter {
   setIsLoggingIn(isLoggingIn: boolean): void;
   setIsLoadingAuth(isLoading: boolean): void;
   setIsLoggingOut(isLoggingOut: boolean): void;
+  logout(): void;
 }

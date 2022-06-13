@@ -1,20 +1,21 @@
-import { normalizeAuthData } from "../../domains/Auth/helper";
+import { getDispatch } from "../../adapter/frameworkAdapter";
 import { AuthModel } from "../../domains/Auth";
+import { normalizeAuthData } from "../../domains/Auth/helper";
 import {
+  resetAuth,
   setAuth,
   setAuthError,
   setAuthIsLoading,
   setAuthIsLoggingIn,
   setAuthIsLoggingOut,
 } from "../../framework/redux/auth";
-import { store } from "../../framework/redux/store";
 import { IAuthPresenter } from "./IAuthPresenter";
 
 export default class AuthPresenter implements IAuthPresenter {
   private dispatch;
 
   constructor() {
-    this.dispatch = store.dispatch;
+    this.dispatch = getDispatch();
   }
 
   setAuth(authModel: AuthModel): void {
@@ -37,5 +38,9 @@ export default class AuthPresenter implements IAuthPresenter {
 
   setIsLoggingOut(isLoggingOut: boolean): void {
     this.dispatch(setAuthIsLoggingOut(isLoggingOut));
+  }
+
+  logout() {
+    this.dispatch(resetAuth());
   }
 }

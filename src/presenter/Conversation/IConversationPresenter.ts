@@ -5,4 +5,6 @@ export interface IConversationPresenter {
   setLoading(isLoading: boolean): void;
   setError(error: string): void;
   setDBLoaded(isLoaded: boolean): void;
+  addConversation(conversationModel: ConversationModel): void;
+  updateConversation(conversationModel: ConversationModel): void;
 }

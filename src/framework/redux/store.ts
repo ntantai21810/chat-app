@@ -4,12 +4,14 @@ import authReducer from "./auth";
 import conversationReducer from "./conversation";
 import messageReducer from "./message";
 import onlineUserReducer from "./onlineUser";
+import socketReducer from "./socket";
 
 const rootReducer = combineReducers({
   auth: authReducer,
   onlineUser: onlineUserReducer,
   message: messageReducer,
   conversation: conversationReducer,
+  socket: socketReducer,
 });
 
 const store = configureStore({

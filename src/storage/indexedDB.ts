@@ -18,7 +18,9 @@ export default class IndexedDB
         "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
       );
 
-      throw "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.";
+      throw new Error(
+        "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
+      );
     }
 
     this.name = name;
@@ -81,7 +83,6 @@ export default class IndexedDB
 
   public getConversations(): Promise<IConversation[]> {
     return new Promise((resolve, reject) => {
-      console.log("DB: ", this.db);
       if (this.db) {
         const request = this.db
           .transaction("conversation")
@@ -96,6 +97,25 @@ export default class IndexedDB
           reject(event);
         };
       } else resolve([]);
+    });
+  }
+
+  public getConversation(userId: string): Promise<IConversation | null> {
+    return new Promise((resolve, reject) => {
+      if (this.db) {
+        const request = this.db
+          .transaction("conversation")
+          .objectStore("conversation")
+          .get(userId);
+
+        request.onsuccess = (event) => {
+          resolve((event.target as IDBRequest).result);
+        };
+
+        request.onerror = (event) => {
+          reject(event);
+        };
+      } else resolve(null);
     });
   }
 
@@ -140,5 +160,26 @@ export default class IndexedDB
         resolve([]);
       }
     });
+  }
+
+  addMessage(message: IMessage): void {
+    this.db
+      .transaction("message", "readwrite")
+      .objectStore("message")
+      .add(message);
+  }
+
+  addConversation(conversation: IConversation): void {
+    this.db
+      .transaction("conversation", "readwrite")
+      .objectStore("conversation")
+      .add(conversation);
+  }
+
+  updateConversation(conversation: IConversation): void {
+    this.db
+      .transaction("conversation", "readwrite")
+      .objectStore("conversation")
+      .put(conversation);
   }
 }

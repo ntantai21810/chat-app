@@ -16,4 +16,10 @@ export default class MessageIndexedDBDataSource implements IMessageDataSouce {
   getMessages(myId: string, otherId: string): Promise<IMessage[]> {
     return this.storage.getMessages(myId, otherId);
   }
+
+  addMessage(message: IMessage): void {
+    this.storage.addMessage(message);
+  }
+
+  listenMessage(channel: string, callback: (message: IMessage) => void): void {}
 }

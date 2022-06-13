@@ -1,13 +1,13 @@
 import * as React from "react";
-import { useAuth } from "../../../../adapter/authAdapter";
-import { useNav } from "../../../../adapter/frameworkAdapter";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../../adapter/redux";
 
 export interface IAuthProviderProps {
   children: React.ReactNode;
 }
 
 export default function AuthProvider({ children }: IAuthProviderProps) {
-  const navigate = useNav();
+  const navigate = useNavigate();
 
   const accessToken = useAuth().auth.accessToken;
 

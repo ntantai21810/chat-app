@@ -1,10 +1,5 @@
-import { useNavigate } from "react-router-dom";
 import { store } from "../framework/redux/store";
 
-export function useNav() {
-  return useNavigate();
-}
-
-export function useDispatch() {
+export function getDispatch() {
   return store.dispatch;
 }

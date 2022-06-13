@@ -1,20 +1,22 @@
-import { IConversation } from "./../../domains/Conversation/IConversation";
+import { getDispatch } from "../../adapter/frameworkAdapter";
 import { ConversationModel } from "../../domains/Conversation";
-import { store } from "../../framework/redux/store";
-import { IConversationPresenter } from "./IConversationPresenter";
 import { normalizeConversationData } from "../../domains/Conversation/helper";
 import {
+  addConversation,
   setConversationDBLoaded,
   setConversationError,
   setConversationLoading,
   setConversations,
+  updateConversation,
 } from "../../framework/redux/conversation";
+import { IConversation } from "./../../domains/Conversation/IConversation";
+import { IConversationPresenter } from "./IConversationPresenter";
 
 export default class ConversationPresenter implements IConversationPresenter {
   private dispatch;
 
   constructor() {
-    this.dispatch = store.dispatch;
+    this.dispatch = getDispatch();
   }
 
   setConversations(conversationModels: ConversationModel[]): void {
@@ -39,5 +41,17 @@ export default class ConversationPresenter implements IConversationPresenter {
 
   setDBLoaded(isLoaded: boolean): void {
     this.dispatch(setConversationDBLoaded(isLoaded));
+  }
+
+  addConversation(conversationModel: ConversationModel) {
+    const conversation = normalizeConversationData(conversationModel);
+
+    this.dispatch(addConversation(conversation));
+  }
+
+  updateConversation(conversationModel: ConversationModel): void {
+    const conversation = normalizeConversationData(conversationModel);
+
+    this.dispatch(updateConversation(conversation));
   }
 }

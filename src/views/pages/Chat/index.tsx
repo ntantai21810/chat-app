@@ -1,11 +1,22 @@
 import * as React from "react";
 import { AiOutlineSend } from "react-icons/ai";
-import { useAuth } from "../../../adapter/authAdapter";
-import { useConversation } from "../../../adapter/conversationAdapter";
-import { useMessage } from "../../../adapter/messageAdapter";
-import { conversationController, messageController } from "../../../bootstrap";
+import {
+  useAuth,
+  useConversation,
+  useMessage,
+  useOnlineUser,
+} from "../../../adapter/redux";
+import { useSocket } from "../../../adapter/socketAdapter";
+import {
+  conversationController,
+  messageController,
+  socketController,
+  userController,
+} from "../../../bootstrap";
 import { IConversation } from "../../../domains/Conversation";
+import { MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
+import { Moment } from "../../../helper/configs/moment";
 import ChattedUserList from "../../components/ChattedUserList";
 import Input from "../../components/common/Input";
 import ConversationAction from "../../components/ConversationAction";
@@ -19,91 +30,30 @@ export interface IChatPageProps {}
 export default function ChatPage(props: IChatPageProps) {
   const conversations = useConversation();
   const auth = useAuth();
+  const socket = useSocket();
   const messages = useMessage();
-  // const [message, setMessage] = useState("");
+  const onlineUsers = useOnlineUser();
+  const [message, setMessage] = React.useState("");
   const [activeConversation, setActiveConversation] =
     React.useState<Pick<IConversation, "user" | "lastOnlineTime">>();
 
-  // const auth = useAuth();
-  // const onlineUser = useAppSelector(selectAllOnlineUsers);
-  // const allMessages = useAppSelector((state) => state.message);
-  // const conversations = useAppSelector((state) => state.conversation);
+  //Handler
+  const handleChangeMessage = (e: React.ChangeEvent<any>) => {
+    setMessage(e.target.value);
+  };
 
-  // const dispatch = useAppDispatch();
+  const handleSubmitMessage = () => {
+    if (activeConversation)
+      messageController.sendMessage({
+        fromId: auth.auth.user._id,
+        toId: activeConversation.user._id,
+        type: MessageType.TEXT,
+        content: message,
+        sendTime: Moment().toISOString(),
+      });
 
-  // //Socket
-  // const { socket, setSocket } = React.useContext(SocketContext);
-
-  // //DB
-  // const db = React.useContext(DBContext);
-
-  // //Handler
-  // const handleChangeMessage = (e: React.ChangeEvent<any>) => {
-  //   setMessage(e.target.value);
-  // };
-
-  // const handleSubmitMessage = () => {
-  //   if (activeConversation) {
-  //     const data: IMessage = {
-  //       fromId: auth._id,
-  //       toId: activeConversation.user._id,
-  //       type: MessageType.TEXT,
-  //       content: message,
-  //       sendTime: Moment().toISOString(),
-  //     };
-
-  //     dispatch(addMessageBySend(data));
-
-  //     if (db) {
-  //       db.transaction("message", "readwrite").objectStore("message").add(data);
-  //     }
-
-  //     if (socket) {
-  //       socket.emit(SOCKET_CONSTANTS.CHAT_MESSAGE, data);
-  //     }
-
-  //     //Update lastMessage
-  //     if (conversations[data.toId]) {
-  //       const updatedConversation = {
-  //         ...conversations[data.toId],
-  //         lastMessage: data,
-  //       };
-
-  //       dispatch(updateConversation(updatedConversation));
-
-  //       if (db) {
-  //         db.transaction("conversation", "readwrite")
-  //           .objectStore("conversation")
-  //           .put(updatedConversation);
-  //       }
-  //     }
-  //     //Create conversation
-  //     else {
-  //       const updatedConversation = {
-  //         user: activeConversation.user,
-  //         lastMessage: data,
-  //         lastOnlineTime: Moment().toISOString(),
-  //       };
-
-  //       dispatch(addConversation(updatedConversation));
-
-  //       if (db) {
-  //         db.transaction("conversation", "readwrite")
-  //           .objectStore("conversation")
-  //           .add(updatedConversation);
-  //       }
-  //     }
-  //   }
-
-  //   setMessage("");
-  // };
-
-  // const handleOnlineUserClick = (user: IUser) => {
-  //   setActiveConversation({
-  //     user: user,
-  //     lastOnlineTime: Moment().toISOString(),
-  //   });
-  // };
+    setMessage("");
+  };
 
   const handleClickOnUser = (user: IUser) => {
     setActiveConversation({
@@ -189,14 +139,31 @@ export default function ChatPage(props: IChatPageProps) {
   //   }
   // }, [auth.auth.user._id, setSocket, socket, dispatch, db, conversations]);
 
+  //Connect socket
+  React.useEffect(() => {
+    if (auth.auth.accessToken) {
+      socketController.connect(auth.auth.user._id, auth.auth.accessToken);
+    }
+  }, [auth.auth.accessToken, auth.auth.user._id]);
+
+  //Listen socket
+  React.useEffect(() => {
+    if (socket.isConnected) {
+      userController.listenUserOnline();
+      userController.litenUserOffline();
+
+      messageController.listenMessage();
+    }
+  }, [socket.isConnected]);
+
   //Get conversation from DB
   React.useEffect(() => {
-    console.log(conversations.isDbLoaded);
     if (conversations.isDbLoaded) {
       conversationController.getConversations();
     }
   }, [conversations.isDbLoaded]);
 
+  //Change conversation
   React.useEffect(() => {
     if (activeConversation && messages.isDbLoaded) {
       messageController.getMessages(
@@ -204,64 +171,16 @@ export default function ChatPage(props: IChatPageProps) {
         activeConversation.user._id
       );
     }
-  }, [activeConversation, messages.isDbLoaded]);
-
-  console.log({ conversations });
-
-  // // //Handle change conversation
-  // React.useEffect(() => {
-  //   if (
-  //     db &&
-  //     activeConversation &&
-  //     !allMessages[activeConversation.user._id || ""]
-  //   ) {
-  //     const request = db
-  //       .transaction("message")
-  //       .objectStore("message")
-  //       .index("messageId")
-  //       .getAll(IDBKeyRange.only([auth._id, activeConversation.user._id]));
-
-  //     request.onsuccess = (event) => {
-  //       const data: IMessage[] = (event.target as IDBRequest).result;
-
-  //       dispatch(
-  //         addManyMessage({
-  //           toUserId: activeConversation.user._id,
-  //           messages: data,
-  //         })
-  //       );
-  //     };
-
-  //     const requestRevert = db
-  //       .transaction("message")
-  //       .objectStore("message")
-  //       .index("messageId")
-  //       .getAll(IDBKeyRange.only([activeConversation.user._id, auth._id]));
-
-  //     requestRevert.onsuccess = (event) => {
-  //       const data: IMessage[] = (event.target as IDBRequest).result;
-
-  //       dispatch(
-  //         addManyMessage({
-  //           toUserId: activeConversation.user._id,
-  //           messages: data,
-  //         })
-  //       );
-  //     };
-  //   }
-  // }, [db, activeConversation, allMessages, auth.auth.user._id, dispatch]);
+  }, [activeConversation, messages.isDbLoaded, auth.auth.user._id]);
 
   return (
     <div className={styles.container}>
       <div className={styles.userListSection}>
-        {/* {onlineUser.length > 0 && (
+        {onlineUsers.length > 0 && (
           <div className={styles.onlineUsers}>
-            <OnlineUser
-              users={onlineUser}
-              onUserClick={handleOnlineUserClick}
-            />
+            <OnlineUser users={onlineUsers} onUserClick={handleClickOnUser} />
           </div>
-        )} */}
+        )}
         <div className={styles.chattedUserList}>
           <ChattedUserList
             conversations={Object.values(conversations.conversations)}
@@ -270,7 +189,7 @@ export default function ChatPage(props: IChatPageProps) {
         </div>
       </div>
 
-      {/* <div className={styles.conversationSection}>
+      <div className={styles.conversationSection}>
         <div className={styles.conversationTitle}>
           <ConversationTitle
             user={activeConversation?.user}
@@ -280,7 +199,9 @@ export default function ChatPage(props: IChatPageProps) {
 
         <div className={styles.conversationContent}>
           <ConversationContent
-            messages={allMessages[activeConversation?.user._id || ""] || []}
+            messages={
+              messages.message[activeConversation?.user._id || ""] || []
+            }
             fromUser={{
               _id: auth.auth.user._id,
               avatar: auth.auth.user.avatar,
@@ -307,7 +228,7 @@ export default function ChatPage(props: IChatPageProps) {
             </div>
           </>
         )}
-      </div> */}
+      </div>
     </div>
   );
 }

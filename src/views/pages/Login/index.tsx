@@ -1,9 +1,7 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../../adapter/authAdapter";
-import { useDispatch, useNav } from "../../../adapter/frameworkAdapter";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../../adapter/redux";
 import { authController } from "../../../bootstrap";
-import { setAuthError } from "../../../framework/redux/auth";
 import Logo from "../../assets/images/Logo.png";
 import Divider from "../../components/common/Divider";
 import LoginForm from "../../components/LoginForm";
@@ -19,7 +17,7 @@ export interface ILoginFormData {
 export default function LoginPage(props: ILoginPageProps) {
   //Adapter
   const auth = useAuth();
-  const navigate = useNav();
+  const navigate = useNavigate();
 
   const handleLogin = (data: ILoginFormData) => {
     authController.login(data.phone, data.password);

@@ -2,12 +2,21 @@ import { IConversationDataSouce } from "../../dataSource";
 import {
   ConversationModel,
   modelConversationData,
+  normalizeConversationData,
 } from "../../domains/Conversation";
-import { IGetConversationRepo } from "../../useCases";
+import { IGetAllConversationRepo } from "../../useCases";
+import { IAddConversationRepo } from "../../useCases/Conversation/addConversationUseCase";
 import { IConnectDBConversationRepo } from "../../useCases/Conversation/connectDBUseCase";
+import { IGetConversationRepo } from "../../useCases/Conversation/getConversationUseCase";
+import { IUpdateConversationRepo } from "../../useCases/Conversation/updateConversationUseCase";
 
 export default class ConversationRepository
-  implements IConnectDBConversationRepo, IGetConversationRepo
+  implements
+    IConnectDBConversationRepo,
+    IGetAllConversationRepo,
+    IGetConversationRepo,
+    IAddConversationRepo,
+    IUpdateConversationRepo
 {
   private dataSource: IConversationDataSouce;
 
@@ -19,7 +28,7 @@ export default class ConversationRepository
     return this.dataSource.connect();
   }
 
-  async getConversations(): Promise<ConversationModel[]> {
+  async getAllConversations(): Promise<ConversationModel[]> {
     const conversationModels: ConversationModel[] = [];
 
     const res = await this.dataSource.getConversations();
@@ -30,5 +39,27 @@ export default class ConversationRepository
     }
 
     return conversationModels;
+  }
+
+  async getConversation(userId: string): Promise<ConversationModel | null> {
+    const res = await this.dataSource.getConversation(userId);
+
+    if (res) {
+      const conversationModel = modelConversationData(res);
+
+      return conversationModel;
+    } else return null;
+  }
+
+  addConversation(conversationModel: ConversationModel): void {
+    const conversation = normalizeConversationData(conversationModel);
+
+    this.dataSource.addConversation(conversation);
+  }
+
+  updateConversation(conversationModel: ConversationModel): void {
+    const conversation = normalizeConversationData(conversationModel);
+
+    this.dataSource.updateConversation(conversation);
   }
 }

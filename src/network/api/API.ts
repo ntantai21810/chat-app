@@ -6,7 +6,6 @@ export default class API implements IAPI {
   private static instance: API;
 
   private axios: AxiosInstance;
-  private accessToken: string;
 
   private constructor(baseURL: string) {
     this.axios = axios.create({ baseURL: baseURL, withCredentials: true });
@@ -30,12 +29,10 @@ export default class API implements IAPI {
   }
 
   public setAccessToken(accessToken: string) {
-    this.accessToken = accessToken;
-
     this.axios.interceptors.request.use(
       (config) => {
-        if (config.headers && this.accessToken) {
-          config.headers.Authorization = `Bearer ${this.accessToken}`;
+        if (config.headers && accessToken) {
+          config.headers.Authorization = `Bearer ${accessToken}`;
         }
 
         return config;

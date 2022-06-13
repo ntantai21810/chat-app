@@ -1,2 +1,2 @@
 export * from "./connectDBUseCase";
-export * from "./getConversationUseCase";
+export * from "./getAllConversationUseCase";

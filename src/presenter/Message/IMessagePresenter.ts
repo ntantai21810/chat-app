@@ -5,4 +5,5 @@ export interface IMessagePresenter {
   setLoading(isLoading: boolean): void;
   setError(error: string): void;
   setDBLoaded(isLoaded: boolean): void;
+  addMessage(otherUserId: string, message: MessageModel): void;
 }

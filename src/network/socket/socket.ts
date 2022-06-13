@@ -6,7 +6,6 @@ export default class Socket implements ISocket {
   private static instance: Socket;
 
   private socket: SocketIO;
-  private accessToken: string;
   private url: string;
 
   private constructor(url: string) {
@@ -21,17 +20,19 @@ export default class Socket implements ISocket {
     return this.instance;
   }
 
-  connect(userId: string): void {
-    this.socket = io(this.url);
+  connect(userId: string, accessToken: string): void {
+    if (!this.socket) {
+      this.socket = io(this.url);
 
-    this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
-  }
-
-  public setAccessToken(accessToken: string) {
-    this.accessToken = accessToken;
+      this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+    }
   }
 
   public listen(channel: string, callback: (data: any) => any): void {
     this.socket.on(channel, callback);
+  }
+
+  send(channel: string, data: any): void {
+    this.socket.emit(channel, data);
   }
 }

@@ -18,6 +18,7 @@ export default class LogoutCase {
 
     try {
       await this.repository.logout();
+      this.presenter.logout();
     } catch (e) {}
 
     this.presenter.setIsLoggingOut(false);

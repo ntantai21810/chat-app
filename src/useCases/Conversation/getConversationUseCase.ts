@@ -2,7 +2,7 @@ import { ConversationModel } from "../../domains/Conversation";
 import { IConversationPresenter } from "../../presenter";
 
 export interface IGetConversationRepo {
-  getConversations(): Promise<ConversationModel[]>;
+  getConversation(userId: string): Promise<ConversationModel | null>;
 }
 
 export default class GetConversationUseCase {
@@ -11,24 +11,16 @@ export default class GetConversationUseCase {
 
   constructor(
     repository: IGetConversationRepo,
-    presenter: IConversationPresenter
+    presenter?: IConversationPresenter
   ) {
     this.repository = repository;
 
-    this.presenter = presenter;
+    if (presenter) this.presenter = presenter;
   }
 
-  async execute() {
-    this.presenter.setLoading(true);
+  async execute(userId: string) {
+    const res = await this.repository.getConversation(userId);
 
-    try {
-      const res = await this.repository.getConversations();
-
-      this.presenter.setConversations(res);
-    } catch (e) {
-      console.log(e);
-    }
-
-    this.presenter.setLoading(false);
+    return res;
   }
 }

@@ -43,6 +43,17 @@ const conversationSlice = createSlice({
       state.isDbLoaded = action.payload;
     },
 
+    addConversation(state, action: PayloadAction<IConversation>) {
+      state.conversations = {
+        ...state.conversations,
+        [action.payload.user._id]: action.payload,
+      };
+    },
+
+    updateConversation(state, action: PayloadAction<IConversation>) {
+      state.conversations[action.payload.user._id] = action.payload;
+    },
+
     reset() {
       return initialState;
     },
@@ -57,6 +68,8 @@ export const {
   setError: setConversationError,
   setLoading: setConversationLoading,
   setisDBLoaded: setConversationDBLoaded,
+  addConversation,
+  updateConversation,
 } = conversationSlice.actions;
 
 export default conversationReducer;

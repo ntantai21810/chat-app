@@ -1,10 +1,10 @@
 import * as React from "react";
-import { useNav } from "../../../adapter/frameworkAdapter";
+import { useNavigate } from "react-router-dom";
 
 export interface IMainPageProps {}
 
 export default function MainPage(props: IMainPageProps) {
-  const navigate = useNav();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     navigate("/login");

@@ -1,7 +1,6 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../../adapter/authAdapter";
-import { useNav } from "../../../adapter/frameworkAdapter";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../../adapter/redux";
 import { authController } from "../../../bootstrap";
 import Logo from "../../assets/images/Logo.png";
 import Divider from "../../components/common/Divider";
@@ -13,7 +12,7 @@ export interface IRegisterPageProps {}
 export default function RegisterPage(props: IRegisterPageProps) {
   //Adapter
   const auth = useAuth();
-  const navigate = useNav();
+  const navigate = useNavigate();
 
   const handleRegister = (data: IRegisterFormData) => {
     authController.register(data.phone, data.fullName, data.password);

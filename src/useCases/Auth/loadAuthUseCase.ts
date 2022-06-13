@@ -1,5 +1,4 @@
 import { AuthModel } from "../../domains/Auth";
-import { CredentialModel } from "../../domains/Credential";
 import { IAuthPresenter } from "../../presenter/Auth/IAuthPresenter";
 
 export interface ILoadAuthRepo {
@@ -17,7 +16,6 @@ export default class LoadAuthCase {
 
   async execute() {
     this.presenter.setIsLoadingAuth(true);
-    this.presenter.setError("");
 
     try {
       const authModel = await this.repository.loadAuth();
@@ -27,9 +25,7 @@ export default class LoadAuthCase {
       } else {
         //Delete cookie if have -> clearAuth
       }
-    } catch (error) {
-      this.presenter.setError(error);
-    }
+    } catch (error) {}
 
     this.presenter.setIsLoadingAuth(false);
   }

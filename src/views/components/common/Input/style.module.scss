@@ -26,6 +26,10 @@
         transition: all linear 0.25s;
         border: none;
 
+        &.error {
+          background-color: #fff7f7;
+        }
+
         &.border {
           border-radius: 5px;
           border: 1px solid #000;
@@ -67,6 +71,13 @@
       font-size: 1.6rem;
 
       transition: all linear 0.25s;
+
+      display: flex;
+      align-items: center;
+
+      .icon {
+        margin-right: 0.8rem;
+      }
 
       &.error {
         color: $error;

@@ -1,7 +1,7 @@
 import { IAuthPresenter } from "../../presenter/Auth/IAuthPresenter";
 
 export interface ILogoutRepo {
-  logout(): Promise<boolean>;
+  logout(): void;
 }
 
 export default class LogoutCase {
@@ -13,11 +13,11 @@ export default class LogoutCase {
     this.presenter = presenter;
   }
 
-  async execute() {
+  execute() {
     this.presenter.setIsLoggingOut(true);
 
     try {
-      await this.repository.logout();
+      this.repository.logout();
       this.presenter.logout();
     } catch (e) {}
 

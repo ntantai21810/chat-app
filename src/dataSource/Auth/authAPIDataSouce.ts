@@ -33,11 +33,15 @@ export default class AuthAPIDataSource implements IAuthDataSouce {
     return res;
   }
 
-  loadAuth(): Promise<IAuth | null> {
-    return this.api.get("/get-auth");
+  loadAuth(): IAuth | null {
+    return null;
   }
 
-  logout(): Promise<boolean> {
-    return this.api.get("/logout");
+  logout(): void {
+    return;
+  }
+
+  setAuth(auth: IAuth): void {
+    this.api.setAccessToken(auth.accessToken);
   }
 }

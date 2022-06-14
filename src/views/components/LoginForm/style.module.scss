@@ -9,6 +9,13 @@
   .errorMessage {
     color: $error;
     margin-bottom: 1.2rem;
+
+    display: flex;
+    align-items: center;
+
+    .icon {
+      margin-right: 0.8rem;
+    }
   }
 
   .forgotPassword {

@@ -1,8 +1,12 @@
+import { AuthAPIDataSource } from "../../dataSource";
 import { AuthModel } from "../../domains/Auth";
+import { API } from "../../network";
 import { IAuthPresenter } from "../../presenter/Auth/IAuthPresenter";
+import AuthRepository from "../../repository/Auth/authRepository";
+import SetAuthUseCase from "./setAuthUseCase";
 
 export interface ILoadAuthRepo {
-  loadAuth(): Promise<AuthModel | null>;
+  loadAuth(): AuthModel | null;
 }
 
 export default class LoadAuthCase {
@@ -14,16 +18,18 @@ export default class LoadAuthCase {
     this.presenter = presenter;
   }
 
-  async execute() {
-    this.presenter.setIsLoadingAuth(true);
-
+  execute() {
     try {
-      const authModel = await this.repository.loadAuth();
+      const authModel = this.repository.loadAuth();
 
       if (authModel) {
+        const setAuthUseCase = new SetAuthUseCase(
+          new AuthRepository(new AuthAPIDataSource(API.getIntance()))
+        );
+
+        setAuthUseCase.execute(authModel);
+
         this.presenter.setAuth(authModel);
-      } else {
-        //Delete cookie if have -> clearAuth
       }
     } catch (error) {}
 

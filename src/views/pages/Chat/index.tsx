@@ -18,6 +18,7 @@ import { MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
 import { Moment } from "../../../helper/configs/moment";
 import ChattedUserList from "../../components/ChattedUserList";
+import Banner from "../../components/common/Banner";
 import Input from "../../components/common/Input";
 import ConversationAction from "../../components/ConversationAction";
 import ConversationContent from "../../components/ConversationContent";
@@ -43,7 +44,7 @@ export default function ChatPage(props: IChatPageProps) {
   };
 
   const handleSubmitMessage = () => {
-    if (activeConversation)
+    if (activeConversation && message)
       messageController.sendMessage({
         fromId: auth.auth.user._id,
         toId: activeConversation.user._id,
@@ -189,46 +190,52 @@ export default function ChatPage(props: IChatPageProps) {
         </div>
       </div>
 
-      <div className={styles.conversationSection}>
-        <div className={styles.conversationTitle}>
-          <ConversationTitle
-            user={activeConversation?.user}
-            lastOnlineTime={activeConversation?.lastOnlineTime}
-          />
+      {activeConversation ? (
+        <div className={styles.conversationSection}>
+          <div className={styles.conversationTitle}>
+            <ConversationTitle
+              user={activeConversation?.user}
+              lastOnlineTime={activeConversation?.lastOnlineTime}
+            />
+          </div>
+
+          <div className={styles.conversationContent}>
+            <ConversationContent
+              messages={
+                messages.message[activeConversation?.user._id || ""] || []
+              }
+              fromUser={{
+                _id: auth.auth.user._id,
+                avatar: auth.auth.user.avatar,
+              }}
+              toUserAvatar={activeConversation?.user.avatar || ""}
+            />
+          </div>
+
+          {activeConversation && (
+            <>
+              <div className={styles.conversationAction}>
+                <ConversationAction />
+              </div>
+
+              <div className={styles.conversationInput}>
+                <Input
+                  border={false}
+                  endIcon={<AiOutlineSend />}
+                  placeholder="Nhập tin nhắn ..."
+                  value={message}
+                  onSubmit={handleSubmitMessage}
+                  onChange={handleChangeMessage}
+                />
+              </div>
+            </>
+          )}
         </div>
-
-        <div className={styles.conversationContent}>
-          <ConversationContent
-            messages={
-              messages.message[activeConversation?.user._id || ""] || []
-            }
-            fromUser={{
-              _id: auth.auth.user._id,
-              avatar: auth.auth.user.avatar,
-            }}
-            toUserAvatar={activeConversation?.user.avatar || ""}
-          />
+      ) : (
+        <div className={styles.banner}>
+          <Banner />
         </div>
-
-        {activeConversation && (
-          <>
-            <div className={styles.conversationAction}>
-              <ConversationAction />
-            </div>
-
-            <div className={styles.conversationInput}>
-              <Input
-                border={false}
-                icon={<AiOutlineSend />}
-                placeholder="Nhập tin nhắn ..."
-                value={message}
-                onSubmit={handleSubmitMessage}
-                onChange={handleChangeMessage}
-              />
-            </div>
-          </>
-        )}
-      </div>
+      )}
     </div>
   );
 }

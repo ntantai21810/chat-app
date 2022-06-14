@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import * as React from "react";
 import styles from "./style.module.scss";
+import { BiError } from "react-icons/bi";
 
 export interface IInputProps {
   type?: "text" | "number" | "password";
@@ -10,7 +11,7 @@ export interface IInputProps {
   helperText?: string;
   border?: boolean;
   name?: string;
-  icon?: React.ReactNode;
+  endIcon?: React.ReactNode;
   onChange?: React.ChangeEventHandler<any>;
   onBlur?: React.FocusEventHandler<any>;
   onSubmit?: () => any;
@@ -26,7 +27,7 @@ function Input(props: IInputProps, ref: any) {
     helperText = "",
     border = true,
     name,
-    icon,
+    endIcon,
     value,
     onChange,
     onBlur,
@@ -51,21 +52,21 @@ function Input(props: IInputProps, ref: any) {
             onChange={onChange}
             onBlur={onBlur}
             name={name}
-            style={{ paddingRight: !!icon ? "5rem" : "" }}
+            style={{ paddingRight: !!endIcon ? "5rem" : "" }}
             value={value}
             onKeyDown={(e) => {
               if (e.code === "Enter" && onSubmit) onSubmit();
             }}
           />
 
-          {icon && (
+          {endIcon && (
             <div
               className={styles.icon}
               onClick={() => {
                 if (onSubmit) onSubmit();
               }}
             >
-              {icon}
+              {endIcon}
             </div>
           )}
         </div>
@@ -77,6 +78,11 @@ function Input(props: IInputProps, ref: any) {
               [styles.error]: error,
             })}
           >
+            {error && (
+              <div className={styles.icon}>
+                <BiError />
+              </div>
+            )}
             {helperText}
           </span>
         )}

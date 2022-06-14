@@ -1,5 +1,6 @@
 //Data source
 import { AuthAPIDataSource } from "../../dataSource";
+import AuthStorageDataSource from "../../dataSource/Auth/authStorageDataSouce";
 
 //Domain
 import { modelCredentialData } from "../../domains/Credential";
@@ -9,11 +10,13 @@ import { API } from "../../network/api";
 
 //Repo
 import AuthRepository from "../../repository/Auth/authRepository";
+import LocalStorage from "../../storage/localStorage";
 
 //Use case
 import LoadAuthCase from "../../useCases/Auth/loadAuthUseCase";
 import LoginUseCase from "../../useCases/Auth/loginUseCase";
 import LogoutCase from "../../useCases/Auth/logoutUseCase";
+import RegisterUseCase from "../../useCases/Auth/registerUseCase";
 
 //Presenter
 import { IAuthPresenter } from "./../../presenter/Auth/IAuthPresenter";
@@ -39,17 +42,17 @@ export default class AuthController {
   register(phone: string, fullName: string, password: string) {
     const credentialModel = modelCredentialData({ phone, password, fullName });
 
-    const loginUseCase = new LoginUseCase(
+    const registerUseCase = new RegisterUseCase(
       new AuthRepository(new AuthAPIDataSource(API.getIntance())),
       this.presenter
     );
 
-    loginUseCase.execute(credentialModel);
+    registerUseCase.execute(credentialModel);
   }
 
   loadAuth() {
     const loadAuthUseCase = new LoadAuthCase(
-      new AuthRepository(new AuthAPIDataSource(API.getIntance())),
+      new AuthRepository(new AuthStorageDataSource(LocalStorage.getInstance())),
       this.presenter
     );
 

@@ -8,6 +8,10 @@
   font-weight: bold;
   color: #fff;
 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   border: none;
   border-radius: 5px;
   outline: none;
@@ -15,8 +19,23 @@
   cursor: pointer;
   transition: all linear 0.25s;
 
+  .icon {
+    margin-right: 1.4rem;
+  }
+
   &.fullWidth {
     width: 100%;
+  }
+
+  &.disabled {
+    user-select: none;
+    cursor: default;
+
+    background-color: rgba($color: $primary, $alpha: 0.45);
+
+    &:hover {
+      background-color: rgba($color: $primary, $alpha: 0.45);
+    }
   }
 
   &:hover {

@@ -1,0 +1,12 @@
+.icon {
+  animation: rotation 0.45s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

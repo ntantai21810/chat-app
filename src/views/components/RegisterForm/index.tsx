@@ -5,10 +5,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Input from "../common/Input";
 import Button from "../common/Button";
+import LoadingIcon from "../common/LoadingIcon";
+import { BiError } from "react-icons/bi";
 
 export interface IRegisterFormProps {
   onSubmit: (data: IRegisterFormData) => any;
   errorMessage?: string;
+  isLogging?: boolean;
 }
 
 export interface IRegisterFormData {
@@ -33,7 +36,7 @@ const schema = yup
   .required();
 
 export default function RegisterForm(props: IRegisterFormProps) {
-  const { onSubmit, errorMessage } = props;
+  const { onSubmit, errorMessage, isLogging } = props;
 
   const {
     register,
@@ -83,10 +86,23 @@ export default function RegisterForm(props: IRegisterFormProps) {
       />
 
       {errorMessage && (
-        <span className={styles.errorMessage}>{errorMessage}</span>
+        <span className={styles.errorMessage}>
+          {errorMessage && (
+            <div className={styles.icon}>
+              <BiError />
+            </div>
+          )}
+          {errorMessage}
+        </span>
       )}
 
-      <Button type="submit">Đăng ký</Button>
+      <Button
+        type="submit"
+        disabled={isLogging}
+        icon={isLogging ? <LoadingIcon /> : null}
+      >
+        Đăng ký
+      </Button>
     </form>
   );
 }

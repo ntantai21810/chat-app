@@ -1,6 +1,6 @@
 import { IAuthDataSouce } from "../../dataSource";
 import { AuthModel } from "../../domains/Auth";
-import { modelAuthData } from "../../domains/Auth/helper";
+import { modelAuthData, normalizeAuthData } from "../../domains/Auth/helper";
 import {
   CredentialModel,
   normalizeCredentialData,
@@ -10,10 +10,16 @@ import {
   ILoginRepo,
   ILogoutRepo,
   IRegisterRepo,
+  ISetAuthRepo,
 } from "../../useCases";
 
 export default class AuthRepository
-  implements ILoginRepo, IRegisterRepo, ILoadAuthRepo, ILogoutRepo
+  implements
+    ILoginRepo,
+    IRegisterRepo,
+    ILoadAuthRepo,
+    ILogoutRepo,
+    ISetAuthRepo
 {
   private dataSource: IAuthDataSouce;
 
@@ -45,8 +51,8 @@ export default class AuthRepository
     return authModel;
   }
 
-  async loadAuth(): Promise<AuthModel | null> {
-    const auth = await this.dataSource.loadAuth();
+  loadAuth(): AuthModel | null {
+    const auth = this.dataSource.loadAuth();
 
     if (!auth) return null;
 
@@ -55,7 +61,13 @@ export default class AuthRepository
     return authModel;
   }
 
-  logout(): Promise<boolean> {
-    return this.dataSource.logout();
+  setAuth(authModel: AuthModel): void {
+    const auth = normalizeAuthData(authModel);
+
+    this.dataSource.setAuth(auth);
+  }
+
+  logout(): void {
+    this.dataSource.logout();
   }
 }

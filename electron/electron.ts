@@ -29,17 +29,18 @@ const createWindow = () => {
   );
 
   //Show in dev mode to use devTools
-  if (!isDev) mainWindow.setMenu(null);
+  // if (!isDev) mainWindow.setMenu(null);
 
   // Open the DevTools.
-  if (isDev) mainWindow.webContents.openDevTools();
+  // if (isDev) mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  if (isDev)
+  if (true)
     installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
       .then((name: any) => console.log(`Added Extension:  ${name}`))
       .catch((err: any) => console.log("An error occurred: ", err));

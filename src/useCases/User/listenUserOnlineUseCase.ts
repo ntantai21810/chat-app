@@ -23,6 +23,7 @@ export default class ListenUserOnlineUseCase {
 
   async execute() {
     this.repository.listenUserOnline(SOCKET_CONSTANTS.USER_CONNECT, (users) => {
+      console.log("Online: ", { users });
       this.presenter.addUserOnline(users);
     });
 

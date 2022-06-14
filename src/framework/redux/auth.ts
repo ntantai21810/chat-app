@@ -21,7 +21,7 @@ const initialState: IAuthState = {
   },
   error: "",
   isLoggingIn: false,
-  isLoadingAuth: false,
+  isLoadingAuth: true,
   isLoggingOut: false,
 };
 

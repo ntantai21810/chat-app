@@ -21,7 +21,7 @@ export default class ConversationController {
     this.presenter = presenter;
   }
 
-  connectDB() {
+  connectDB(name: string, userId: string) {
     const connectDBConversationUseCase = new ConnectDBConversationUseCase(
       new ConversationRepository(
         new ConversationIndexedDataSource(IndexedDB.getInstance())
@@ -29,7 +29,7 @@ export default class ConversationController {
       this.presenter
     );
 
-    connectDBConversationUseCase.execute();
+    connectDBConversationUseCase.execute(name, userId);
   }
 
   getConversations() {

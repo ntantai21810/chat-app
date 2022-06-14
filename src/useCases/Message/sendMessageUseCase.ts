@@ -55,6 +55,7 @@ export default class SendMessageUseCase {
       );
 
       if (conversationModel) {
+        console.log(conversationModel);
         const updatedConversationModel = new ConversationModel(
           conversationModel.getUser(),
           messageModel,
@@ -77,6 +78,8 @@ export default class SendMessageUseCase {
 
         const userModel = await getUserUseCase.execute(messageModel.getToId());
 
+        console.log({ userModel });
+
         if (userModel) {
           const newConversationModel = new ConversationModel(
             userModel,
@@ -95,7 +98,7 @@ export default class SendMessageUseCase {
         }
       }
     } catch (e) {
-      console.log(e);
+      console.log({ e });
     }
   }
 }

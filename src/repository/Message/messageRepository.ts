@@ -27,8 +27,8 @@ export default class MessageRepository
     if (socket) this.socket = socket;
   }
 
-  connect(): Promise<any> {
-    return this.dataSource.connect();
+  connect(name: string, userId: string): Promise<any> {
+    return this.dataSource.connect(name, userId);
   }
 
   async getMessages(myId: string, otherId: string): Promise<MessageModel[]> {

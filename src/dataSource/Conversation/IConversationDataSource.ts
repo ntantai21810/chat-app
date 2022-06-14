@@ -1,7 +1,7 @@
 import { IConversation } from "../../domains/Conversation";
 
 export interface IConversationDataSouce {
-  connect(): Promise<any>;
+  connect(name: string, userId: string): Promise<any>;
   getConversations(): Promise<IConversation[]>;
   getConversation(userId: string): Promise<IConversation | null>;
   addConversation(conversation: IConversation): void;

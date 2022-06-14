@@ -11,8 +11,8 @@ export default class ConversationDBDataSource
     this.storage = storage;
   }
 
-  connect(): Promise<any> {
-    return this.storage.connect();
+  connect(name: string, userId: string): Promise<any> {
+    return this.storage.connect(name, userId);
   }
 
   getConversations(): Promise<IConversation[]> {

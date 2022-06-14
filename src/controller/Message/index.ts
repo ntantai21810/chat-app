@@ -27,7 +27,7 @@ export default class MessageController {
     this.presenter = presenter;
   }
 
-  connectDB() {
+  connectDB(name: string, userId: string) {
     const connectDBUseCase = new ConnectDBMessageUseCase(
       new MessageRepository(
         new MessageIndexedDBDataSource(IndexedDB.getInstance())
@@ -35,7 +35,7 @@ export default class MessageController {
       this.presenter
     );
 
-    connectDBUseCase.execute();
+    connectDBUseCase.execute(name, userId);
   }
 
   getMessages(myId: string, otherId: string) {

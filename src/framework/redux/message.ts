@@ -36,7 +36,11 @@ const messageSlice = createSlice({
           state.message[action.payload.userId] = [...action.payload.message];
         }
       } else {
-        state.message[action.payload.userId].push(action.payload.message);
+        if (state.message[action.payload.userId]) {
+          state.message[action.payload.userId].push(action.payload.message);
+        } else {
+          state.message[action.payload.userId] = [action.payload.message];
+        }
       }
     },
 

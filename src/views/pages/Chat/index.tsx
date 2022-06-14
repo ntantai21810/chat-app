@@ -144,6 +144,8 @@ export default function ChatPage(props: IChatPageProps) {
   React.useEffect(() => {
     if (auth.auth.accessToken) {
       socketController.connect(auth.auth.user._id, auth.auth.accessToken);
+      conversationController.connectDB("chatApp", auth.auth.user._id);
+      messageController.connectDB("chatApp", auth.auth.user._id);
     }
   }, [auth.auth.accessToken, auth.auth.user._id]);
 
@@ -164,9 +166,14 @@ export default function ChatPage(props: IChatPageProps) {
     }
   }, [conversations.isDbLoaded]);
 
+  console.log(activeConversation);
+  console.log(messages.isDbLoaded);
+
   //Change conversation
   React.useEffect(() => {
     if (activeConversation && messages.isDbLoaded) {
+      console.log("Get message");
+
       messageController.getMessages(
         auth.auth.user._id,
         activeConversation.user._id

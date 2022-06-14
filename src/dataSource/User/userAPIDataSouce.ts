@@ -17,7 +17,7 @@ export default class UserAPIDataSource implements IUserDataSouce {
   send(channel: string, data?: any): void {}
 
   getUser(id: string): Promise<IUser | null> {
-    return this.api.get("/users", { id: id });
+    return this.api.get(`/users/${id}`);
   }
 
   listenUserOffline(channel: string, callback: (user: IUser) => void): void {}

@@ -1,7 +1,7 @@
 import { IConversationPresenter } from "../../presenter";
 
 export interface IConnectDBConversationRepo {
-  connect(): Promise<boolean>;
+  connect(name: string, userId: string): Promise<any>;
 }
 
 export default class ConnectDBConversationUseCase {
@@ -17,9 +17,9 @@ export default class ConnectDBConversationUseCase {
     this.presenter = presenter;
   }
 
-  async execute() {
+  async execute(name: string, userId: string) {
     try {
-      await this.repository.connect();
+      await this.repository.connect(name, userId);
 
       this.presenter.setDBLoaded(true);
     } catch (e) {

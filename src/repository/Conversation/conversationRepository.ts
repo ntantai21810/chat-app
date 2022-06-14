@@ -24,8 +24,8 @@ export default class ConversationRepository
     this.dataSource = dataSource;
   }
 
-  connect(): Promise<any> {
-    return this.dataSource.connect();
+  connect(name: string, userId: string): Promise<any> {
+    return this.dataSource.connect(name, userId);
   }
 
   async getAllConversations(): Promise<ConversationModel[]> {

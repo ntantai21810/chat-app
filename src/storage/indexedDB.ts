@@ -10,35 +10,28 @@ export default class IndexedDB
 {
   private static instace: IndexedDB;
   private db: IDBDatabase;
-  private name: string;
-
-  private constructor(name: string) {
-    if (!window.indexedDB) {
-      console.log(
-        "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
-      );
-
-      throw new Error(
-        "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
-      );
-    }
-
-    this.name = name;
-  }
 
   public static getInstance() {
-    if (!this.instace) {
-      this.instace = new IndexedDB("chatApp");
-    }
+    if (!this.instace) this.instace = new IndexedDB();
 
     return this.instace;
   }
 
-  public connect(): Promise<boolean> {
+  public connect(name: string, userId: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
+      if (!window.indexedDB) {
+        console.log(
+          "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
+        );
+
+        throw new Error(
+          "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
+        );
+      }
+
       if (!this.db) {
         const request = window.indexedDB.open(
-          this.name,
+          `${userId}_${name}`,
           Number(process.env.REACT_APP_INDEXED_DB_VERSION) || 1
         );
 

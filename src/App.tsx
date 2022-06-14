@@ -1,11 +1,7 @@
 import { useEffect } from "react";
 import { Provider } from "react-redux";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
-import {
-  authController,
-  conversationController,
-  messageController,
-} from "./bootstrap";
+import { authController } from "./bootstrap";
 import { store } from "./framework/redux/store";
 import AuthProvider from "./views/components/common/AuthProvider";
 import routes from "./views/routes";
@@ -13,8 +9,6 @@ import routes from "./views/routes";
 function App() {
   useEffect(() => {
     authController.loadAuth();
-    conversationController.connectDB();
-    messageController.connectDB();
   }, []);
 
   return (

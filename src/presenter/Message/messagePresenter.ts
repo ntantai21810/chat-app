@@ -3,6 +3,7 @@ import { IMessage, MessageModel } from "../../domains/Message";
 import { normalizeMessageData } from "../../domains/Message/helper";
 import {
   addMessage,
+  setMessage,
   setMessageDBLoaded,
   setMessageError,
   setMessageLoading,
@@ -26,7 +27,7 @@ export default class MessagePresenter implements IMessagePresenter {
     }
 
     this.dispatch(
-      addMessage({
+      setMessage({
         userId: otherUserId,
         message: messages,
       })

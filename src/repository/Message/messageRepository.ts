@@ -6,6 +6,7 @@ import {
 } from "../../domains/Message/helper";
 import { SOCKET_CONSTANTS } from "../../helper/constants";
 import { ISocket } from "../../network";
+import { IAddMessageRepo } from "../../useCases/Message/addMessageUseCase";
 import { IConnectDBMessageRepo } from "../../useCases/Message/connectDBUseCase";
 import { IGetMessageRepo } from "../../useCases/Message/getMessageUseCase";
 import { IListenMessageRepo } from "../../useCases/Message/listenMessageUseCase";
@@ -16,7 +17,8 @@ export default class MessageRepository
     IConnectDBMessageRepo,
     IGetMessageRepo,
     ISendMessageRepo,
-    IListenMessageRepo
+    IListenMessageRepo,
+    IAddMessageRepo
 {
   private dataSource: IMessageDataSouce;
   private socket: ISocket;
@@ -47,7 +49,16 @@ export default class MessageRepository
     const message = normalizeMessageData(messageModel);
 
     this.dataSource.addMessage(message);
-    this.socket.send(SOCKET_CONSTANTS.CHAT_MESSAGE, message);
+
+    if (this.socket) {
+      this.socket.send(SOCKET_CONSTANTS.CHAT_MESSAGE, message);
+    }
+  }
+
+  addMessage(messageModel: MessageModel): void {
+    const message = normalizeMessageData(messageModel);
+
+    this.dataSource.addMessage(message);
   }
 
   listenMessage(

@@ -44,6 +44,18 @@ const messageSlice = createSlice({
       }
     },
 
+    setMessage(state, action: PayloadAction<IPayload>) {
+      if (Array.isArray(action.payload.message)) {
+        if (state.message[action.payload.userId]) {
+          state.message[action.payload.userId] = action.payload.message;
+        } else {
+          state.message[action.payload.userId] = [...action.payload.message];
+        }
+      } else {
+        state.message[action.payload.userId] = [action.payload.message];
+      }
+    },
+
     setLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     },
@@ -67,6 +79,7 @@ const messageReducer = messageSlice.reducer;
 export const {
   reset: resetAllMessage,
   addMessage,
+  setMessage,
   setLoading: setMessageLoading,
   setDBLoaded: setMessageDBLoaded,
   setError: setMessageError,

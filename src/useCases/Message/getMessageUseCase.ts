@@ -1,4 +1,5 @@
 import { MessageModel } from "../../domains/Message";
+import { Moment } from "../../helper/configs/moment";
 import { IMessagePresenter } from "../../presenter";
 
 export interface IGetMessageRepo {
@@ -20,6 +21,11 @@ export default class GetMessageUseCase {
 
     try {
       const res = await this.repository.getMessages(myId, otherId);
+
+      res.sort(
+        (m1, m2) =>
+          Moment(m1.getSendTime()).unix() - Moment(m2.getSendTime()).unix()
+      );
 
       this.presenter.setMessages(otherId, res);
     } catch (e) {

@@ -57,90 +57,15 @@ export default function ChatPage(props: IChatPageProps) {
   };
 
   const handleClickOnUser = (user: IUser) => {
-    setActiveConversation({
-      user: user,
-      lastOnlineTime: Date(),
-    });
+    if (user._id !== activeConversation?.user._id) {
+      setActiveConversation({
+        user: user,
+        lastOnlineTime: Date(),
+      });
+    }
   };
 
-  // //Connect socket
-  // React.useEffect(() => {
-  //   if (!socket && setSocket && auth._id && db) {
-  //     const socket = io(
-  //       process.env.REACT_APP_SOCKET_URL || "http://localhost:8000"
-  //     );
-
-  //     //Send info to server
-  //     socket.emit(SOCKET_CONSTANTS.JOIN, auth._id);
-
-  //     //Listen online user
-  //     socket.on(SOCKET_CONSTANTS.USER_CONNECT, (users: IUser[] | IUser) => {
-  //       if (Array.isArray(users)) dispatch(addManyOnlineUser(users));
-  //       else dispatch(addOneOnlineUser(users));
-  //     });
-
-  //     //Listen disconnect user
-  //     socket.on(
-  //       SOCKET_CONSTANTS.USER_DISCONNECT,
-  //       (userId: string | undefined) => {
-  //         if (userId) {
-  //           dispatch(removeOneOnlineUser(userId));
-  //         }
-  //       }
-  //     );
-
-  //     //Receive message
-  //     socket.on(SOCKET_CONSTANTS.CHAT_MESSAGE, async (message: IMessage) => {
-  //       console.log("Receive: ", message);
-  //       dispatch(addMessageByReceive(message));
-
-  //       if (db) {
-  //         db.transaction("message", "readwrite")
-  //           .objectStore("message")
-  //           .add(message);
-  //       }
-
-  //       //Update lastMessage
-  //       if (conversations[message.fromId]) {
-  //         const updatedConversation = {
-  //           ...conversations[message.fromId],
-  //           lastMessage: message,
-  //         };
-
-  //         dispatch(updateConversation(updatedConversation));
-
-  //         if (db) {
-  //           db.transaction("conversation", "readwrite")
-  //             .objectStore("conversation")
-  //             .put(updatedConversation);
-  //         }
-  //       }
-  //       //Create conversation
-  //       else {
-  //         const res = await getUser(message.fromId);
-  //         const user = res.data;
-
-  //         const updatedConversation = {
-  //           user: user,
-  //           lastMessage: message,
-  //           lastOnlineTime: Moment().toISOString(),
-  //         };
-
-  //         dispatch(addConversation(updatedConversation));
-
-  //         if (db) {
-  //           db.transaction("conversation", "readwrite")
-  //             .objectStore("conversation")
-  //             .add(updatedConversation);
-  //         }
-  //       }
-  //     });
-
-  //     setSocket(socket);
-  //   }
-  // }, [auth.auth.user._id, setSocket, socket, dispatch, db, conversations]);
-
-  //Connect socket
+  //Connect datasource
   React.useEffect(() => {
     if (auth.auth.accessToken) {
       socketController.connect(auth.auth.user._id, auth.auth.accessToken);
@@ -166,14 +91,9 @@ export default function ChatPage(props: IChatPageProps) {
     }
   }, [conversations.isDbLoaded]);
 
-  console.log(activeConversation);
-  console.log(messages.isDbLoaded);
-
   //Change conversation
   React.useEffect(() => {
-    if (activeConversation && messages.isDbLoaded) {
-      console.log("Get message");
-
+    if (activeConversation && messages.isDbLoaded && auth.auth.user._id) {
       messageController.getMessages(
         auth.auth.user._id,
         activeConversation.user._id

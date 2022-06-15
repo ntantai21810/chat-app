@@ -42,8 +42,6 @@ export default class ListenMessageUseCase {
       SOCKET_CONSTANTS.CHAT_MESSAGE,
       async (messageModel: MessageModel) => {
         try {
-          console.log({ messageModel });
-
           const addMessageUseCase = new AddMessageUseCase(
             new MessageRepository(
               new MessageIndexedDataSource(IndexedDB.getInstance())
@@ -64,11 +62,7 @@ export default class ListenMessageUseCase {
             messageModel.getFromId()
           );
 
-          console.log({ conversationModel });
-
           if (conversationModel) {
-            console.log("Update conversation");
-
             const updatedConversationModel = new ConversationModel(
               conversationModel.getUser(),
               messageModel,
@@ -84,8 +78,6 @@ export default class ListenMessageUseCase {
 
             updateConversationUseCase.execute(updatedConversationModel);
           } else {
-            console.log("Add conversation");
-
             //Get chatting user info
             const getUserUseCase = new GetUserUseCase(
               new UserRepository(new UserAPIDataSource(API.getIntance()))

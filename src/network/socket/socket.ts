@@ -35,4 +35,8 @@ export default class Socket implements ISocket {
   send(channel: string, data: any): void {
     this.socket.emit(channel, data);
   }
+
+  removeAllListen(channel: string): void {
+    this.socket.off(channel);
+  }
 }

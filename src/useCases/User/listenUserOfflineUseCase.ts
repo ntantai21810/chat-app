@@ -20,7 +20,6 @@ export default class ListenUserOfflineUseCase {
     this.repository.listenUserOffline(
       SOCKET_CONSTANTS.USER_DISCONNECT,
       (user) => {
-        console.log("Offline: ", { user });
         this.presenter.removeUserOnline(user);
       }
     );

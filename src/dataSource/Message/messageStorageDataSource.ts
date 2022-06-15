@@ -22,4 +22,13 @@ export default class MessageIndexedDBDataSource implements IMessageDataSouce {
   }
 
   listenMessage(channel: string, callback: (message: IMessage) => void): void {}
+
+  sendTyping(toUserId: string, isTyping: boolean): void {}
+
+  listenTyping(
+    channel: string,
+    callback: (userId: string, isTyping: boolean) => void
+  ): void {}
+
+  removeListenTyping(channel: string): void {}
 }

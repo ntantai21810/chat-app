@@ -18,7 +18,10 @@ import IndexedDB from "../../storage/indexedDB";
 import ConnectDBMessageUseCase from "../../useCases/Message/connectDBUseCase";
 import GetMessageUseCase from "../../useCases/Message/getMessageUseCase";
 import ListenMessageUseCase from "../../useCases/Message/listenMessageUseCase";
+import ListenTypingUseCase from "../../useCases/Message/listenTypingUseCase";
+import RemoveListenTypingUseCase from "../../useCases/Message/removeListenTypingUseCase";
 import SendMessageUseCase from "../../useCases/Message/sendMessageUseCase";
+import SendTypingUseCase from "../../useCases/Message/sendTypingUseCase";
 
 export default class MessageController {
   private presenter: IMessagePresenter;
@@ -70,5 +73,30 @@ export default class MessageController {
     );
 
     listenMessageUseCase.execute();
+  }
+
+  sendTyping(toUserId: string, isTyping: boolean) {
+    const sendTyping = new SendTypingUseCase(
+      new MessageRepository(new MessageSocketDataSource(Socket.getIntance()))
+    );
+
+    sendTyping.execute(toUserId, isTyping);
+  }
+
+  listenTyping(userId: string) {
+    const listenTypingUseCase = new ListenTypingUseCase(
+      new MessageRepository(new MessageSocketDataSource(Socket.getIntance())),
+      this.presenter
+    );
+
+    listenTypingUseCase.execute(userId);
+  }
+
+  removeListenTyping() {
+    const removeListenTyping = new RemoveListenTypingUseCase(
+      new MessageRepository(new MessageSocketDataSource(Socket.getIntance()))
+    );
+
+    removeListenTyping.execute();
   }
 }

@@ -6,4 +6,5 @@ export interface IMessagePresenter {
   setError(error: string): void;
   setDBLoaded(isLoaded: boolean): void;
   addMessage(otherUserId: string, message: MessageModel): void;
+  setTyping(isTyping: boolean): void;
 }

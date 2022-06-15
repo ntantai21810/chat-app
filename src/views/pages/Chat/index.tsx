@@ -20,6 +20,7 @@ import { Moment } from "../../../helper/configs/moment";
 import ChattedUserList from "../../components/ChattedUserList";
 import Banner from "../../components/common/Banner";
 import Input from "../../components/common/Input";
+import Typing from "../../components/common/Typing";
 import ConversationAction from "../../components/ConversationAction";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
@@ -34,12 +35,23 @@ export default function ChatPage(props: IChatPageProps) {
   const socket = useSocket();
   const messages = useMessage();
   const onlineUsers = useOnlineUser();
+
   const [message, setMessage] = React.useState("");
   const [activeConversation, setActiveConversation] =
     React.useState<Pick<IConversation, "user" | "lastOnlineTime">>();
+  const typingRef = React.useRef<NodeJS.Timeout | undefined>();
 
   //Handler
   const handleChangeMessage = (e: React.ChangeEvent<any>) => {
+    if (!typingRef.current) {
+      messageController.sendTyping(activeConversation?.user._id || "", true);
+    } else clearTimeout(typingRef.current);
+
+    typingRef.current = setTimeout(() => {
+      messageController.sendTyping(activeConversation?.user._id || "", false);
+      typingRef.current = undefined;
+    }, 2000);
+
     setMessage(e.target.value);
   };
 
@@ -94,10 +106,15 @@ export default function ChatPage(props: IChatPageProps) {
   //Change conversation
   React.useEffect(() => {
     if (activeConversation && messages.isDbLoaded && auth.auth.user._id) {
+      //Get message
       messageController.getMessages(
         auth.auth.user._id,
         activeConversation.user._id
       );
+
+      //Listen typing
+      messageController.removeListenTyping();
+      messageController.listenTyping(activeConversation.user._id);
     }
   }, [activeConversation, messages.isDbLoaded, auth.auth.user._id]);
 
@@ -137,6 +154,17 @@ export default function ChatPage(props: IChatPageProps) {
               }}
               toUserAvatar={activeConversation?.user.avatar || ""}
             />
+
+            {messages.isTyping && (
+              <div className={styles.typing}>
+                <span>
+                  {activeConversation.user.fullName || ""} đang nhập ...
+                </span>
+                <div>
+                  <Typing />
+                </div>
+              </div>
+            )}
           </div>
 
           {activeConversation && (

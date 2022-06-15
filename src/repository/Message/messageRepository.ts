@@ -10,7 +10,10 @@ import { IAddMessageRepo } from "../../useCases/Message/addMessageUseCase";
 import { IConnectDBMessageRepo } from "../../useCases/Message/connectDBUseCase";
 import { IGetMessageRepo } from "../../useCases/Message/getMessageUseCase";
 import { IListenMessageRepo } from "../../useCases/Message/listenMessageUseCase";
+import { IListenTypingRepo } from "../../useCases/Message/listenTypingUseCase";
+import { IRemoveListenTypingRepo } from "../../useCases/Message/removeListenTypingUseCase";
 import { ISendMessageRepo } from "../../useCases/Message/sendMessageUseCase";
+import { ISendTypingRepo } from "../../useCases/Message/sendTypingUseCase";
 
 export default class MessageRepository
   implements
@@ -18,7 +21,10 @@ export default class MessageRepository
     IGetMessageRepo,
     ISendMessageRepo,
     IListenMessageRepo,
-    IAddMessageRepo
+    IAddMessageRepo,
+    ISendTypingRepo,
+    IListenTypingRepo,
+    IRemoveListenTypingRepo
 {
   private dataSource: IMessageDataSouce;
   private socket: ISocket;
@@ -70,5 +76,20 @@ export default class MessageRepository
 
       callback(messageModel);
     });
+  }
+
+  sendTyping(toUserId: string, isTyping: boolean): void {
+    this.dataSource.sendTyping(toUserId, isTyping);
+  }
+
+  listenTyping(
+    channel: string,
+    callback: (userId: string, isTyping: boolean) => void
+  ): void {
+    this.dataSource.listenTyping(channel, callback);
+  }
+
+  removeListenTyping(channel: string): void {
+    this.dataSource.removeListenTyping(channel);
   }
 }

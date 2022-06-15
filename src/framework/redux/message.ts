@@ -8,6 +8,7 @@ interface IMessageState {
   isLoading: boolean;
   isDbLoaded: boolean;
   error: string;
+  isTyping: boolean;
 }
 
 interface IPayload {
@@ -20,6 +21,7 @@ const initialState: IMessageState = {
   isLoading: false,
   isDbLoaded: false,
   error: "",
+  isTyping: false,
 };
 
 const messageSlice = createSlice({
@@ -68,6 +70,10 @@ const messageSlice = createSlice({
       state.error = action.payload;
     },
 
+    setTyping(state, action: PayloadAction<boolean>) {
+      state.isTyping = action.payload;
+    },
+
     reset() {
       return initialState;
     },
@@ -83,6 +89,7 @@ export const {
   setLoading: setMessageLoading,
   setDBLoaded: setMessageDBLoaded,
   setError: setMessageError,
+  setTyping: setMessageTyping,
 } = messageSlice.actions;
 
 export default messageReducer;

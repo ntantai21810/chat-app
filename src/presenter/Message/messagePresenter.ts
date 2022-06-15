@@ -7,6 +7,7 @@ import {
   setMessageDBLoaded,
   setMessageError,
   setMessageLoading,
+  setMessageTyping,
 } from "../../framework/redux/message";
 import { IMessagePresenter } from "./IMessagePresenter";
 
@@ -55,5 +56,9 @@ export default class MessagePresenter implements IMessagePresenter {
         message: message,
       })
     );
+  }
+
+  setTyping(isTyping: boolean): void {
+    this.dispatch(setMessageTyping(isTyping));
   }
 }

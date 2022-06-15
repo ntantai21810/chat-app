@@ -36,6 +36,30 @@
     .conversationContent {
       flex-grow: 1;
       overflow: hidden;
+      position: relative;
+
+      .typing {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+
+        display: inline-flex;
+        align-items: center;
+        background-color: #fff;
+        padding: 0.4rem 1.6rem;
+        border-top-right-radius: 8px;
+
+        height: 24px;
+
+        span {
+          font-size: 1.4rem;
+        }
+
+        div {
+          margin-left: 0.8rem;
+          height: 100%;
+        }
+      }
     }
 
     .conversationAction {

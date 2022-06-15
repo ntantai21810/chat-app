@@ -8,7 +8,7 @@ export default class API implements IAPI {
   private axios: AxiosInstance;
 
   private constructor(baseURL: string) {
-    this.axios = axios.create({ baseURL: baseURL, withCredentials: true });
+    this.axios = axios.create({ baseURL: baseURL });
 
     this.axios.interceptors.response.use(
       function (response) {

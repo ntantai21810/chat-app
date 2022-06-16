@@ -9,12 +9,33 @@
     overflow: hidden;
     height: 100vh;
 
+    .search {
+      margin-top: 1.2rem;
+      padding: 0 1.6rem;
+
+      .searchInput {
+        padding: 0.8rem;
+        background-color: #eee;
+        border-radius: 8px;
+
+        font-size: 1.4rem;
+        transition: all linear 0.2s;
+        border: 2px solid transparent;
+
+        &:focus {
+          background-color: #fff;
+          border: 2px solid $primary;
+        }
+      }
+    }
+
     .onlineUsers {
-      padding: 1.6rem 1.6rem 0 1.6rem;
+      padding: 1.6rem 1.6rem 0 1.2rem;
     }
 
     .chattedUserList {
       width: 34rem;
+      margin-top: 1.2rem;
       border-right: 1px solid $border-color;
 
       flex-shrink: 0;

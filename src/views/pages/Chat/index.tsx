@@ -1,5 +1,6 @@
 import * as React from "react";
 import { AiOutlineSend } from "react-icons/ai";
+import { BsSearch } from "react-icons/bs";
 import {
   useAuth,
   useConversation,
@@ -120,7 +121,7 @@ export default function ChatPage(props: IChatPageProps) {
     }
   }, [activeConversation, messages.isDbLoaded, auth.auth.user._id]);
 
-  //Update last online time
+  // Update last online time
   React.useEffect(() => {
     if (conversations.conversations[activeConversation?.user._id || ""]) {
       setActiveConversation({
@@ -143,6 +144,14 @@ export default function ChatPage(props: IChatPageProps) {
   return (
     <div className={styles.container}>
       <div className={styles.userListSection}>
+        <div className={styles.search}>
+          <Input
+            placeholder="Tìm kiếm"
+            endIcon={<BsSearch />}
+            className={styles.searchInput}
+            border={false}
+          />
+        </div>
         {onlineUsers.length > 0 && (
           <div className={styles.onlineUsers}>
             <OnlineUser users={onlineUsers} onUserClick={handleClickOnUser} />
@@ -202,7 +211,9 @@ export default function ChatPage(props: IChatPageProps) {
           {activeConversation && (
             <>
               <div className={styles.conversationAction}>
-                <ConversationAction />
+                <ConversationAction
+                  onFileChange={(files) => console.log({ files })}
+                />
               </div>
 
               <div className={styles.conversationInput}>

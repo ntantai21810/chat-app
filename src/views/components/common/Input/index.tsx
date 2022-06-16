@@ -16,6 +16,7 @@ export interface IInputProps {
   onBlur?: React.FocusEventHandler<any>;
   onSubmit?: () => any;
   value?: string;
+  className?: string;
 }
 
 function Input(props: IInputProps, ref: any) {
@@ -32,6 +33,7 @@ function Input(props: IInputProps, ref: any) {
     onChange,
     onBlur,
     onSubmit,
+    className = "",
   } = props;
 
   return (
@@ -45,6 +47,7 @@ function Input(props: IInputProps, ref: any) {
               [styles.input]: true,
               [styles.error]: error,
               [styles.border]: border,
+              [className]: true,
             })}
             type={type}
             placeholder={placeholder}

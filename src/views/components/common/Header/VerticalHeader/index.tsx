@@ -6,7 +6,11 @@ import styles from "./style.module.scss";
 import { AiFillSetting } from "react-icons/ai";
 import Avatar from "../../Avatar";
 import Dropdown from "../../Dropdown";
-import { authController } from "../../../../../bootstrap";
+import { authController, socketController } from "../../../../../bootstrap";
+import { getDispatch } from "../../../../../adapter/frameworkAdapter";
+import { resetAllMessage } from "../../../../../framework/redux/message";
+import { resetConversations } from "../../../../../framework/redux/conversation";
+import { removeAllOnlineUser } from "../../../../../framework/redux/onlineUser";
 
 export interface IVerticalHeaderProps {}
 
@@ -14,11 +18,17 @@ export const VerticalHeaderWidth = "8rem";
 
 export default function VerticalHeader(props: IVerticalHeaderProps) {
   const location = useLocation();
+  const dispatch = getDispatch();
 
   const pathName = location.pathname;
 
   const handleLogoutClick = () => {
     authController.logout();
+    socketController.disconnect();
+
+    dispatch(resetAllMessage());
+    dispatch(resetConversations());
+    dispatch(removeAllOnlineUser());
   };
 
   const handleCloseClick = () => {

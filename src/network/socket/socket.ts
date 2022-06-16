@@ -5,7 +5,7 @@ import { ISocket } from "./ISocket";
 export default class Socket implements ISocket {
   private static instance: Socket;
 
-  private socket: SocketIO;
+  private socket: SocketIO | undefined;
   private url: string;
 
   private constructor(url: string) {
@@ -29,14 +29,19 @@ export default class Socket implements ISocket {
   }
 
   public listen(channel: string, callback: (data: any) => any): void {
-    this.socket.on(channel, callback);
+    this.socket!.on(channel, callback);
   }
 
   send(channel: string, data: any): void {
-    this.socket.emit(channel, data);
+    this.socket!.emit(channel, data);
   }
 
   removeAllListen(channel: string): void {
-    this.socket.off(channel);
+    this.socket!.off(channel);
+  }
+
+  disconnect(): void {
+    this.socket!.disconnect();
+    this.socket = undefined;
   }
 }

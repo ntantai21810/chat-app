@@ -11,4 +11,8 @@ export default class SocketDataSource implements ISocketDataSource {
   connect(userId: string, accessToken: string): void {
     this.socket.connect(userId, accessToken);
   }
+
+  disconnect(): void {
+    this.socket.disconnect();
+  }
 }

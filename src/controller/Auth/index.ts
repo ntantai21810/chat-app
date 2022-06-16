@@ -60,8 +60,6 @@ export default class AuthController {
   }
 
   logout() {
-    console.log(this);
-
     const logoutUsecase = new LogoutUseCase(
       new AuthRepository(new AuthStorageDataSource(LocalStorage.getInstance())),
       this.presenter

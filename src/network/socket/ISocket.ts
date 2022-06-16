@@ -3,4 +3,5 @@ export interface ISocket {
   listen(channel: string, callback: (data: any) => any): void;
   send(channel: string, data: any): void;
   removeAllListen(channel: string): void;
+  disconnect(): void;
 }

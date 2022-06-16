@@ -23,6 +23,7 @@ export const {
   addOne: addOneOnlineUser,
   updateOne: updateOneOnlineUser,
   removeOne: removeOneOnlineUser,
+  removeAll: removeAllOnlineUser,
   addMany: addManyOnlineUser,
 } = onlineUserSlice.actions;
 

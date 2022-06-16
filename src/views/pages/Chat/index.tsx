@@ -80,11 +80,14 @@ export default function ChatPage(props: IChatPageProps) {
   //Connect datasource
   React.useEffect(() => {
     if (auth.auth.accessToken) {
-      socketController.connect(auth.auth.user._id, auth.auth.accessToken);
+      if (!socket.isConnected) {
+        socketController.connect(auth.auth.user._id, auth.auth.accessToken);
+      }
+
       conversationController.connectDB("chatApp", auth.auth.user._id);
       messageController.connectDB("chatApp", auth.auth.user._id);
     }
-  }, [auth.auth.accessToken, auth.auth.user._id]);
+  }, [auth.auth.accessToken, auth.auth.user._id, socket.isConnected]);
 
   //Listen socket
   React.useEffect(() => {
@@ -128,7 +131,11 @@ export default function ChatPage(props: IChatPageProps) {
         )}
         <div className={styles.chattedUserList}>
           <ChattedUserList
-            conversations={Object.values(conversations.conversations)}
+            conversations={Object.values(conversations.conversations).sort(
+              (c1, c2) =>
+                Moment(c1.lastMessage.sendTime).unix() -
+                Moment(c2.lastMessage.sendTime).unix()
+            )}
             onConversationClick={handleClickOnUser}
           />
         </div>

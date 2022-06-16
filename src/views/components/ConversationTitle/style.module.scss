@@ -1,3 +1,5 @@
+@import "../../assets/styles/color.scss";
+
 .container {
   padding: 0.8rem 1.6rem;
 
@@ -13,6 +15,11 @@
       font-weight: 500;
 
       margin-bottom: 1.2rem;
+    }
+
+    .onlineTime {
+      font-size: 1.4rem;
+      color: $text-gray-color;
     }
   }
 }

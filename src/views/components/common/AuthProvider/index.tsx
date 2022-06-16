@@ -22,12 +22,14 @@ export default function AuthProvider({ children }: IAuthProviderProps) {
     }
   }, [navigate, accessToken]);
 
-  if (auth.isLoadingAuth) {
+  if (auth.isLoadingAuth || auth.isLoggingOut) {
     return (
       <Modal show={true} width="14rem" height="10rem">
         <div className={styles.loading}>
           <LoadingIcon />
-          <span className={styles.text}>Đang đăng nhập</span>
+          <span className={styles.text}>
+            {auth.isLoadingAuth ? "Đang đăng nhập" : "Đang đăng xuất"}
+          </span>
         </div>
       </Modal>
     );

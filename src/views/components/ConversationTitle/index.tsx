@@ -27,7 +27,11 @@ export default function ConversationTitle(props: IConversationTitleProps) {
           <div className={styles.header}>
             <p className={styles.name}>{user.fullName}</p>
 
-            <p>{`Truy cập ${lastOnlineMinutes} phút trước`}</p>
+            <p className={styles.onlineTime}>
+              {lastOnlineTime
+                ? `Truy cập ${lastOnlineMinutes} phút trước`
+                : "Đang hoạt động"}
+            </p>
           </div>
         </>
       )}

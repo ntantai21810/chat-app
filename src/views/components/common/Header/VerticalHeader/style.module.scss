@@ -58,5 +58,34 @@ $hover-color: #1269c0;
         }
       }
     }
+
+    .settings {
+      padding: 1rem 0;
+      border: 1px solid $border-color;
+      border-radius: 8px;
+
+      background-color: #fff;
+      width: 16rem;
+
+      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+
+      ul {
+        li {
+          padding: 1rem 1.8rem;
+          font-size: 1.5rem;
+
+          cursor: pointer;
+          transition: all 0.2s linear;
+
+          &.danger {
+            color: red;
+          }
+
+          &:hover {
+            background-color: #e7e7e7;
+          }
+        }
+      }
+    }
   }
 }

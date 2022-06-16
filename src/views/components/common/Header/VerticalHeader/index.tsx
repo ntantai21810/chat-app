@@ -5,6 +5,8 @@ import routes from "../routes";
 import styles from "./style.module.scss";
 import { AiFillSetting } from "react-icons/ai";
 import Avatar from "../../Avatar";
+import Dropdown from "../../Dropdown";
+import { authController } from "../../../../../bootstrap";
 
 export interface IVerticalHeaderProps {}
 
@@ -14,6 +16,14 @@ export default function VerticalHeader(props: IVerticalHeaderProps) {
   const location = useLocation();
 
   const pathName = location.pathname;
+
+  const handleLogoutClick = () => {
+    authController.logout();
+  };
+
+  const handleCloseClick = () => {
+    (window as any).electronAPI.closeApp();
+  };
 
   return (
     <div className={styles.header} style={{ width: VerticalHeaderWidth }}>
@@ -41,11 +51,23 @@ export default function VerticalHeader(props: IVerticalHeaderProps) {
       </ul>
 
       <ul className={`${styles.nav} ${styles.mtAuto}`}>
-        <li className={styles.navItem}>
-          <Link to="#">
+        <Dropdown
+          dropdown={
+            <div className={styles.settings}>
+              <ul>
+                <li className={styles.danger} onClick={handleLogoutClick}>
+                  Đăng xuất
+                </li>
+                <li onClick={handleCloseClick}>Thoát</li>
+              </ul>
+            </div>
+          }
+          position="top"
+        >
+          <li className={styles.navItem}>
             <AiFillSetting color="#fff" />
-          </Link>
-        </li>
+          </li>
+        </Dropdown>
       </ul>
     </div>
   );

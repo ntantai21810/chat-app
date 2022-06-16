@@ -4,7 +4,7 @@ export interface ILogoutRepo {
   logout(): void;
 }
 
-export default class LogoutCase {
+export default class LogoutUseCase {
   private repository: ILogoutRepo;
   private presenter: IAuthPresenter;
 
@@ -16,10 +16,8 @@ export default class LogoutCase {
   execute() {
     this.presenter.setIsLoggingOut(true);
 
-    try {
-      this.repository.logout();
-      this.presenter.logout();
-    } catch (e) {}
+    this.repository.logout();
+    this.presenter.logout();
 
     this.presenter.setIsLoggingOut(false);
   }

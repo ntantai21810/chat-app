@@ -49,6 +49,24 @@ const authSlice = createSlice({
       state.isLoggingOut = action.payload;
     },
 
+    logout() {
+      return {
+        auth: {
+          user: {
+            _id: "",
+            fullName: "",
+            phone: "",
+            avatar: "",
+          },
+          accessToken: "",
+        },
+        error: "",
+        isLoggingIn: false,
+        isLoadingAuth: false,
+        isLoggingOut: false,
+      };
+    },
+
     reset() {
       return initialState;
     },
@@ -64,6 +82,7 @@ export const {
   setIsLoggingIn: setAuthIsLoggingIn,
   setIsLoadingAuth: setAuthIsLoading,
   setIsLoggingOut: setAuthIsLoggingOut,
+  logout,
 } = authSlice.actions;
 
 export default authReducer;

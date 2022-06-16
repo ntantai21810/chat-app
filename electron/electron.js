@@ -1,7 +1,7 @@
 // main.js
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const isDev = require("electron-is-dev");
 const {
@@ -17,8 +17,12 @@ const createWindow = () => {
     height: 600,
     minWidth: 400,
     webPreferences: {
-      // preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "preload.js"),
     },
+  });
+
+  ipcMain.on("closeApp", (event, title) => {
+    mainWindow.close();
   });
 
   // and load the index.html of the app.
@@ -42,8 +46,8 @@ const createWindow = () => {
 app.whenReady().then(() => {
   if (true)
     installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
-      .then((name: any) => console.log(`Added Extension:  ${name}`))
-      .catch((err: any) => console.log("An error occurred: ", err));
+      .then((name) => console.log(`Added Extension:  ${name}`))
+      .catch((err) => console.log("An error occurred: ", err));
 
   createWindow();
 

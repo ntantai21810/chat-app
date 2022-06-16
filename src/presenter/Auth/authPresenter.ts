@@ -2,7 +2,7 @@ import { getDispatch } from "../../adapter/frameworkAdapter";
 import { AuthModel } from "../../domains/Auth";
 import { normalizeAuthData } from "../../domains/Auth/helper";
 import {
-  resetAuth,
+  logout,
   setAuth,
   setAuthError,
   setAuthIsLoading,
@@ -41,6 +41,6 @@ export default class AuthPresenter implements IAuthPresenter {
   }
 
   logout() {
-    this.dispatch(resetAuth());
+    this.dispatch(logout());
   }
 }

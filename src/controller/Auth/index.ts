@@ -15,7 +15,7 @@ import LocalStorage from "../../storage/localStorage";
 //Use case
 import LoadAuthCase from "../../useCases/Auth/loadAuthUseCase";
 import LoginUseCase from "../../useCases/Auth/loginUseCase";
-import LogoutCase from "../../useCases/Auth/logoutUseCase";
+import LogoutUseCase from "../../useCases/Auth/logoutUseCase";
 import RegisterUseCase from "../../useCases/Auth/registerUseCase";
 
 //Presenter
@@ -60,8 +60,10 @@ export default class AuthController {
   }
 
   logout() {
-    const logoutUsecase = new LogoutCase(
-      new AuthRepository(new AuthAPIDataSource(API.getIntance())),
+    console.log(this);
+
+    const logoutUsecase = new LogoutUseCase(
+      new AuthRepository(new AuthStorageDataSource(LocalStorage.getInstance())),
       this.presenter
     );
 

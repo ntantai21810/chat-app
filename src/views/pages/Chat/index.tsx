@@ -139,7 +139,13 @@ export default function ChatPage(props: IChatPageProps) {
           <div className={styles.conversationTitle}>
             <ConversationTitle
               user={activeConversation?.user}
-              lastOnlineTime={activeConversation?.lastOnlineTime}
+              lastOnlineTime={
+                onlineUsers.find(
+                  (item) => item._id === activeConversation.user._id
+                )
+                  ? undefined
+                  : activeConversation?.lastOnlineTime
+              }
             />
           </div>
 

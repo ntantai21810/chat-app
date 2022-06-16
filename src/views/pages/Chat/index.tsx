@@ -20,7 +20,7 @@ import { Moment } from "../../../helper/configs/moment";
 import ChattedUserList from "../../components/ChattedUserList";
 import Banner from "../../components/common/Banner";
 import Input from "../../components/common/Input";
-import Typing from "../../components/common/Typing";
+import TypingIcon from "../../components/common/Typing";
 import ConversationAction from "../../components/ConversationAction";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
@@ -38,7 +38,7 @@ export default function ChatPage(props: IChatPageProps) {
 
   const [message, setMessage] = React.useState("");
   const [activeConversation, setActiveConversation] =
-    React.useState<Pick<IConversation, "user" | "lastOnlineTime">>();
+    React.useState<Pick<IConversation, "user">>();
   const typingRef = React.useRef<NodeJS.Timeout | undefined>();
 
   //Handler
@@ -72,7 +72,6 @@ export default function ChatPage(props: IChatPageProps) {
     if (user._id !== activeConversation?.user._id) {
       setActiveConversation({
         user: user,
-        lastOnlineTime: Date(),
       });
     }
   };
@@ -121,6 +120,26 @@ export default function ChatPage(props: IChatPageProps) {
     }
   }, [activeConversation, messages.isDbLoaded, auth.auth.user._id]);
 
+  //Update last online time
+  React.useEffect(() => {
+    if (conversations.conversations[activeConversation?.user._id || ""]) {
+      setActiveConversation({
+        user: conversations.conversations[activeConversation?.user._id || ""]
+          .user,
+      });
+    } else if (
+      !onlineUsers.find((item) => item._id === activeConversation?.user._id) &&
+      activeConversation
+    ) {
+      setActiveConversation((state) => ({
+        user: {
+          ...state!.user,
+          lastOnlineTime: Moment().toString(),
+        },
+      }));
+    }
+  }, [conversations.conversations, onlineUsers]);
+
   return (
     <div className={styles.container}>
       <div className={styles.userListSection}>
@@ -151,7 +170,7 @@ export default function ChatPage(props: IChatPageProps) {
                   (item) => item._id === activeConversation.user._id
                 )
                   ? undefined
-                  : activeConversation?.lastOnlineTime
+                  : activeConversation?.user.lastOnlineTime
               }
             />
           </div>
@@ -174,7 +193,7 @@ export default function ChatPage(props: IChatPageProps) {
                   {activeConversation.user.fullName || ""} đang nhập ...
                 </span>
                 <div>
-                  <Typing />
+                  <TypingIcon />
                 </div>
               </div>
             )}

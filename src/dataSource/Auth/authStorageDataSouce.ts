@@ -1,4 +1,5 @@
 import { IAuth } from "../../domains/Auth";
+import { Moment } from "../../helper/configs/moment";
 import { IAuthLocalStorage } from "../../storage";
 import { IAuthDataSouce } from "./IAuthDataSource";
 
@@ -16,6 +17,7 @@ export default class AuthStorageDataSource implements IAuthDataSouce {
         fullName: "",
         phone: "",
         avatar: "",
+        lastOnlineTime: Moment().toString(),
       },
       accessToken: "",
     });
@@ -32,6 +34,7 @@ export default class AuthStorageDataSource implements IAuthDataSouce {
         fullName: "",
         phone: "",
         avatar: "",
+        lastOnlineTime: Moment().toString(),
       },
       accessToken: "",
     });

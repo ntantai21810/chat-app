@@ -3,7 +3,6 @@ import ConversationDBDataSource from "../../dataSource/Conversation/conversation
 import UserAPIDataSource from "../../dataSource/User/userAPIDataSouce";
 import { ConversationModel } from "../../domains/Conversation";
 import { MessageModel } from "../../domains/Message";
-import { Moment } from "../../helper/configs/moment";
 import { API } from "../../network";
 import { ConversationPresenter, IMessagePresenter } from "../../presenter";
 import ConversationRepository from "../../repository/Conversation/conversationRepository";
@@ -57,8 +56,7 @@ export default class SendMessageUseCase {
       if (conversationModel) {
         const updatedConversationModel = new ConversationModel(
           conversationModel.getUser(),
-          messageModel,
-          Moment().toString()
+          messageModel
         );
 
         const updateConversationUseCase = new UpdateConversationUseCase(
@@ -80,8 +78,7 @@ export default class SendMessageUseCase {
         if (userModel) {
           const newConversationModel = new ConversationModel(
             userModel,
-            messageModel,
-            Moment().toString()
+            messageModel
           );
 
           const addConversationUseCase = new AddConversationUseCase(

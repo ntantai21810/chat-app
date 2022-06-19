@@ -2,7 +2,15 @@
 
 ## Getting started
 
+## To start:
+
+### `npm install`
+
 ### `npm start`
+
+## To build:
+
+### `npm run build`
 
 Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
 

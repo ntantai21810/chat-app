@@ -2,12 +2,10 @@ import { getDispatch } from "../../adapter/frameworkAdapter";
 import { ConversationModel } from "../../domains/Conversation";
 import { normalizeConversationData } from "../../domains/Conversation/helper";
 import {
-  addConversation,
-  setConversationDBLoaded,
-  setConversationError,
-  setConversationLoading,
-  setConversations,
-  updateConversation,
+  addManyConversation,
+  addOneConversation,
+  removeAllConversation,
+  updateOneConversation,
 } from "../../framework/redux/conversation";
 import { IConversation } from "./../../domains/Conversation/IConversation";
 import { IConversationPresenter } from "./IConversationPresenter";
@@ -28,30 +26,24 @@ export default class ConversationPresenter implements IConversationPresenter {
       conversations.push(conversation);
     }
 
-    this.dispatch(setConversations(conversations));
-  }
-
-  setLoading(isLoading: boolean): void {
-    this.dispatch(setConversationLoading(isLoading));
-  }
-
-  setError(error: string): void {
-    this.dispatch(setConversationError(error));
-  }
-
-  setDBLoaded(isLoaded: boolean): void {
-    this.dispatch(setConversationDBLoaded(isLoaded));
+    this.dispatch(removeAllConversation());
+    this.dispatch(addManyConversation(conversations));
   }
 
   addConversation(conversationModel: ConversationModel) {
     const conversation = normalizeConversationData(conversationModel);
 
-    this.dispatch(addConversation(conversation));
+    this.dispatch(addOneConversation(conversation));
   }
 
   updateConversation(conversationModel: ConversationModel): void {
     const conversation = normalizeConversationData(conversationModel);
 
-    this.dispatch(updateConversation(conversation));
+    this.dispatch(
+      updateOneConversation({
+        id: conversationModel.getId(),
+        changes: conversation,
+      })
+    );
   }
 }

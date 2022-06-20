@@ -1,5 +1,5 @@
 export * from "./loginUseCase";
 export * from "./registerUseCase";
-export * from "./loadAuthUseCase";
+export * from "./loadAuthStorageUseCase";
 export * from "./logoutUseCase";
-export * from "./setAuthUseCase";
+export * from "./setAuthStorageUseCase";

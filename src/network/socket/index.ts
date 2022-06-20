@@ -1,3 +1,1 @@
-export { default as Socket } from "./socket";
-
-export * from "./ISocket";
+export * from "./socket";

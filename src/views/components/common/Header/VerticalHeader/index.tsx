@@ -1,16 +1,16 @@
 import classNames from "classnames";
-import * as React from "react";
-import { Link, useLocation } from "react-router-dom";
-import routes from "../routes";
-import styles from "./style.module.scss";
 import { AiFillSetting } from "react-icons/ai";
+import { Link, useLocation } from "react-router-dom";
+import { getDispatch } from "../../../../../adapter/frameworkAdapter";
+import { authController, socketController } from "../../../../../bootstrap";
+import { resetCommon } from "../../../../../framework/redux/common";
+import { removeAllConversation } from "../../../../../framework/redux/conversation";
+import { removeAllFriend } from "../../../../../framework/redux/friend";
+import { removeAllMessage } from "../../../../../framework/redux/message";
 import Avatar from "../../Avatar";
 import Dropdown from "../../Dropdown";
-import { authController, socketController } from "../../../../../bootstrap";
-import { getDispatch } from "../../../../../adapter/frameworkAdapter";
-import { resetAllMessage } from "../../../../../framework/redux/message";
-import { resetConversations } from "../../../../../framework/redux/conversation";
-import { removeAllOnlineUser } from "../../../../../framework/redux/onlineUser";
+import routes from "../routes";
+import styles from "./style.module.scss";
 
 export interface IVerticalHeaderProps {}
 
@@ -26,9 +26,10 @@ export default function VerticalHeader(props: IVerticalHeaderProps) {
     authController.logout();
     socketController.disconnect();
 
-    dispatch(resetAllMessage());
-    dispatch(resetConversations());
-    dispatch(removeAllOnlineUser());
+    dispatch(removeAllMessage());
+    dispatch(removeAllConversation());
+    dispatch(removeAllFriend());
+    dispatch(resetCommon());
   };
 
   const handleCloseClick = () => {

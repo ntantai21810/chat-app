@@ -1,10 +1,10 @@
 import AuthStorageDataSource from "../../dataSource/Auth/authStorageDataSouce";
 import { AuthModel } from "../../domains/Auth";
 import { CredentialModel } from "../../domains/Credential";
-import AuthRepository from "../../repository/Auth/authRepository";
+import AuthStorageRepository from "../../repository/Auth/authStorageRepository";
 import LocalStorage from "../../storage/localStorage";
 import { IAuthPresenter } from "./../../presenter/Auth/IAuthPresenter";
-import SetAuthUseCase from "./setAuthUseCase";
+import SetAuthStorageUseCase from "./setAuthStorageUseCase";
 
 export interface ILoginRepo {
   login(credential: CredentialModel): Promise<AuthModel>;
@@ -26,13 +26,13 @@ export default class LoginUseCase {
     try {
       const authModel = await this.repository.login(credentialModel);
 
-      const setAuthUseCase = new SetAuthUseCase(
-        new AuthRepository(
+      const setAuthStorageUseCase = new SetAuthStorageUseCase(
+        new AuthStorageRepository(
           new AuthStorageDataSource(LocalStorage.getInstance())
         )
       );
 
-      setAuthUseCase.execute(authModel);
+      setAuthStorageUseCase.execute(authModel);
 
       this.presenter.setAuth(authModel);
     } catch (error) {

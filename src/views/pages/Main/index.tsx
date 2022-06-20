@@ -10,5 +10,5 @@ export default function MainPage(props: IMainPageProps) {
     navigate("/login");
   }, [navigate]);
 
-  return <div>Main page</div>;
+  return <div></div>;
 }

@@ -1,11 +1,10 @@
-import * as React from "react";
 import { IConversation } from "../../../domains/Conversation";
 import { IUser } from "../../../domains/User";
 import ChattedUserItem from "../ChattedUserItem";
 
 export interface IChattedUserListProps {
-  conversations: IConversation[];
-  onConversationClick?: (user: IUser) => any;
+  conversations: (IConversation & { user: IUser })[];
+  onConversationClick?: (conversation: IConversation) => any;
 }
 
 export default function ChattedUserList(props: IChattedUserListProps) {
@@ -17,8 +16,8 @@ export default function ChattedUserList(props: IChattedUserListProps) {
         <ChattedUserItem
           user={item.user}
           lastMessage={item.lastMessage}
-          key={item.user._id}
-          onClick={onConversationClick}
+          key={item.id}
+          onClick={() => (onConversationClick ? onConversationClick(item) : "")}
         />
       ))}
     </>

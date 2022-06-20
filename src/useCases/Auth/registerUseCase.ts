@@ -2,9 +2,9 @@ import AuthStorageDataSource from "../../dataSource/Auth/authStorageDataSouce";
 import { AuthModel } from "../../domains/Auth";
 import { CredentialModel } from "../../domains/Credential";
 import { IAuthPresenter } from "../../presenter/Auth/IAuthPresenter";
-import AuthRepository from "../../repository/Auth/authRepository";
+import AuthStorageRepository from "../../repository/Auth/authStorageRepository";
 import LocalStorage from "../../storage/localStorage";
-import SetAuthUseCase from "./setAuthUseCase";
+import SetAuthStorageUseCase from "./setAuthStorageUseCase";
 
 export interface IRegisterRepo {
   register(credential: CredentialModel): Promise<AuthModel>;
@@ -26,8 +26,8 @@ export default class RegisterUseCase {
     try {
       const authModel = await this.repository.register(credentialModel);
 
-      const setAuthUseCase = new SetAuthUseCase(
-        new AuthRepository(
+      const setAuthUseCase = new SetAuthStorageUseCase(
+        new AuthStorageRepository(
           new AuthStorageDataSource(LocalStorage.getInstance())
         )
       );

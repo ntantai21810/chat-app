@@ -1,19 +1,19 @@
-import * as React from "react";
-import { useEffect } from "react";
-import { useRef } from "react";
+import React from "react";
+import { useEffect, useRef } from "react";
 import { IMessage } from "../../../domains/Message";
-import { IUser } from "../../../domains/User";
 import ChatMessage from "../ChatMessage";
 import styles from "./styles.module.scss";
 
 export interface IConversationContentProps {
   messages: IMessage[];
-  fromUser: Pick<IUser, "avatar" | "_id">;
-  toUserAvatar: string;
+  currentUserId: string;
+  currentUserAvatar: string;
+  chattingUserAvatar: string;
 }
 
-export default function ConversationContent(props: IConversationContentProps) {
-  const { messages, fromUser, toUserAvatar } = props;
+function ConversationContent(props: IConversationContentProps) {
+  const { messages, currentUserId, currentUserAvatar, chattingUserAvatar } =
+    props;
 
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -31,15 +31,15 @@ export default function ConversationContent(props: IConversationContentProps) {
         if (index === 0 || item.fromId !== messages[index - 1].fromId) {
           showAvatar = true;
 
-          if (fromUser._id === item.fromId) avatar = fromUser.avatar || "";
-          else avatar = toUserAvatar;
+          if (currentUserId === item.fromId) avatar = currentUserAvatar || "";
+          else avatar = chattingUserAvatar;
         }
 
         return (
           <div className={styles.chatMessage} key={index}>
             <ChatMessage
               content={item.content}
-              reverse={fromUser._id === item.fromId}
+              reverse={currentUserId === item.fromId}
               avatar={avatar}
               showAvatar={showAvatar}
             />
@@ -49,3 +49,5 @@ export default function ConversationContent(props: IConversationContentProps) {
     </div>
   );
 }
+
+export default React.memo(ConversationContent);

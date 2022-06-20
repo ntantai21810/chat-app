@@ -1,18 +1,24 @@
+import { selectAllConversation } from "../framework/redux/conversation";
+import { selectAllFriends } from "../framework/redux/friend";
 import { useAppSelector } from "../framework/redux/hook";
-import { selectAllOnlineUsers } from "../framework/redux/onlineUser";
+import { selectAllMessages } from "../framework/redux/message";
 
 export function useAuth() {
   return useAppSelector((state) => state.auth);
 }
 
 export function useConversation() {
-  return useAppSelector((state) => state.conversation);
+  return useAppSelector(selectAllConversation);
 }
 
 export function useMessage() {
-  return useAppSelector((state) => state.message);
+  return useAppSelector(selectAllMessages);
 }
 
-export function useOnlineUser() {
-  return useAppSelector(selectAllOnlineUsers);
+export function useCommon() {
+  return useAppSelector((state) => state.common);
+}
+
+export function useFriends() {
+  return useAppSelector(selectAllFriends);
 }

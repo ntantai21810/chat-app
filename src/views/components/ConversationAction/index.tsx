@@ -25,7 +25,11 @@ export default function ConversationAction(props: IConversationActionProps) {
       reader.onload = function () {
         numberOfLoadedFiles++;
 
-        if (reader.result && typeof reader.result === "string") {
+        if (
+          reader.result &&
+          typeof reader.result === "string" &&
+          file.type.startsWith("image/")
+        ) {
           files.push(reader.result);
         }
 

@@ -1,3 +1,1 @@
-export { default as ConversationIndexedDataSource } from "./conversationStorageDataSouce";
-
-export * from "./IConversationDataSource";
+export * from "./conversationDatabaseDataSouce";

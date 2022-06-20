@@ -1,9 +1,11 @@
 export interface IMessage {
+  id?: string;
   fromId: string;
   toId: string;
   type: MessageType;
   content: string;
   sendTime: string;
+  conversationId: string;
 }
 
 export enum MessageType {

@@ -1,14 +1,13 @@
 //Data source
-import { ConversationIndexedDataSource } from "../../dataSource";
 
 //Repo
-import ConversationRepository from "../../repository/Conversation/conversationRepository";
+import ConversationDatabaseDataSource from "../../dataSource/Conversation/conversationDatabaseDataSouce";
+import ConversationStorageRepository from "../../repository/Conversation/conversationStorageRepository";
 
 //DB
 import IndexedDB from "../../storage/indexedDB";
 
 //Use case
-import ConnectDBConversationUseCase from "../../useCases/Conversation/connectDBUseCase";
 import GetAllConversationUseCase from "../../useCases/Conversation/getAllConversationUseCase";
 
 //Presenter
@@ -21,21 +20,10 @@ export default class ConversationController {
     this.presenter = presenter;
   }
 
-  connectDB(name: string, userId: string) {
-    const connectDBConversationUseCase = new ConnectDBConversationUseCase(
-      new ConversationRepository(
-        new ConversationIndexedDataSource(IndexedDB.getInstance())
-      ),
-      this.presenter
-    );
-
-    connectDBConversationUseCase.execute(name, userId);
-  }
-
-  getConversations() {
+  getAllConversations() {
     const getConversationUseCase = new GetAllConversationUseCase(
-      new ConversationRepository(
-        new ConversationIndexedDataSource(IndexedDB.getInstance())
+      new ConversationStorageRepository(
+        new ConversationDatabaseDataSource(IndexedDB.getInstance())
       ),
       this.presenter
     );

@@ -1,11 +1,13 @@
-import { SOCKET_CONSTANTS } from "./../../helper/constants/index";
 import { io, Socket as SocketIO } from "socket.io-client";
-import { ISocket } from "./ISocket";
+import { IMessageSocket } from "../../dataSource";
+import { ISocket } from "../../dataSource/Socket/socketDataSouce";
+import { IMessage } from "../../domains/Message";
+import { SOCKET_CONSTANTS } from "./../../helper/constants/index";
 
-export default class Socket implements ISocket {
+export default class Socket implements IMessageSocket, ISocket {
   private static instance: Socket;
 
-  private socket: SocketIO | undefined;
+  private socket: SocketIO;
   private url: string;
 
   private constructor(url: string) {
@@ -21,27 +23,28 @@ export default class Socket implements ISocket {
   }
 
   connect(userId: string, accessToken: string): void {
-    if (!this.socket) {
-      this.socket = io(this.url);
+    this.socket = io(this.url);
 
-      this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
-    }
+    this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
   }
 
-  public listen(channel: string, callback: (data: any) => any): void {
-    this.socket!.on(channel, callback);
+  listen(channel: string, callback: (data: any) => any): void {
+    this.socket.on(channel, callback);
   }
 
   send(channel: string, data: any): void {
-    this.socket!.emit(channel, data);
+    this.socket.emit(channel, data);
   }
 
-  removeAllListen(channel: string): void {
-    this.socket!.off(channel);
+  sendMessage(message: IMessage): void {
+    this.socket.emit(SOCKET_CONSTANTS.CHAT_MESSAGE, message);
   }
 
   disconnect(): void {
-    this.socket!.disconnect();
-    this.socket = undefined;
+    this.socket.disconnect();
+  }
+
+  removeAllListener(channel: string): void {
+    this.socket.off(channel);
   }
 }

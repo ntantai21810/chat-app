@@ -1,6 +1,8 @@
 import { MessageType } from "./IMessage";
 
 export default class MessageModel {
+  private id: string;
+  private conversationId: string;
   private fromId: string;
   private toId: string;
   private type: MessageType;
@@ -10,15 +12,24 @@ export default class MessageModel {
   constructor(
     fromId: string,
     toId: string,
+    conversationId: string,
     type: MessageType,
     content: string,
-    sendTime: string
+    sendTime: string,
+    id?: string
   ) {
     this.fromId = fromId;
     this.toId = toId;
     this.type = type;
     this.content = content;
+    this.conversationId = conversationId;
     this.sendTime = sendTime;
+
+    if (id) this.id = id;
+  }
+
+  getId() {
+    return this.id;
   }
 
   getFromId() {
@@ -39,6 +50,18 @@ export default class MessageModel {
 
   getSendTime() {
     return this.sendTime;
+  }
+
+  getConversationId() {
+    return this.conversationId;
+  }
+
+  setId(id: string) {
+    this.id = id;
+  }
+
+  setConversationId(id: string) {
+    this.conversationId = id;
   }
 
   setFromId(id: string) {

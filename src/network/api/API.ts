@@ -1,8 +1,11 @@
 import axios, { AxiosInstance } from "axios";
+import { IAuthAPI } from "../../dataSource";
+import { IUserAPI } from "../../dataSource/User";
+import { IAuth } from "../../domains/Auth";
+import { IUser } from "../../domains/User";
 import { CONSTANTS } from "../../helper/constants";
-import { IAPI } from "./IAPI";
 
-export default class API implements IAPI {
+export default class API implements IAuthAPI, IUserAPI {
   private static instance: API;
 
   private axios: AxiosInstance;
@@ -28,7 +31,7 @@ export default class API implements IAPI {
     return this.instance;
   }
 
-  public setAccessToken(accessToken: string) {
+  public setAccessTokenInterceptor(accessToken: string) {
     this.axios.interceptors.request.use(
       (config) => {
         if (config.headers && accessToken) {
@@ -41,42 +44,47 @@ export default class API implements IAPI {
     );
   }
 
-  public async execute(
-    url: string,
-    method: "get" | "post" | "put" | "delete",
-    params: any,
-    data: any
-  ) {
+  async login(phone: string, password: string): Promise<IAuth> {
     try {
-      const res = await this.axios({
-        url,
-        method,
-        params,
-        data,
-      });
-
-      return res;
+      return await this.axios.post("/login", { phone, password });
     } catch (e) {
-      const errorMessage =
-        e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
+      console.log(e);
 
-      throw errorMessage;
+      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
     }
   }
 
-  public get(url: string, params: any) {
-    return this.execute(url, "get", params, {});
+  async register(
+    phone: string,
+    fullName: string,
+    password: string
+  ): Promise<IAuth> {
+    try {
+      return await this.axios.post("/register", { phone, fullName, password });
+    } catch (e) {
+      console.log(e);
+
+      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
+    }
   }
 
-  public post(url: string, data: any) {
-    return this.execute(url, "post", {}, data);
+  async getUserById(id: string): Promise<IUser | null> {
+    try {
+      return await this.axios.get(`/users/${id}`);
+    } catch (e) {
+      console.log(e);
+
+      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
+    }
   }
 
-  public put(url: string, data: any) {
-    return this.execute(url, "put", {}, data);
-  }
+  async getUserByPhone(phone: string): Promise<IUser[]> {
+    try {
+      return await this.axios.get(`/users`, { params: { phone } });
+    } catch (e) {
+      console.log(e);
 
-  public delete(url: string, data: any) {
-    return this.execute(url, "delete", {}, data);
+      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
+    }
   }
 }

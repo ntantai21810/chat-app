@@ -1,2 +1,2 @@
-export * from "./IStorage";
 export * from "./indexedDB";
+export * from "./localStorage";

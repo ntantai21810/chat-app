@@ -1,19 +1,21 @@
 //Data source
-import { AuthAPIDataSource } from "../../dataSource";
+import AuthAPIDataSource from "../../dataSource/Auth/authAPIDataSouce";
 import AuthStorageDataSource from "../../dataSource/Auth/authStorageDataSouce";
 
 //Domain
 import { modelCredentialData } from "../../domains/Credential";
+import API from "../../network/api/API";
+import AuthAPIRepository from "../../repository/Auth/authAPIRepository";
 
 //Network
-import { API } from "../../network/api";
 
 //Repo
-import AuthRepository from "../../repository/Auth/authRepository";
+import AuthRepository from "../../repository/Auth/authAPIRepository";
+import AuthStorageRepository from "../../repository/Auth/authStorageRepository";
 import LocalStorage from "../../storage/localStorage";
 
 //Use case
-import LoadAuthCase from "../../useCases/Auth/loadAuthUseCase";
+import LoadAuthCase from "../../useCases/Auth/loadAuthStorageUseCase";
 import LoginUseCase from "../../useCases/Auth/loginUseCase";
 import LogoutUseCase from "../../useCases/Auth/logoutUseCase";
 import RegisterUseCase from "../../useCases/Auth/registerUseCase";
@@ -32,7 +34,7 @@ export default class AuthController {
     const credentialModel = modelCredentialData({ phone, password });
 
     const loginUseCase = new LoginUseCase(
-      new AuthRepository(new AuthAPIDataSource(API.getIntance())),
+      new AuthAPIRepository(new AuthAPIDataSource(API.getIntance())),
       this.presenter
     );
 
@@ -43,7 +45,7 @@ export default class AuthController {
     const credentialModel = modelCredentialData({ phone, password, fullName });
 
     const registerUseCase = new RegisterUseCase(
-      new AuthRepository(new AuthAPIDataSource(API.getIntance())),
+      new AuthAPIRepository(new AuthAPIDataSource(API.getIntance())),
       this.presenter
     );
 
@@ -52,7 +54,9 @@ export default class AuthController {
 
   loadAuth() {
     const loadAuthUseCase = new LoadAuthCase(
-      new AuthRepository(new AuthStorageDataSource(LocalStorage.getInstance())),
+      new AuthStorageRepository(
+        new AuthStorageDataSource(LocalStorage.getInstance())
+      ),
       this.presenter
     );
 
@@ -61,7 +65,9 @@ export default class AuthController {
 
   logout() {
     const logoutUsecase = new LogoutUseCase(
-      new AuthRepository(new AuthStorageDataSource(LocalStorage.getInstance())),
+      new AuthStorageRepository(
+        new AuthStorageDataSource(LocalStorage.getInstance())
+      ),
       this.presenter
     );
 

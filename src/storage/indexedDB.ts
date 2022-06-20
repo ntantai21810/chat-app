@@ -1,12 +1,17 @@
+import { IMessageDatabase } from "../dataSource";
+import { IConversationDatabase } from "../dataSource/Conversation/conversationDatabaseDataSouce";
+import { IDatabase } from "../dataSource/Database";
+import { IFriendDatabase } from "../dataSource/Friend";
 import { IConversation } from "../domains/Conversation";
 import { IMessage } from "../domains/Message";
-import {
-  IConversationIndexedDBStorage,
-  IMessageIndexedDBStorage,
-} from "./IStorage";
+import { IUser } from "../domains/User";
 
 export default class IndexedDB
-  implements IConversationIndexedDBStorage, IMessageIndexedDBStorage
+  implements
+    IConversationDatabase,
+    IMessageDatabase,
+    IDatabase,
+    IFriendDatabase
 {
   private static instace: IndexedDB;
   private db: IDBDatabase;
@@ -17,7 +22,7 @@ export default class IndexedDB
     return this.instace;
   }
 
-  public connect(name: string, userId: string): Promise<boolean> {
+  public connect(name: string, userId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!window.indexedDB) {
         console.log(
@@ -42,7 +47,7 @@ export default class IndexedDB
         request.onsuccess = (event: Event) => {
           this.db = (event.target as IDBOpenDBRequest).result;
 
-          resolve(true);
+          resolve();
         };
 
         request.onupgradeneeded = (event) => {
@@ -50,26 +55,36 @@ export default class IndexedDB
 
           // Conversation
           const conversationObjectStore = db.createObjectStore("conversation", {
-            keyPath: "user._id",
+            keyPath: "id",
           });
-          conversationObjectStore.createIndex(
-            "conversationUserName",
-            "user.name",
-            {
-              unique: false,
-            }
-          );
+
+          conversationObjectStore.createIndex("userId", "userId", {
+            unique: true,
+          });
+
+          const friendObjectStore = db.createObjectStore("friend", {
+            keyPath: "_id",
+          });
 
           // Message
           const messageObjectStore = db.createObjectStore("message", {
-            keyPath: ["fromId", "toId", "sendTime"],
+            keyPath: "id",
           });
-          messageObjectStore.createIndex("messageId", ["fromId", "toId"], {
+
+          messageObjectStore.createIndex("conversationId", "conversationId", {
             unique: false,
           });
+
+          messageObjectStore.createIndex(
+            "messageSendTime",
+            ["conversationId", "sendTime"],
+            {
+              unique: true,
+            }
+          );
         };
       } else {
-        resolve(true);
+        resolve();
       }
     });
   }
@@ -93,12 +108,15 @@ export default class IndexedDB
     });
   }
 
-  public getConversation(userId: string): Promise<IConversation | null> {
+  public getConversationByUserId(
+    userId: string
+  ): Promise<IConversation | null> {
     return new Promise((resolve, reject) => {
       if (this.db) {
         const request = this.db
           .transaction("conversation")
           .objectStore("conversation")
+          .index("userId")
           .get(userId);
 
         request.onsuccess = (event) => {
@@ -112,42 +130,23 @@ export default class IndexedDB
     });
   }
 
-  public getMessages(myId: string, otherId: string): Promise<IMessage[]> {
-    let isLoadMyMessage = false;
-    let isLoadOtherMessage = false;
-
-    const result: IMessage[] = [];
-
+  public getMessagesByConversation(
+    conversationId: string
+  ): Promise<IMessage[]> {
     return new Promise((resolve, reject) => {
       if (this.db) {
-        const requestMyMessage = this.db
+        const request = this.db
           .transaction("message")
           .objectStore("message")
-          .index("messageId")
-          .getAll(IDBKeyRange.only([myId, otherId]));
+          .index("messageSendTime")
+          .getAll(IDBKeyRange.upperBound([conversationId, Date()]));
 
-        requestMyMessage.onsuccess = (event) => {
-          const data: IMessage[] = (event.target as IDBRequest).result;
-
-          result.push(...data);
-
-          if (isLoadOtherMessage) resolve(result);
-          else isLoadMyMessage = true;
+        request.onsuccess = (event) => {
+          resolve((event.target as IDBRequest).result);
         };
 
-        const requestOtherMessage = this.db
-          .transaction("message")
-          .objectStore("message")
-          .index("messageId")
-          .getAll(IDBKeyRange.only([otherId, myId]));
-
-        requestOtherMessage.onsuccess = (event) => {
-          const data: IMessage[] = (event.target as IDBRequest).result;
-
-          result.push(...data);
-
-          if (isLoadMyMessage) resolve(result);
-          else isLoadOtherMessage = true;
+        request.onerror = (event) => {
+          reject(event);
         };
       } else {
         resolve([]);
@@ -155,7 +154,7 @@ export default class IndexedDB
     });
   }
 
-  addMessage(message: IMessage): void {
+  public addMessage(message: IMessage): void {
     this.db
       .transaction("message", "readwrite")
       .objectStore("message")
@@ -174,5 +173,31 @@ export default class IndexedDB
       .transaction("conversation", "readwrite")
       .objectStore("conversation")
       .put(conversation);
+  }
+
+  getAllFriend(): Promise<IUser[]> {
+    return new Promise((resolve, reject) => {
+      if (this.db) {
+        const request = this.db
+          .transaction("friend")
+          .objectStore("friend")
+          .getAll();
+
+        request.onsuccess = (event) => {
+          resolve((event.target as IDBRequest).result);
+        };
+
+        request.onerror = (event) => {
+          reject(event);
+        };
+      } else resolve([]);
+    });
+  }
+
+  addFriend(friend: IUser): void {
+    this.db
+      .transaction("friend", "readwrite")
+      .objectStore("friend")
+      .add(friend);
   }
 }

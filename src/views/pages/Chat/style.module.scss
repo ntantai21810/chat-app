@@ -33,6 +33,15 @@
       padding: 1.6rem 1.6rem 0 1.2rem;
     }
 
+    .searchUser {
+      .title {
+        margin-left: 1.6rem;
+        font-size: 1.4rem;
+        margin-top: 1.2rem;
+        margin-bottom: 1.2rem;
+      }
+    }
+
     .chattedUserList {
       width: 34rem;
       margin-top: 1.2rem;
@@ -91,6 +100,50 @@
     .conversationInput {
       padding: 0.8rem 0.8rem 0.8rem 0.2rem;
       flex-grow: 0;
+
+      .images {
+        border-top: 1px solid #eee;
+
+        .title {
+          font-size: 1.4rem;
+
+          padding-left: 1.2rem;
+          margin: 1.4rem 0;
+
+          span {
+            margin-right: 0.4rem;
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+            background-color: rgba($color: $primary, $alpha: 0.15);
+
+            color: $primary;
+            font-weight: 500;
+          }
+        }
+
+        .imagesContainer {
+          display: flex;
+          flex-wrap: wrap;
+
+          padding: 0 1.6rem;
+          margin-left: -1.2rem;
+
+          max-height: 12rem;
+          overflow-y: auto;
+
+          .image {
+            cursor: pointer;
+            width: 10rem;
+            height: 10rem;
+
+            border: 1px solid #cacaca;
+            border-radius: 5px;
+
+            margin-left: 1.2rem;
+            margin-bottom: 1.2rem;
+          }
+        }
+      }
     }
   }
 

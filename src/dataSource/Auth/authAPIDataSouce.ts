@@ -1,18 +1,23 @@
 import { IAuth } from "../../domains/Auth";
-import { IAPI } from "../../network/api";
-import { IAuthDataSouce } from "./IAuthDataSource";
+import { IAuthAPIDataSource } from "../../repository/Auth/authAPIRepository";
 
-export default class AuthAPIDataSource implements IAuthDataSouce {
-  private api: IAPI;
+export interface IAuthAPI {
+  login(phone: string, password: string): Promise<IAuth>;
+  register(phone: string, fullName: string, password: string): Promise<IAuth>;
+  setAccessTokenInterceptor(accessToken: string): void;
+}
 
-  constructor(api: IAPI) {
+export default class AuthAPIDataSource implements IAuthAPIDataSource {
+  private api: IAuthAPI;
+
+  constructor(api: IAuthAPI) {
     this.api = api;
   }
 
   async login(phone: string, password: string): Promise<IAuth> {
-    const res: IAuth = await this.api.post("/login", { phone, password });
+    const res: IAuth = await this.api.login(phone, password);
 
-    this.api.setAccessToken(res.accessToken);
+    this.api.setAccessTokenInterceptor(res.accessToken);
 
     return res;
   }
@@ -22,26 +27,14 @@ export default class AuthAPIDataSource implements IAuthDataSouce {
     fullName: string,
     password: string
   ): Promise<IAuth> {
-    const res: IAuth = await this.api.post("/register", {
-      phone,
-      fullName,
-      password,
-    });
+    const res: IAuth = await this.api.register(phone, fullName, password);
 
-    this.api.setAccessToken(res.accessToken);
+    this.api.setAccessTokenInterceptor(res.accessToken);
 
     return res;
   }
 
-  loadAuth(): IAuth | null {
-    return null;
-  }
-
-  logout(): void {
-    return;
-  }
-
-  setAuth(auth: IAuth): void {
-    this.api.setAccessToken(auth.accessToken);
+  setAccessTokenInterceptor(accessToken: string): void {
+    this.api.setAccessTokenInterceptor(accessToken);
   }
 }

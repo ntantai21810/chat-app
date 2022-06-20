@@ -2,7 +2,7 @@ import { RefObject, useCallback, useEffect } from "react";
 
 export const useDetectClickOutside = (
   ref: RefObject<any>,
-  onClick: () => any
+  onClick: Function
 ) => {
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {

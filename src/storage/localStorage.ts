@@ -1,9 +1,9 @@
-import { IAuth } from "../domains/Auth";
-import { IAuthLocalStorage } from "./IStorage";
 import CryptoJS from "crypto-js";
 import jwtDecode from "jwt-decode";
+import { IAuthStorage } from "../dataSource";
+import { IAuth } from "../domains/Auth";
 
-export default class LocalStorage implements IAuthLocalStorage {
+export default class LocalStorage implements IAuthStorage {
   private static instance: LocalStorage;
 
   public static getInstance() {

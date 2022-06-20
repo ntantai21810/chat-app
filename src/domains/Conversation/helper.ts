@@ -1,52 +1,39 @@
 import { ConversationModel, IConversation } from ".";
-import { Moment } from "../../helper/configs/moment";
-import { MessageModel } from "../Message";
-import { UserModel } from "../User";
+import { MessageModel, normalizeMessageData } from "../Message";
 
 export function modelConversationData(
   conversation: IConversation
 ): ConversationModel {
-  const { user, lastMessage } = conversation;
+  const { userId, lastMessage, id } = conversation;
 
-  const userModel = new UserModel(
-    user._id,
-    user.fullName,
-    user.phone,
-    user.lastOnlineTime,
-    user.avatar
-  );
   const lastMessageModel = new MessageModel(
     lastMessage.fromId,
     lastMessage.toId,
+    lastMessage.conversationId,
     lastMessage.type,
     lastMessage.content,
-    lastMessage.sendTime
+    lastMessage.sendTime,
+    lastMessage.id
   );
 
-  return new ConversationModel(userModel, lastMessageModel);
+  const conversationModel = new ConversationModel(userId, lastMessageModel);
+
+  conversationModel.setId(id);
+
+  return conversationModel;
 }
 
 export function normalizeConversationData(
   conversationModel: ConversationModel
 ): IConversation {
-  const userModel = conversationModel.getUser();
+  const id = conversationModel.getId();
+  const userId = conversationModel.getUserId();
   const lastMessageModel = conversationModel.getLastMessage();
 
   const conversation: IConversation = {
-    user: {
-      _id: userModel.getId(),
-      fullName: userModel.getFullName(),
-      phone: userModel.getPhone(),
-      avatar: userModel.getAvatar(),
-      lastOnlineTime: userModel.getLastOnlineTime(),
-    },
-    lastMessage: {
-      fromId: lastMessageModel.getFromId(),
-      toId: lastMessageModel.getToId(),
-      type: lastMessageModel.getType(),
-      content: lastMessageModel.getContent(),
-      sendTime: lastMessageModel.getSendTime(),
-    },
+    id,
+    userId,
+    lastMessage: normalizeMessageData(lastMessageModel),
   };
 
   return conversation;

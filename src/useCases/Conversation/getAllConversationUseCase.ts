@@ -14,13 +14,10 @@ export default class GetAllConversationUseCase {
     presenter: IConversationPresenter
   ) {
     this.repository = repository;
-
     this.presenter = presenter;
   }
 
   async execute() {
-    this.presenter.setLoading(true);
-
     try {
       const res = await this.repository.getAllConversations();
 
@@ -28,7 +25,5 @@ export default class GetAllConversationUseCase {
     } catch (e) {
       console.log(e);
     }
-
-    this.presenter.setLoading(false);
   }
 }

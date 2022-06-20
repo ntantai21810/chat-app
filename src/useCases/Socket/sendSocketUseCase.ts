@@ -1,0 +1,15 @@
+export interface ISendSocketRepo {
+  send(channel: string, data: any): void;
+}
+
+export default class SendSocketUseCase {
+  private repository: ISendSocketRepo;
+
+  constructor(repository: ISendSocketRepo) {
+    this.repository = repository;
+  }
+
+  async execute(channel: string, data: any) {
+    this.repository.send(channel, data);
+  }
+}

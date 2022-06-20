@@ -1,7 +1,7 @@
 import { IMessage } from "./../Message/IMessage";
-import { IUser } from "./../User/IUser";
 
 export interface IConversation {
-  user: IUser;
+  id: string;
+  userId: string;
   lastMessage: IMessage;
 }

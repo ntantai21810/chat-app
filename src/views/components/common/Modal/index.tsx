@@ -7,7 +7,7 @@ export interface IModalProps {
   width?: string;
   height?: string;
   show: boolean;
-  onClose?: () => any;
+  onClose?: Function;
 }
 
 export default function Modal(props: IModalProps) {

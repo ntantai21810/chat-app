@@ -14,7 +14,8 @@ export interface IInputProps {
   endIcon?: React.ReactNode;
   onChange?: React.ChangeEventHandler<any>;
   onBlur?: React.FocusEventHandler<any>;
-  onSubmit?: () => any;
+  onSubmit?: Function;
+  onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
   value?: string;
   className?: string;
 }
@@ -33,6 +34,7 @@ function Input(props: IInputProps, ref: any) {
     onChange,
     onBlur,
     onSubmit,
+    onPaste,
     className = "",
   } = props;
 
@@ -60,6 +62,7 @@ function Input(props: IInputProps, ref: any) {
             onKeyDown={(e) => {
               if (e.code === "Enter" && onSubmit) onSubmit();
             }}
+            onPaste={onPaste}
           />
 
           {endIcon && (

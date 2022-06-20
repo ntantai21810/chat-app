@@ -1,1 +1,1 @@
-export * from "./listenUserOnlineUseCase";
+export * from "./getUserByIdUseCase";

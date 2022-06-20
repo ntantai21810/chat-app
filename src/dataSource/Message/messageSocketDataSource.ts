@@ -1,45 +1,36 @@
 import { IMessage } from "../../domains/Message";
-import { SOCKET_CONSTANTS } from "../../helper/constants";
-import { ISocket } from "./../../network/socket/ISocket";
-import { IMessageDataSouce } from "./IMessageDataSource";
+import { IMessageSocketDataSouce } from "../../repository/Message/messageSocketRepository";
 
-export default class MessageSocketDataSource implements IMessageDataSouce {
-  private socket: ISocket;
+export interface IMessageSocket {
+  sendMessage(message: IMessage): void;
+}
 
-  constructor(socket: ISocket) {
+export default class MessageSocketDataSource
+  implements IMessageSocketDataSouce
+{
+  private socket: IMessageSocket;
+
+  constructor(socket: IMessageSocket) {
     this.socket = socket;
   }
 
-  connect(): Promise<any> {
-    return Promise.resolve(null);
+  sendMessage(message: IMessage): void {
+    this.socket.sendMessage(message);
   }
 
-  getMessages(myId: string, otherId: string): Promise<IMessage[]> {
-    return Promise.resolve([]);
-  }
+  // sendTyping(toUserId: string, isTyping: boolean): void {
+  //   this.socket.send(SOCKET_CONSTANTS.TYPING, { isTyping, toUserId });
+  // }
 
-  addMessage(message: IMessage): void {}
+  // listenTyping(callback: (userId: string, isTyping: boolean) => void): void {
+  //   this.socket.listen(SOCKET_CONSTANTS.TYPING, (data) => {
+  //     const { fromUserId, isTyping } = data;
 
-  listenMessage(channel: string, callback: (message: IMessage) => void): void {
-    this.socket.listen(channel, callback);
-  }
+  //     callback(fromUserId, isTyping);
+  //   });
+  // }
 
-  sendTyping(toUserId: string, isTyping: boolean): void {
-    this.socket.send(SOCKET_CONSTANTS.TYPING, { isTyping, toUserId });
-  }
-
-  listenTyping(
-    channel: string,
-    callback: (userId: string, isTyping: boolean) => void
-  ): void {
-    this.socket.listen(channel, (data) => {
-      const { fromUserId, isTyping } = data;
-
-      callback(fromUserId, isTyping);
-    });
-  }
-
-  removeListenTyping(channel: string): void {
-    this.socket.removeAllListen(channel);
-  }
+  // removeListenTyping(): void {
+  //   this.socket.removeAllListen(SOCKET_CONSTANTS.TYPING);
+  // }
 }

@@ -1,75 +1,34 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IConversation } from "../../domains/Conversation";
+import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import { Moment } from "../../helper/configs/moment";
+import { IConversation } from "./../../domains/Conversation/IConversation";
+import { defaultActions } from "./defaultActions";
+import { RootState } from "./store";
 
-interface IConversationState {
-  conversations: {
-    [userId: string]: IConversation;
-  };
-  error: string;
-  isLoading: boolean;
-  isDbLoaded: boolean;
-}
+const conversationAdapter = createEntityAdapter<IConversation>({
+  selectId: (message) => message.id!,
+  sortComparer: (a, b) =>
+    Moment(a.lastMessage.sendTime).unix() -
+    Moment(b.lastMessage.sendTime).unix(),
+});
 
-const initialState: IConversationState = {
-  conversations: {},
-  error: "",
-  isLoading: false,
-  isDbLoaded: false,
-};
-
-const conversationSlice = createSlice({
+const messageSlice = createSlice({
   name: "conversation",
-  initialState: initialState,
+  initialState: conversationAdapter.getInitialState(),
   reducers: {
-    setConversations(state, action: PayloadAction<IConversation[]>) {
-      const data: { [userId: string]: IConversation } = {};
-
-      for (let conversation of action.payload) {
-        data[conversation.user._id] = conversation;
-      }
-
-      state.conversations = data;
-    },
-
-    setError(state, action: PayloadAction<string>) {
-      state.error = action.payload;
-    },
-
-    setLoading(state, action: PayloadAction<boolean>) {
-      state.isLoading = action.payload;
-    },
-
-    setisDBLoaded(state, action: PayloadAction<boolean>) {
-      state.isDbLoaded = action.payload;
-    },
-
-    addConversation(state, action: PayloadAction<IConversation>) {
-      state.conversations = {
-        ...state.conversations,
-        [action.payload.user._id]: action.payload,
-      };
-    },
-
-    updateConversation(state, action: PayloadAction<IConversation>) {
-      state.conversations[action.payload.user._id] = action.payload;
-    },
-
-    reset() {
-      return initialState;
-    },
+    ...defaultActions(conversationAdapter),
   },
 });
 
-const conversationReducer = conversationSlice.reducer;
+const messageReducer = messageSlice.reducer;
 
 export const {
-  reset: resetConversations,
-  setConversations,
-  setError: setConversationError,
-  setLoading: setConversationLoading,
-  setisDBLoaded: setConversationDBLoaded,
-  addConversation,
-  updateConversation,
-} = conversationSlice.actions;
+  removeAll: removeAllConversation,
+  addMany: addManyConversation,
+  addOne: addOneConversation,
+  updateOne: updateOneConversation,
+} = messageSlice.actions;
 
-export default conversationReducer;
+export const { selectAll: selectAllConversation } =
+  conversationAdapter.getSelectors((state: RootState) => state.conversation);
+
+export default messageReducer;

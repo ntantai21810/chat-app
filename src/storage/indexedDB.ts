@@ -1,4 +1,4 @@
-import { IMessageDatabase } from "../dataSource";
+import { IMessageStorage } from "../dataSource";
 import { IConversationDatabase } from "../dataSource/Conversation/conversationDatabaseDataSouce";
 import { IDatabase } from "../dataSource/Database";
 import { IFriendDatabase } from "../dataSource/Friend";
@@ -7,11 +7,7 @@ import { IMessage } from "../domains/Message";
 import { IUser } from "../domains/User";
 
 export default class IndexedDB
-  implements
-    IConversationDatabase,
-    IMessageDatabase,
-    IDatabase,
-    IFriendDatabase
+  implements IConversationDatabase, IMessageStorage, IDatabase, IFriendDatabase
 {
   private static instace: IndexedDB;
   private db: IDBDatabase;
@@ -62,7 +58,7 @@ export default class IndexedDB
             unique: true,
           });
 
-          const friendObjectStore = db.createObjectStore("friend", {
+          db.createObjectStore("friend", {
             keyPath: "_id",
           });
 

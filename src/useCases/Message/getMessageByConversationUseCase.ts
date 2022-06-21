@@ -22,8 +22,10 @@ export default class GetMessageByConversationUseCase {
       );
 
       this.presenter.setMessages(res);
+
+      return res;
     } catch (e) {
-      console.log(e);
+      return null;
     }
   }
 }

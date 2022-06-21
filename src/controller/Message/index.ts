@@ -10,11 +10,14 @@ import { IMessagePresenter } from "../../presenter";
 import IndexedDB from "../../storage/indexedDB";
 
 //Use case
-import MessageDatabaseDataSource from "../../dataSource/Message/messageDatabaseDataSource";
+import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
 import MessageDatabaseRepository from "../../repository/Message/messageDatabaseRepository";
 import GetMessageUseCase from "../../useCases/Message/getMessageByConversationUseCase";
 import ReceiveMessageUseCase from "../../useCases/Message/receiveMessageUseCase";
 import SendMessageUseCase from "../../useCases/Message/sendMessageUseCase";
+import MessageCacheDataSource from "../../dataSource/Message/messageCacheDataSource";
+import Cache from "../../storage/cache";
+import AddMessageDatabaseUseCase from "../../useCases/Message/addMessageDatabaseUseCase";
 
 export default class MessageController {
   private presenter: IMessagePresenter;
@@ -23,15 +26,44 @@ export default class MessageController {
     this.presenter = presenter;
   }
 
-  getMessagesByConversation(conversationId: string) {
-    const messageUseCase = new GetMessageUseCase(
+  async getMessagesByConversation(conversationId: string) {
+    const getMessageFromCacheUseCase = new GetMessageUseCase(
       new MessageDatabaseRepository(
-        new MessageDatabaseDataSource(IndexedDB.getInstance())
+        new MessageCacheDataSource(Cache.getInstance())
       ),
       this.presenter
     );
 
-    messageUseCase.execute(conversationId);
+    const result = await getMessageFromCacheUseCase.execute(conversationId);
+
+    if (!result) {
+      const getMessageFromDBUseCase = new GetMessageUseCase(
+        new MessageDatabaseRepository(
+          new MessageStorageDataSource(IndexedDB.getInstance())
+        ),
+        this.presenter
+      );
+
+      getMessageFromDBUseCase.execute(conversationId);
+    }
+  }
+
+  addMessageToCache(messages: IMessage | IMessage[]) {
+    const addMessageToCacheUseCase = new AddMessageDatabaseUseCase(
+      new MessageDatabaseRepository(
+        new MessageCacheDataSource(Cache.getInstance())
+      )
+    );
+
+    if (Array.isArray(messages)) {
+      for (let message of messages) {
+        const messageModel = modelMessageData(message);
+        addMessageToCacheUseCase.execute(messageModel);
+      }
+    } else {
+      const messageModel = modelMessageData(messages);
+      addMessageToCacheUseCase.execute(messageModel);
+    }
   }
 
   sendMessage(message: IMessage) {

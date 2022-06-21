@@ -121,10 +121,14 @@ export default function ChatPage(props: IChatPageProps) {
   };
 
   const handleClickOnConversation = (conversation: IConversation) => {
-    setActiveConversation({
-      id: conversation.id,
-      user: friend.find((item) => item._id === conversation.userId)!,
-    });
+    if (conversation.userId !== activeConversation?.user._id) {
+      setActiveConversation({
+        id: conversation.id,
+        user: friend.find((item) => item._id === conversation.userId)!,
+      });
+
+      messageController.addMessageToCache(messages.slice(-10));
+    }
   };
 
   const handleClickOnSearchUser = async (user: IUser) => {
@@ -143,6 +147,8 @@ export default function ChatPage(props: IChatPageProps) {
         user: res!,
       });
     }
+
+    messageController.addMessageToCache(messages.slice(-10));
   };
 
   //Connect datasource
@@ -168,33 +174,28 @@ export default function ChatPage(props: IChatPageProps) {
 
   //Change conversation socket
   React.useEffect(() => {
-    if (activeConversation && auth.auth.user._id && common.isSocketConnected) {
+    if (activeConversation && common.isSocketConnected) {
       socketController.removeAllListener(SOCKET_CONSTANTS.CHAT_MESSAGE);
 
       socketController.listen(
         SOCKET_CONSTANTS.CHAT_MESSAGE,
         (message: IMessage) => {
-          console.log({ activeConversation });
           messageController.receiveMessage(
             message,
-            activeConversation.user._id === message.fromId
+            activeConversation.user._id !== message.fromId
           );
         }
       );
     }
-  }, [activeConversation, auth.auth.user._id, common.isSocketConnected]);
+  }, [activeConversation, common.isSocketConnected]);
 
-  //Change conversation socket database
+  //Change conversation database
   React.useEffect(() => {
-    if (
-      activeConversation &&
-      auth.auth.user._id &&
-      common.isDatabaseConnected
-    ) {
+    if (activeConversation && common.isDatabaseConnected) {
       //Get message
       messageController.getMessagesByConversation(activeConversation.id);
     }
-  }, [activeConversation, common.isDatabaseConnected, auth.auth.user._id]);
+  }, [activeConversation, common.isDatabaseConnected]);
 
   return (
     <div className={styles.container}>
@@ -263,51 +264,47 @@ export default function ChatPage(props: IChatPageProps) {
             )} */}
           </div>
 
-          {activeConversation && (
-            <>
-              <div className={styles.conversationAction}>
-                <ConversationAction onFileChange={handleSubmitFiles} />
-              </div>
+          <div className={styles.conversationAction}>
+            <ConversationAction onFileChange={handleSubmitFiles} />
+          </div>
 
-              <div className={styles.conversationInput}>
-                <Input
-                  border={false}
-                  endIcon={<AiOutlineSend />}
-                  placeholder="Nhập tin nhắn ..."
-                  value={message}
-                  onSubmit={handleSubmitMessage}
-                  onChange={handleChangeMessage}
-                  onPaste={handlePaste}
-                />
+          <div className={styles.conversationInput}>
+            <Input
+              border={false}
+              endIcon={<AiOutlineSend />}
+              placeholder="Nhập tin nhắn ..."
+              value={message}
+              onSubmit={handleSubmitMessage}
+              onChange={handleChangeMessage}
+              onPaste={handlePaste}
+            />
 
-                {files.length > 0 && (
-                  <div className={styles.images}>
-                    <div className={styles.title}>
-                      <span>{files.length}</span> ảnh được chọn
+            {files.length > 0 && (
+              <div className={styles.images}>
+                <div className={styles.title}>
+                  <span>{files.length}</span> ảnh được chọn
+                </div>
+                <div className={styles.imagesContainer}>
+                  {files.map((file, index) => (
+                    <div className={styles.image} key={index}>
+                      <Image
+                        src={file}
+                        alt="Image from clipboard"
+                        width="100%"
+                        height="100%"
+                        closable={true}
+                        onClose={() =>
+                          setFiles((state) => {
+                            return state.filter((_, i) => i !== index);
+                          })
+                        }
+                      />
                     </div>
-                    <div className={styles.imagesContainer}>
-                      {files.map((file, index) => (
-                        <div className={styles.image} key={index}>
-                          <Image
-                            src={file}
-                            alt="Image from clipboard"
-                            width="100%"
-                            height="100%"
-                            closable={true}
-                            onClose={() =>
-                              setFiles((state) => {
-                                return state.filter((_, i) => i !== index);
-                              })
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  ))}
+                </div>
               </div>
-            </>
-          )}
+            )}
+          </div>
         </div>
       ) : (
         <div className={styles.banner}>

@@ -1,6 +1,7 @@
 import ConversationDatabaseDataSource from "../../dataSource/Conversation/conversationDatabaseDataSouce";
 import FriendDataSource from "../../dataSource/Friend/friendDataSouce";
-import MessageDatabaseDataSource from "../../dataSource/Message/messageDatabaseDataSource";
+import MessageCacheDataSource from "../../dataSource/Message/messageCacheDataSource";
+import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
 import UserAPIDataSource from "../../dataSource/User/userDataSouce";
 import { ConversationModel } from "../../domains/Conversation";
 import { MessageModel } from "../../domains/Message";
@@ -11,6 +12,7 @@ import ConversationStorageRepository from "../../repository/Conversation/convers
 import FriendStorageRepository from "../../repository/Friend/friendStorageRepository";
 import MessageDatabaseRepository from "../../repository/Message/messageDatabaseRepository";
 import UserAPIRepository from "../../repository/User/userAPIRepository";
+import Cache from "../../storage/cache";
 import IndexedDB from "../../storage/indexedDB";
 import AddConversationUseCase from "../Conversation/addConversationUseCase";
 import GetConversationByUserIdUseCase from "../Conversation/getConversationByUserIdUseCase";
@@ -99,13 +101,20 @@ export default class ReceiveMessageUseCase {
 
       if (addToCache) {
         //Add to cache
+        const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
+          new MessageDatabaseRepository(
+            new MessageCacheDataSource(Cache.getInstance())
+          )
+        );
+
+        addMessageDatabaseUseCase.execute(messageModel);
       } else {
         this.presenter.addMessage(messageModel);
       }
 
       const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
         new MessageDatabaseRepository(
-          new MessageDatabaseDataSource(IndexedDB.getInstance())
+          new MessageStorageDataSource(IndexedDB.getInstance())
         )
       );
 

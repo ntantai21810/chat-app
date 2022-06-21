@@ -1,6 +1,6 @@
 import ConversationDatabaseDataSource from "../../dataSource/Conversation/conversationDatabaseDataSouce";
 import FriendDataSource from "../../dataSource/Friend/friendDataSouce";
-import MessageDatabaseDataSource from "../../dataSource/Message/messageDatabaseDataSource";
+import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
 import MessageSocketDataSource from "../../dataSource/Message/messageSocketDataSource";
 import UserAPIDataSource from "../../dataSource/User/userDataSouce";
 import { ConversationModel } from "../../domains/Conversation";
@@ -115,7 +115,7 @@ export default class SendMessageUseCase {
 
       const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
         new MessageDatabaseRepository(
-          new MessageDatabaseDataSource(IndexedDB.getInstance())
+          new MessageStorageDataSource(IndexedDB.getInstance())
         )
       );
 

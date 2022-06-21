@@ -30,7 +30,7 @@ export default class GetMessageByConversationUseCase {
 
       return res;
     } catch (e) {
-      return null;
+      return [];
     }
   }
 }

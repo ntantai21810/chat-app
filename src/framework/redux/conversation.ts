@@ -7,8 +7,8 @@ import { RootState } from "./store";
 const conversationAdapter = createEntityAdapter<IConversation>({
   selectId: (message) => message.id!,
   sortComparer: (a, b) =>
-    Moment(a.lastMessage.sendTime).unix() -
-    Moment(b.lastMessage.sendTime).unix(),
+    Moment(b.lastMessage.sendTime).unix() -
+    Moment(a.lastMessage.sendTime).unix(),
 });
 
 const messageSlice = createSlice({

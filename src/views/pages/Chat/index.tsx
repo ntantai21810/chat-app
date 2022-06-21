@@ -35,7 +35,7 @@ import styles from "./style.module.scss";
 
 export interface IChatPageProps {}
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 20;
 
 export default function ChatPage(props: IChatPageProps) {
   const conversations = useConversation();
@@ -46,6 +46,7 @@ export default function ChatPage(props: IChatPageProps) {
   const dispatch = getDispatch();
 
   const [page, setPage] = React.useState(1);
+  const [isFullMessage, setIsFullMessage] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [files, setFiles] = React.useState<string[]>([]);
@@ -185,7 +186,7 @@ export default function ChatPage(props: IChatPageProps) {
 
   //Change conversation socket
   React.useEffect(() => {
-    if (activeConversation && common.isSocketConnected) {
+    if (common.isSocketConnected) {
       socketController.removeAllListener(SOCKET_CONSTANTS.CHAT_MESSAGE);
 
       socketController.listen(
@@ -193,7 +194,8 @@ export default function ChatPage(props: IChatPageProps) {
         (message: IMessage) => {
           messageController.receiveMessage(
             message,
-            activeConversation.user._id !== message.fromId
+            !activeConversation ||
+              activeConversation.user._id !== message.fromId
           );
         }
       );
@@ -206,8 +208,11 @@ export default function ChatPage(props: IChatPageProps) {
       //Get message
 
       setPage(1);
+      setIsFullMessage(false);
 
-      dispatch(removeAllMessage());
+      if (messages.length > 0) {
+        dispatch(removeAllMessage());
+      }
 
       messageController.getMessagesByConversation(activeConversation.id, {
         paginate: {
@@ -220,12 +225,23 @@ export default function ChatPage(props: IChatPageProps) {
 
   // Scroll top
   React.useEffect(() => {
-    if (page !== 1 && activeConversation) {
-      messageController.getMessagesByConversationFromDB(activeConversation.id, {
-        paginate: { page: page, pageSize: PAGE_SIZE },
-      });
-    }
-  }, [page]);
+    const loadMore = async () => {
+      if (page !== 1 && activeConversation && !isFullMessage) {
+        const res = await messageController.getMessagesByConversationFromDB(
+          activeConversation.id,
+          {
+            paginate: { page: page, pageSize: PAGE_SIZE },
+          }
+        );
+
+        if (res.length === 0) {
+          setIsFullMessage(true);
+        }
+      }
+    };
+
+    loadMore();
+  }, [page, isFullMessage]);
 
   return (
     <div className={styles.container}>
@@ -252,16 +268,10 @@ export default function ChatPage(props: IChatPageProps) {
         ) : (
           <div className={styles.chattedUserList}>
             <ChattedUserList
-              conversations={conversations
-                .map((item) => ({
-                  ...item,
-                  user: friend.find((f) => f._id === item.userId)!,
-                }))
-                .sort(
-                  (c1, c2) =>
-                    Moment(c1.lastMessage.sendTime).unix() -
-                    Moment(c2.lastMessage.sendTime).unix()
-                )}
+              conversations={conversations.map((item) => ({
+                ...item,
+                user: friend.find((f) => f._id === item.userId)!,
+              }))}
               onConversationClick={handleClickOnConversation}
             />
           </div>

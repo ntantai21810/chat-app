@@ -1,7 +1,5 @@
-import React from "react";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { IMessage } from "../../../domains/Message";
-import { Moment } from "../../../helper/configs/moment";
 import ChatMessage from "../ChatMessage";
 import styles from "./styles.module.scss";
 
@@ -23,31 +21,45 @@ function ConversationContent(props: IConversationContentProps) {
   } = props;
 
   const ref = useRef<HTMLDivElement | null>(null);
-  const lastMessageSendTimeRef = useRef<string>("");
-
-  console.log("Conversation content render");
+  const isBottom = useRef(true);
+  const lastConversationId = useRef("");
+  const scrollFromBottom = useRef(0);
 
   const handleScroll = () => {
     if (ref.current?.scrollTop === 0 && onScrollToTop) {
       onScrollToTop();
     }
+
+    if (ref.current) {
+      isBottom.current =
+        ref.current.scrollTop + ref.current.scrollHeight ===
+        ref.current.clientHeight;
+
+      scrollFromBottom.current =
+        ref.current.scrollHeight - ref.current.scrollTop;
+    }
   };
 
-  //Scroll to bottom
+  //Handle scroll
   useEffect(() => {
-    if (
-      ref.current &&
-      (!lastMessageSendTimeRef.current ||
-        (lastMessageSendTimeRef.current &&
-          Moment(lastMessageSendTimeRef.current).unix() <
-            Moment(messages[messages.length - 1].sendTime).unix()))
-    ) {
-      ref.current.scrollTop = ref.current.scrollHeight || 0;
+    if (ref.current) {
+      //Scroll when new messge
+      if (isBottom.current) {
+        ref.current.scrollTop = ref.current.scrollHeight || 0;
+      } else if (messages.length > 0) {
+        //Scroll when change conversation
+        if (lastConversationId.current !== messages[0].conversationId) {
+          ref.current.scrollTop = ref.current.scrollHeight || 0;
+        } else {
+          // Scroll when load more
+          ref.current.scrollTop =
+            ref.current.scrollHeight - scrollFromBottom.current;
+        }
+      }
     }
 
-    if (messages.length > 0) {
-      lastMessageSendTimeRef.current = messages[messages.length - 1].sendTime;
-    }
+    lastConversationId.current =
+      messages.length > 0 ? messages[0].conversationId : "";
   });
 
   return (

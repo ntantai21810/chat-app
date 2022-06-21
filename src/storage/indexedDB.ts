@@ -138,8 +138,6 @@ export default class IndexedDB
     const to = (page - 1) * pageSize + pageSize;
     let index = 0;
 
-    console.log(from, to);
-
     return new Promise((resolve, reject) => {
       if (this.db) {
         const request = this.db

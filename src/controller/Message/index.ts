@@ -40,7 +40,7 @@ export default class MessageController {
 
     const result = await getMessageFromCacheUseCase.execute(conversationId);
 
-    if (!result) {
+    if (result.length <= 10) {
       const getMessageFromDBUseCase = new GetMessageUseCase(
         new MessageDatabaseRepository(
           new MessageStorageDataSource(IndexedDB.getInstance())
@@ -63,7 +63,9 @@ export default class MessageController {
       this.presenter
     );
 
-    getMessageFromDBUseCase.execute(conversationId, options);
+    const res = await getMessageFromDBUseCase.execute(conversationId, options);
+
+    return res;
   }
 
   addMessageToCache(messages: IMessage | IMessage[]) {

@@ -1,10 +1,13 @@
 import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
 import { IMessage } from "../../domains/Message";
+import { Moment } from "../../helper/configs/moment";
 import { defaultActions } from "./defaultActions";
 import { RootState } from "./store";
 
 const messageAdapter = createEntityAdapter<IMessage>({
   selectId: (message) => message.id!,
+  sortComparer: (m1, m2) =>
+    Moment(m1.sendTime).unix() - Moment(m2.sendTime).unix(),
 });
 
 const messageSlice = createSlice({

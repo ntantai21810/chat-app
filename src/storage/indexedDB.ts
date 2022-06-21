@@ -2,6 +2,7 @@ import { IMessageStorage } from "../dataSource";
 import { IConversationDatabase } from "../dataSource/Conversation/conversationDatabaseDataSouce";
 import { IDatabase } from "../dataSource/Database";
 import { IFriendDatabase } from "../dataSource/Friend";
+import { IQueryOption } from "../domains/common/helper";
 import { IConversation } from "../domains/Conversation";
 import { IMessage } from "../domains/Message";
 import { IUser } from "../domains/User";
@@ -127,18 +128,45 @@ export default class IndexedDB
   }
 
   public getMessagesByConversation(
-    conversationId: string
+    conversationId: string,
+    options: IQueryOption = { paginate: { page: 1, pageSize: 15 } }
   ): Promise<IMessage[]> {
+    const { page, pageSize } = options.paginate;
+
+    const result: IMessage[] = [];
+    const from = (page - 1) * pageSize;
+    const to = (page - 1) * pageSize + pageSize;
+    let index = 0;
+
+    console.log(from, to);
+
     return new Promise((resolve, reject) => {
       if (this.db) {
         const request = this.db
           .transaction("message")
           .objectStore("message")
           .index("messageSendTime")
-          .getAll(IDBKeyRange.upperBound([conversationId, Date()]));
+          .openCursor(
+            IDBKeyRange.bound(
+              [conversationId, new Date(-8640000000000000).toISOString()],
+              [conversationId, new Date().toISOString()]
+            ),
+            "prev"
+          );
 
         request.onsuccess = (event) => {
-          resolve((event.target as IDBRequest).result);
+          const cursor = (event.target as IDBRequest)
+            .result as IDBCursorWithValue;
+
+          if (cursor && index < to) {
+            if (index >= from) result.unshift(cursor.value);
+
+            cursor.continue();
+
+            index++;
+          } else {
+            resolve(result);
+          }
         };
 
         request.onerror = (event) => {

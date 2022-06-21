@@ -1,6 +1,7 @@
 import * as React from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { BsSearch } from "react-icons/bs";
+import { getDispatch } from "../../../adapter/frameworkAdapter";
 import {
   useAuth,
   useCommon,
@@ -19,6 +20,7 @@ import {
 import { IConversation } from "../../../domains/Conversation";
 import { IMessage, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
+import { removeAllMessage } from "../../../framework/redux/message";
 import { Moment } from "../../../helper/configs/moment";
 import { SOCKET_CONSTANTS } from "../../../helper/constants";
 import ChattedUserList from "../../components/ChattedUserList";
@@ -33,13 +35,17 @@ import styles from "./style.module.scss";
 
 export interface IChatPageProps {}
 
+const PAGE_SIZE = 5;
+
 export default function ChatPage(props: IChatPageProps) {
   const conversations = useConversation();
   const auth = useAuth();
   const common = useCommon();
   const messages = useMessage();
   const friend = useFriends();
+  const dispatch = getDispatch();
 
+  const [page, setPage] = React.useState(1);
   const [search, setSearch] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [files, setFiles] = React.useState<string[]>([]);
@@ -151,6 +157,11 @@ export default function ChatPage(props: IChatPageProps) {
     messageController.addMessageToCache(messages.slice(-10));
   };
 
+  const handleScrollToTop = React.useCallback(
+    () => setPage((state) => state + 1),
+    []
+  );
+
   //Connect datasource
   React.useEffect(() => {
     if (auth.auth.accessToken) {
@@ -193,9 +204,28 @@ export default function ChatPage(props: IChatPageProps) {
   React.useEffect(() => {
     if (activeConversation && common.isDatabaseConnected) {
       //Get message
-      messageController.getMessagesByConversation(activeConversation.id);
+
+      setPage(1);
+
+      dispatch(removeAllMessage());
+
+      messageController.getMessagesByConversation(activeConversation.id, {
+        paginate: {
+          page: 1,
+          pageSize: PAGE_SIZE,
+        },
+      });
     }
-  }, [activeConversation, common.isDatabaseConnected]);
+  }, [activeConversation, common.isDatabaseConnected, dispatch]);
+
+  // Scroll top
+  React.useEffect(() => {
+    if (page !== 1 && activeConversation) {
+      messageController.getMessagesByConversationFromDB(activeConversation.id, {
+        paginate: { page: page, pageSize: PAGE_SIZE },
+      });
+    }
+  }, [page]);
 
   return (
     <div className={styles.container}>
@@ -250,6 +280,7 @@ export default function ChatPage(props: IChatPageProps) {
               currentUserId={auth.auth.user._id}
               currentUserAvatar={auth.auth.user.avatar || ""}
               chattingUserAvatar={activeConversation?.user.avatar || ""}
+              onScrollToTop={handleScrollToTop}
             />
 
             {/* {messages.isTyping && (

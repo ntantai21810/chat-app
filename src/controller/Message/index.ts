@@ -18,6 +18,7 @@ import SendMessageUseCase from "../../useCases/Message/sendMessageUseCase";
 import MessageCacheDataSource from "../../dataSource/Message/messageCacheDataSource";
 import Cache from "../../storage/cache";
 import AddMessageDatabaseUseCase from "../../useCases/Message/addMessageDatabaseUseCase";
+import { IQueryOption } from "../../domains/common/helper";
 
 export default class MessageController {
   private presenter: IMessagePresenter;
@@ -26,7 +27,10 @@ export default class MessageController {
     this.presenter = presenter;
   }
 
-  async getMessagesByConversation(conversationId: string) {
+  async getMessagesByConversation(
+    conversationId: string,
+    options?: IQueryOption
+  ) {
     const getMessageFromCacheUseCase = new GetMessageUseCase(
       new MessageDatabaseRepository(
         new MessageCacheDataSource(Cache.getInstance())
@@ -44,8 +48,22 @@ export default class MessageController {
         this.presenter
       );
 
-      getMessageFromDBUseCase.execute(conversationId);
+      getMessageFromDBUseCase.execute(conversationId, options);
     }
+  }
+
+  async getMessagesByConversationFromDB(
+    conversationId: string,
+    options?: IQueryOption
+  ) {
+    const getMessageFromDBUseCase = new GetMessageUseCase(
+      new MessageDatabaseRepository(
+        new MessageStorageDataSource(IndexedDB.getInstance())
+      ),
+      this.presenter
+    );
+
+    getMessageFromDBUseCase.execute(conversationId, options);
   }
 
   addMessageToCache(messages: IMessage | IMessage[]) {

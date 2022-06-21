@@ -1,8 +1,12 @@
+import { IPaginate, IQueryOption } from "../../domains/common/helper";
 import { MessageModel } from "../../domains/Message";
 import { IMessagePresenter } from "../../presenter";
 
 export interface IGetMessageRepo {
-  getMessagesByConversation(conversationId: string): Promise<MessageModel[]>;
+  getMessagesByConversation(
+    conversationId: string,
+    options?: IQueryOption
+  ): Promise<MessageModel[]>;
 }
 
 export default class GetMessageByConversationUseCase {
@@ -15,13 +19,14 @@ export default class GetMessageByConversationUseCase {
     this.presenter = presenter;
   }
 
-  async execute(conversationId: string) {
+  async execute(conversationId: string, options?: IQueryOption) {
     try {
       const res = await this.repository.getMessagesByConversation(
-        conversationId
+        conversationId,
+        options
       );
 
-      this.presenter.setMessages(res);
+      this.presenter.addMessages(res);
 
       return res;
     } catch (e) {

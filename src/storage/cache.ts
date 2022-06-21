@@ -19,7 +19,6 @@ export default class Cache implements IMessageCache {
   public getMessagesByConversation(
     conversationId: string
   ): Promise<IMessage[]> {
-    console.log("Get from cache");
     return new Promise((resolve, reject) => {
       if (memCache[conversationId]) {
         resolve(memCache[conversationId]);

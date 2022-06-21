@@ -15,7 +15,7 @@ export default class MessagePresenter implements IMessagePresenter {
     this.dispatch = getDispatch();
   }
 
-  setMessages(messageModels: MessageModel[]): void {
+  addMessages(messageModels: MessageModel[]): void {
     const messages: IMessage[] = [];
 
     for (let messageModel of messageModels) {
@@ -23,8 +23,6 @@ export default class MessagePresenter implements IMessagePresenter {
 
       messages.push(message);
     }
-
-    this.dispatch(removeAllMessage());
 
     this.dispatch(addManyMessage(messages));
   }

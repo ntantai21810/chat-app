@@ -1,0 +1,30 @@
+@import "../../assets/styles/color.scss";
+
+.form {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: flex-start;
+
+  .errorMessage {
+    color: $error;
+    margin-bottom: 1.2rem;
+
+    display: flex;
+    align-items: center;
+
+    .icon {
+      margin-right: 0.8rem;
+    }
+  }
+
+  div {
+    &:not(:last-child) {
+      margin-bottom: 2.4rem;
+    }
+  }
+
+  button {
+    margin-top: 2rem;
+  }
+}

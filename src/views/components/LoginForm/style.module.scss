@@ -1,0 +1,42 @@
+@import "../../assets/styles/color.scss";
+
+.form {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: flex-start;
+
+  .errorMessage {
+    color: $error;
+    margin-bottom: 1.2rem;
+
+    display: flex;
+    align-items: center;
+
+    .icon {
+      margin-right: 0.8rem;
+    }
+  }
+
+  .forgotPassword {
+    text-align: end;
+    text-decoration: none;
+    color: #000;
+
+    transition: all 0.15s linear;
+    cursor: pointer;
+    &:hover {
+      color: $primary;
+    }
+  }
+
+  div {
+    &:not(:last-child) {
+      margin-bottom: 2.4rem;
+    }
+  }
+
+  button {
+    margin-top: 2rem;
+  }
+}

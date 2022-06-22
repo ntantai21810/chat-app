@@ -1,0 +1,87 @@
+@import "../../../assets/styles/color.scss";
+
+.container {
+  .label {
+    display: block;
+    width: 100%;
+
+    font-size: 1.6rem;
+
+    span {
+      display: block;
+      font-size: 1.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .main {
+      position: relative;
+
+      .input {
+        width: 100%;
+        padding: 1.4rem;
+
+        font-size: 1.8rem;
+
+        outline: none;
+        transition: all linear 0.25s;
+        border: none;
+
+        &.error {
+          background-color: #fff7f7;
+        }
+
+        &.border {
+          border-radius: 5px;
+          border: 1px solid #000;
+        }
+
+        &.border:focus {
+          border: 1px solid $primary;
+        }
+
+        &.border.error {
+          border-color: $error;
+        }
+      }
+
+      .icon {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+
+        padding: 0.8rem;
+        border-radius: 5px;
+
+        position: absolute;
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%);
+
+        cursor: pointer;
+
+        &:hover {
+          background-color: #e5e5e5;
+        }
+      }
+    }
+
+    .helperText {
+      margin-top: 1.2rem;
+
+      font-size: 1.6rem;
+
+      transition: all linear 0.25s;
+
+      display: flex;
+      align-items: center;
+
+      .icon {
+        margin-right: 0.8rem;
+      }
+
+      &.error {
+        color: $error;
+      }
+    }
+  }
+}

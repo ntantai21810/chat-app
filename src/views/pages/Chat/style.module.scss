@@ -1,0 +1,166 @@
+@import "../../assets/styles/color.scss";
+
+.container {
+  display: flex;
+
+  .userListSection {
+    flex-shrink: 0;
+    flex-basis: 34rem;
+    overflow: hidden;
+    height: 100vh;
+
+    .search {
+      margin-top: 1.2rem;
+      padding: 0 1.6rem;
+
+      .searchInput {
+        padding: 0.8rem;
+        background-color: #eee;
+        border-radius: 8px;
+
+        font-size: 1.4rem;
+        transition: all linear 0.2s;
+        border: 2px solid transparent;
+
+        &:focus {
+          background-color: #fff;
+          border: 2px solid $primary;
+        }
+      }
+    }
+
+    .onlineUsers {
+      padding: 1.6rem 1.6rem 0 1.2rem;
+    }
+
+    .searchUser {
+      .title {
+        margin-left: 1.6rem;
+        font-size: 1.4rem;
+        margin-top: 1.2rem;
+        margin-bottom: 1.2rem;
+      }
+    }
+
+    .chattedUserList {
+      width: 34rem;
+      margin-top: 1.2rem;
+      border-right: 1px solid $border-color;
+
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+  }
+
+  .conversationSection {
+    flex-grow: 1;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    .conversationTitle {
+      border-bottom: 1px solid $border-color;
+    }
+
+    .conversationContent {
+      flex-grow: 1;
+      overflow: hidden;
+      position: relative;
+
+      .typing {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+
+        display: inline-flex;
+        align-items: center;
+        background-color: #fff;
+        padding: 0.4rem 1.6rem;
+        border-top-right-radius: 8px;
+
+        height: 24px;
+
+        span {
+          font-size: 1.4rem;
+        }
+
+        div {
+          margin-left: 0.8rem;
+          height: 100%;
+        }
+      }
+    }
+
+    .conversationAction {
+      border-top: 1px solid $border-color;
+      border-bottom: 1px solid $border-color;
+    }
+
+    .conversationInput {
+      padding: 0.8rem 0.8rem 0.8rem 0.2rem;
+      flex-grow: 0;
+
+      .images {
+        border-top: 1px solid #eee;
+
+        .title {
+          font-size: 1.4rem;
+
+          padding-left: 1.2rem;
+          margin: 1.4rem 0;
+
+          span {
+            margin-right: 0.4rem;
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+            background-color: rgba($color: $primary, $alpha: 0.15);
+
+            color: $primary;
+            font-weight: 500;
+          }
+        }
+
+        .imagesContainer {
+          display: flex;
+          flex-wrap: wrap;
+
+          padding: 0 1.6rem;
+          margin-left: -1.2rem;
+
+          max-height: 12rem;
+          overflow-y: auto;
+
+          .image {
+            cursor: pointer;
+            width: 10rem;
+            height: 10rem;
+
+            border: 1px solid #cacaca;
+            border-radius: 5px;
+
+            margin-left: 1.2rem;
+            margin-bottom: 1.2rem;
+          }
+        }
+      }
+    }
+  }
+
+  .banner {
+    flex-grow: 1;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .container {
+    flex-grow: 1;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+  }
+}

@@ -18,6 +18,7 @@ export interface IInputProps {
   onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
   value?: string;
   className?: string;
+  onDrop?: React.DragEventHandler<HTMLInputElement>;
 }
 
 function Input(props: IInputProps, ref: any) {
@@ -36,6 +37,7 @@ function Input(props: IInputProps, ref: any) {
     onSubmit,
     onPaste,
     className = "",
+    onDrop,
   } = props;
 
   return (
@@ -63,6 +65,7 @@ function Input(props: IInputProps, ref: any) {
               if (e.code === "Enter" && onSubmit) onSubmit();
             }}
             onPaste={onPaste}
+            onDrop={onDrop}
           />
 
           {endIcon && (

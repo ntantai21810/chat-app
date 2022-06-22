@@ -177,6 +177,49 @@ export default function ChatPage(props: IChatPageProps) {
     }
   };
 
+  const handleDrop: React.DragEventHandler<HTMLInputElement> = (e) => {
+    if (!e.dataTransfer.files) return;
+
+    const currentSize = files.reduce((size, file) => size + file.size, 0);
+    const incomingSize = Array.from(e.dataTransfer.files).reduce(
+      (size, file) => size + file.size,
+      0
+    );
+
+    // 5 mb
+    if (currentSize + incomingSize > 5000000) return;
+
+    for (let i = 0; i < e.dataTransfer.files.length; i++) {
+      const reader = new FileReader();
+
+      const file = e.dataTransfer.files[i];
+
+      reader.readAsDataURL(file);
+
+      reader.onload = function () {
+        if (
+          reader.result &&
+          typeof reader.result === "string" &&
+          file.type.startsWith("image/")
+        ) {
+          setFiles((state) => [
+            ...state,
+            {
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              data: reader.result as string,
+            },
+          ]);
+        }
+      };
+
+      reader.onerror = function (error) {
+        console.log("Error: ", error);
+      };
+    }
+  };
+
   const handleClickOnConversation = (conversation: IConversation) => {
     if (conversation.userId !== activeConversation?.user._id) {
       setActiveConversation({
@@ -374,6 +417,7 @@ export default function ChatPage(props: IChatPageProps) {
               onSubmit={handleSubmitMessage}
               onChange={handleChangeMessage}
               onPaste={handlePaste}
+              onDrop={handleDrop}
             />
 
             {files.length > 0 && (

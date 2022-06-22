@@ -40,7 +40,7 @@ export default class MessageController {
 
     const result = await getMessageFromCacheUseCase.execute(conversationId);
 
-    if (result.length <= 10) {
+    if (result.length < 10) {
       const getMessageFromDBUseCase = new GetMessageUseCase(
         new MessageDatabaseRepository(
           new MessageStorageDataSource(IndexedDB.getInstance())

@@ -1,7 +1,16 @@
 import { IMessage, MessageModel } from ".";
 
 export function modelMessageData(message: IMessage): MessageModel {
-  const { fromId, toId, type, content, sendTime, id, conversationId } = message;
+  const {
+    fromId,
+    toId,
+    type,
+    content,
+    sendTime,
+    id,
+    conversationId,
+    clientId,
+  } = message;
 
   return new MessageModel(
     fromId,
@@ -10,6 +19,7 @@ export function modelMessageData(message: IMessage): MessageModel {
     type,
     content,
     sendTime,
+    clientId,
     id
   );
 }
@@ -23,5 +33,6 @@ export function normalizeMessageData(messageModel: MessageModel): IMessage {
     content: messageModel.getContent(),
     conversationId: messageModel.getConversationId(),
     sendTime: messageModel.getSendTime(),
+    clientId: messageModel.getClientId(),
   };
 }

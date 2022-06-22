@@ -1,18 +1,20 @@
 import classNames from "classnames";
 import * as React from "react";
+import { IMessage, MessageType } from "../../../domains/Message";
 import Avatar from "../common/Avatar";
+import Image from "../common/Image";
 import MessageItem from "../Message";
 import styles from "./style.module.scss";
 
 export interface IChatMessageProps {
   reverse?: boolean;
   avatar?: string;
-  content: string;
+  message: IMessage;
   showAvatar: boolean;
 }
 
 export default function ChatMessage(props: IChatMessageProps) {
-  const { reverse = false, avatar, content, showAvatar } = props;
+  const { reverse = false, avatar, message, showAvatar } = props;
 
   return (
     <div
@@ -35,8 +37,29 @@ export default function ChatMessage(props: IChatMessageProps) {
         )}
       </div>
 
-      <div className={styles.messageList}>
-        <MessageItem bgColor={reverse ? "#d5edff" : "#fff"} message={content} />
+      <div className={styles.messageItem}>
+        {message.type === MessageType.TEXT && (
+          <MessageItem
+            bgColor={reverse ? "#d5edff" : "#fff"}
+            message={message.content}
+          />
+        )}
+
+        {message.type === MessageType.IMAGE && (
+          <div className={styles.imagesContainer}>
+            {message.content.split("-").map((url, index) => (
+              <div className={styles.imageItem} key={index}>
+                <Image
+                  width="36rem"
+                  height="20rem"
+                  src={url}
+                  alt="Image message"
+                />
+                <div className={styles.overlay}></div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

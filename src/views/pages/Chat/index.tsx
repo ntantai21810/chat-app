@@ -32,6 +32,7 @@ import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import SearchUserList from "../../components/SearchUserList";
 import styles from "./style.module.scss";
+import { v4 as uuidv4 } from "uuid";
 
 export interface IChatPageProps {}
 
@@ -86,21 +87,48 @@ export default function ChatPage(props: IChatPageProps) {
   };
 
   const handleSubmitMessage = () => {
-    if (activeConversation && message)
-      messageController.sendMessage({
-        fromId: auth.auth.user._id,
-        toId: activeConversation.user._id,
-        type: MessageType.TEXT,
-        content: message,
-        sendTime: Moment().toISOString(),
-        conversationId: "",
-      });
+    if (activeConversation) {
+      if (message) {
+        messageController.sendMessage({
+          fromId: auth.auth.user._id,
+          toId: activeConversation.user._id,
+          type: MessageType.TEXT,
+          content: message,
+          sendTime: Moment().toISOString(),
+          conversationId: "",
+          clientId: uuidv4(),
+        });
+      }
 
+      if (files.length > 0) {
+        messageController.sendMessage({
+          fromId: auth.auth.user._id,
+          toId: activeConversation.user._id,
+          type: MessageType.IMAGE,
+          content: files.join("-"),
+          sendTime: Moment().toISOString(),
+          conversationId: "",
+          clientId: uuidv4(),
+        });
+      }
+    }
+
+    setFiles([]);
     setMessage("");
   };
 
   const handleSubmitFiles = (files: string[]) => {
-    console.log({ files });
+    if (activeConversation && files.length > 0) {
+      messageController.sendMessage({
+        fromId: auth.auth.user._id,
+        toId: activeConversation.user._id,
+        type: MessageType.IMAGE,
+        content: files.join("-"),
+        sendTime: Moment().toISOString(),
+        conversationId: "",
+        clientId: uuidv4(),
+      });
+    }
   };
 
   const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (e) => {

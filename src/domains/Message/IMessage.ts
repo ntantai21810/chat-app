@@ -6,6 +6,7 @@ export interface IMessage {
   content: string;
   sendTime: string;
   conversationId: string;
+  clientId: string;
 }
 
 export enum MessageType {

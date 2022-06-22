@@ -1,11 +1,12 @@
 import axios, { AxiosInstance } from "axios";
 import { IAuthAPI } from "../../dataSource";
+import { IFileAPI } from "../../dataSource/File";
 import { IUserAPI } from "../../dataSource/User";
 import { IAuth } from "../../domains/Auth";
 import { IUser } from "../../domains/User";
 import { CONSTANTS } from "../../helper/constants";
 
-export default class API implements IAuthAPI, IUserAPI {
+export default class API implements IAuthAPI, IUserAPI, IFileAPI {
   private static instance: API;
 
   private axios: AxiosInstance;
@@ -81,6 +82,16 @@ export default class API implements IAuthAPI, IUserAPI {
   async getUserByPhone(phone: string): Promise<IUser[]> {
     try {
       return await this.axios.get(`/users`, { params: { phone } });
+    } catch (e) {
+      console.log(e);
+
+      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
+    }
+  }
+
+  async uploadImages(images: string[]): Promise<string[]> {
+    try {
+      return await this.axios.post(`/upload/images`, images);
     } catch (e) {
       console.log(e);
 

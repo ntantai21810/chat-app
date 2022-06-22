@@ -1,14 +1,18 @@
+import { v4 as uuidv4 } from "uuid";
 import ConversationDatabaseDataSource from "../../dataSource/Conversation/conversationDatabaseDataSouce";
+import FileDataSource from "../../dataSource/File/fileDataSouce";
 import FriendDataSource from "../../dataSource/Friend/friendDataSouce";
-import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
 import MessageSocketDataSource from "../../dataSource/Message/messageSocketDataSource";
+import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
 import UserAPIDataSource from "../../dataSource/User/userDataSouce";
 import { ConversationModel } from "../../domains/Conversation";
-import { MessageModel } from "../../domains/Message";
+import { MessageModel, MessageType } from "../../domains/Message";
 import API from "../../network/api/API";
 import Socket from "../../network/socket/socket";
 import { ConversationPresenter, IMessagePresenter } from "../../presenter";
+import FriendPresenter from "../../presenter/Friend/friendPresenter";
 import ConversationStorageRepository from "../../repository/Conversation/conversationStorageRepository";
+import FileRepository from "../../repository/File/fileRepository";
 import FriendStorageRepository from "../../repository/Friend/friendStorageRepository";
 import MessageDatabaseRepository from "../../repository/Message/messageDatabaseRepository";
 import MessageSocketRepository from "../../repository/Message/messageSocketRepository";
@@ -17,12 +21,11 @@ import IndexedDB from "../../storage/indexedDB";
 import AddConversationUseCase from "../Conversation/addConversationUseCase";
 import GetConversationByUserIdUseCase from "../Conversation/getConversationByUserIdUseCase";
 import UpdateConversationUseCase from "../Conversation/updateConversationUseCase";
+import UploadImageUseCase from "../File/uploadImageUseCase";
 import AddFriendUseCase from "../Friend/addFriendUseCase";
 import GetUseByIdUseCase from "../User/getUserByIdUseCase";
 import AddMessageDatabaseUseCase from "./addMessageDatabaseUseCase";
 import SendMessageSocketUseCase from "./sendMessageSocketUseCase";
-import { v4 as uuidv4 } from "uuid";
-import FriendPresenter from "../../presenter/Friend/friendPresenter";
 
 export default class SendMessageUseCase {
   private presenter: IMessagePresenter;
@@ -32,17 +35,35 @@ export default class SendMessageUseCase {
   }
 
   async execute(messageModel: MessageModel) {
-    //Add to DB
     /* 
-    if chatted (has conversation)
-      updateConversation (lastMessage)
-    else
-      addConversation
-      addFriend
+    --- Upload file if have
+
+    --- Add to DB
+      if chatted (has conversation)
+        updateConversation (lastMessage)
+      else
+        addConversation
+        addFriend
     
-    sendSocket
-    
+    --- sendSocket
     */
+
+    try {
+      if (messageModel.getType() === MessageType.IMAGE) {
+        const uploadImagesUseCase = new UploadImageUseCase(
+          new FileRepository(new FileDataSource(API.getIntance()))
+        );
+
+        const imageUrls = await uploadImagesUseCase.execute(
+          messageModel.getContent().split("-")
+        );
+
+        messageModel.setContent(imageUrls.join("-"));
+      }
+    } catch (e) {
+      return;
+    }
+
     try {
       messageModel.setId(uuidv4());
 

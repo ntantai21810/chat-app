@@ -24,9 +24,14 @@ function ConversationContent(props: IConversationContentProps) {
   const isBottom = useRef(true);
   const lastConversationId = useRef("");
   const scrollFromBottom = useRef(0);
+  const scrollFromTop = useRef(0);
 
   const handleScroll = () => {
-    if (ref.current?.scrollTop === 0 && onScrollToTop) {
+    if (
+      ref.current?.scrollTop === 0 &&
+      scrollFromTop.current > 0 &&
+      onScrollToTop
+    ) {
       onScrollToTop();
     }
 
@@ -37,6 +42,8 @@ function ConversationContent(props: IConversationContentProps) {
 
       scrollFromBottom.current =
         ref.current.scrollHeight - ref.current.scrollTop;
+
+      scrollFromTop.current = ref.current.scrollTop;
     }
   };
 
@@ -48,12 +55,12 @@ function ConversationContent(props: IConversationContentProps) {
         ref.current.scrollTop = ref.current.scrollHeight || 0;
       } else if (messages.length > 0) {
         //Scroll when change conversation
-        if (lastConversationId.current !== messages[0].conversationId) {
-          ref.current.scrollTop = ref.current.scrollHeight || 0;
-        } else {
+        if (lastConversationId.current === messages[0].conversationId) {
           // Scroll when load more
           ref.current.scrollTop =
             ref.current.scrollHeight - scrollFromBottom.current;
+        } else {
+          ref.current.scrollTop = ref.current.scrollHeight || 0;
         }
       }
     }
@@ -78,7 +85,7 @@ function ConversationContent(props: IConversationContentProps) {
         return (
           <div className={styles.chatMessage} key={index}>
             <ChatMessage
-              content={item.content}
+              message={item}
               reverse={currentUserId === item.fromId}
               avatar={avatar}
               showAvatar={showAvatar}

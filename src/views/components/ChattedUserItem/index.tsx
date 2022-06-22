@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import * as React from "react";
-import { IMessage } from "../../../domains/Message";
+import { IMessage, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
 import { Moment } from "../../../helper/configs/moment";
 import Avatar from "../common/Avatar";
@@ -39,7 +39,12 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
         <div className={styles.content}>
           <p className={styles.title}>{user?.fullName || ""}</p>
 
-          <p className={styles.message}>{lastMessage?.content || ""}</p>
+          <p className={styles.message}>
+            {lastMessage?.type === MessageType.TEXT &&
+              (lastMessage?.content || "")}
+
+            {lastMessage?.type === MessageType.IMAGE && "Đã gửi ảnh"}
+          </p>
         </div>
         <p className={styles.time}>{`${Math.floor(
           Moment().diff(Moment(lastMessage.sendTime)) / 1000 / 60

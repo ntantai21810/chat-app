@@ -2,6 +2,7 @@ import { MessageType } from "./IMessage";
 
 export default class MessageModel {
   private id: string;
+  private clientId: string;
   private conversationId: string;
   private fromId: string;
   private toId: string;
@@ -16,6 +17,7 @@ export default class MessageModel {
     type: MessageType,
     content: string,
     sendTime: string,
+    clientId: string,
     id?: string
   ) {
     this.fromId = fromId;
@@ -23,6 +25,7 @@ export default class MessageModel {
     this.type = type;
     this.content = content;
     this.conversationId = conversationId;
+    this.clientId = clientId;
     this.sendTime = sendTime;
 
     if (id) this.id = id;
@@ -56,6 +59,10 @@ export default class MessageModel {
     return this.conversationId;
   }
 
+  getClientId() {
+    return this.clientId;
+  }
+
   setId(id: string) {
     this.id = id;
   }
@@ -82,5 +89,9 @@ export default class MessageModel {
 
   setSendTime(sendTime: string) {
     this.sendTime = sendTime;
+  }
+
+  setClientId(clientId: string) {
+    this.clientId = clientId;
   }
 }

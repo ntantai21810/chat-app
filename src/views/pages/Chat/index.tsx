@@ -36,6 +36,13 @@ import { v4 as uuidv4 } from "uuid";
 
 export interface IChatPageProps {}
 
+interface IFile {
+  name: string;
+  size: number;
+  type: string;
+  data: string;
+}
+
 const PAGE_SIZE = 20;
 
 export default function ChatPage(props: IChatPageProps) {
@@ -50,7 +57,7 @@ export default function ChatPage(props: IChatPageProps) {
   const [isFullMessage, setIsFullMessage] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [message, setMessage] = React.useState("");
-  const [files, setFiles] = React.useState<string[]>([]);
+  const [files, setFiles] = React.useState<IFile[]>([]);
   const [searchUsers, setSearchUsers] = React.useState<IUser[]>([]);
   const [activeConversation, setActiveConversation] = React.useState<{
     id: string;
@@ -105,7 +112,7 @@ export default function ChatPage(props: IChatPageProps) {
           fromId: auth.auth.user._id,
           toId: activeConversation.user._id,
           type: MessageType.IMAGE,
-          content: files.join("-"),
+          content: files.map((file) => file.data).join("-"),
           sendTime: Moment().toISOString(),
           conversationId: "",
           clientId: uuidv4(),
@@ -145,7 +152,22 @@ export default function ChatPage(props: IChatPageProps) {
           typeof reader.result === "string" &&
           file.type.startsWith("image/")
         ) {
-          setFiles((state) => [...state, reader.result as string]);
+          const currentSize = files.reduce((size, file) => size + file.size, 0);
+
+          //5mb
+          if (currentSize + file.size <= 5000000) {
+            setFiles((state) => [
+              ...state,
+              {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                data: reader.result as string,
+              },
+            ]);
+          } else {
+            //Handle error oversize
+          }
         }
       };
 
@@ -164,6 +186,12 @@ export default function ChatPage(props: IChatPageProps) {
 
       messageController.addMessageToCache(messages.slice(-10));
     }
+  };
+
+  const handleCancleFile = (index: number) => {
+    setFiles((state) => {
+      return state.filter((_, i) => i !== index);
+    });
   };
 
   const handleClickOnSearchUser = async (user: IUser) => {
@@ -357,16 +385,12 @@ export default function ChatPage(props: IChatPageProps) {
                   {files.map((file, index) => (
                     <div className={styles.image} key={index}>
                       <Image
-                        src={file}
+                        src={file.data}
                         alt="Image from clipboard"
                         width="100%"
                         height="100%"
                         closable={true}
-                        onClose={() =>
-                          setFiles((state) => {
-                            return state.filter((_, i) => i !== index);
-                          })
-                        }
+                        onClose={() => handleCancleFile(index)}
                       />
                     </div>
                   ))}

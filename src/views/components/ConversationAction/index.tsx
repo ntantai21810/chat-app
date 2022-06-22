@@ -14,8 +14,12 @@ export default function ConversationAction(props: IConversationActionProps) {
 
     const files: string[] = [];
     let numberOfLoadedFiles = 0;
+    let totalSize = 0;
+    let isOverSize = false;
 
     for (let i = 0; i < e.target.files.length; i++) {
+      if (isOverSize) return;
+
       const reader = new FileReader();
 
       const file = e.target.files[i];
@@ -30,6 +34,13 @@ export default function ConversationAction(props: IConversationActionProps) {
           typeof reader.result === "string" &&
           file.type.startsWith("image/")
         ) {
+          totalSize += file.size;
+
+          if (totalSize > 5000000) {
+            isOverSize = true;
+            return;
+          }
+
           files.push(reader.result);
         }
 

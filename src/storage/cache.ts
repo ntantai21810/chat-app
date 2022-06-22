@@ -29,7 +29,6 @@ export default class Cache implements IMessageCache {
   }
 
   public addMessage(message: IMessage): void {
-    console.log("Add to cache");
     if (memCache[message.conversationId]) {
       memCache[message.conversationId].push(message);
 

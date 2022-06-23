@@ -1,7 +1,6 @@
 import { selectAllConversation } from "../framework/redux/conversation";
 import { selectAllFriends } from "../framework/redux/friend";
 import { useAppSelector } from "../framework/redux/hook";
-import { selectAllMessages } from "../framework/redux/message";
 
 export function useAuth() {
   return useAppSelector((state) => state.auth);
@@ -12,7 +11,7 @@ export function useConversation() {
 }
 
 export function useMessage() {
-  return useAppSelector(selectAllMessages);
+  return useAppSelector((state) => state.message);
 }
 
 export function useCommon() {

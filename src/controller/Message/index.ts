@@ -19,6 +19,7 @@ import MessageCacheDataSource from "../../dataSource/Message/messageCacheDataSou
 import Cache from "../../storage/cache";
 import AddMessageDatabaseUseCase from "../../useCases/Message/addMessageDatabaseUseCase";
 import { IQueryOption } from "../../domains/common/helper";
+import UpdateMessageUseCase from "../../useCases/Message/updateMessageUseCase";
 
 export default class MessageController {
   private presenter: IMessagePresenter;
@@ -99,6 +100,39 @@ export default class MessageController {
 
     const messageModel = modelMessageData(message);
 
-    receiveMessageUseCase.execute(messageModel, addToCache);
+    receiveMessageUseCase.execute(messageModel);
+
+    if (addToCache) {
+      const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
+        new MessageDatabaseRepository(
+          new MessageCacheDataSource(Cache.getInstance())
+        )
+      );
+
+      addMessageDatabaseUseCase.execute(messageModel);
+    }
+  }
+
+  updateMessage(message: IMessage, updateCache: boolean) {
+    const updateMessageUseCase = new UpdateMessageUseCase(
+      new MessageDatabaseRepository(
+        new MessageStorageDataSource(IndexedDB.getInstance())
+      ),
+      this.presenter
+    );
+
+    const messageModel = modelMessageData(message);
+
+    updateMessageUseCase.execute(messageModel);
+
+    if (updateCache) {
+      const updateCacheMessage = new UpdateMessageUseCase(
+        new MessageDatabaseRepository(
+          new MessageCacheDataSource(Cache.getInstance())
+        )
+      );
+
+      updateCacheMessage.execute(messageModel);
+    }
   }
 }

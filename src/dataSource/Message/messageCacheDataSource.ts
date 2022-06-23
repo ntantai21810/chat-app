@@ -4,6 +4,7 @@ import { IMessageDatabaseDataSouce } from "../../repository/Message/messageDatab
 export interface IMessageCache {
   getMessagesByConversation: (conversationId: string) => Promise<IMessage[]>;
   addMessage: (message: IMessage) => void;
+  updateMessage: (message: IMessage) => void;
 }
 
 export default class MessageCacheDataSource
@@ -21,5 +22,9 @@ export default class MessageCacheDataSource
 
   addMessage(message: IMessage): void {
     this.cache.addMessage(message);
+  }
+
+  updateMessage(message: IMessage): void {
+    this.cache.updateMessage(message);
   }
 }

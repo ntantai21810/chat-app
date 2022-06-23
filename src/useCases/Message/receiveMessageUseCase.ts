@@ -24,11 +24,13 @@ import AddMessageDatabaseUseCase from "./addMessageDatabaseUseCase";
 export default class ReceiveMessageUseCase {
   private presenter: IMessagePresenter;
 
-  constructor(presenter: IMessagePresenter) {
-    this.presenter = presenter;
+  constructor(presenter?: IMessagePresenter) {
+    if (presenter) {
+      this.presenter = presenter;
+    }
   }
 
-  async execute(messageModel: MessageModel, addToCache: boolean) {
+  async execute(messageModel: MessageModel) {
     //Add to DB
     try {
       let conversationId = "";
@@ -99,16 +101,7 @@ export default class ReceiveMessageUseCase {
 
       messageModel.setConversationId(conversationId);
 
-      if (addToCache) {
-        //Add to cache
-        const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
-          new MessageDatabaseRepository(
-            new MessageCacheDataSource(Cache.getInstance())
-          )
-        );
-
-        addMessageDatabaseUseCase.execute(messageModel);
-      } else {
+      if (this.presenter) {
         this.presenter.addMessage(messageModel);
       }
 

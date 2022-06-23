@@ -7,7 +7,7 @@ export default function MainPage(props: IMainPageProps) {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    navigate("/login");
+    navigate("/chat");
   }, [navigate]);
 
   return <div></div>;

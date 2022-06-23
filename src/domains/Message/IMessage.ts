@@ -7,10 +7,18 @@ export interface IMessage {
   sendTime: string;
   conversationId: string;
   clientId: string;
+  status: MessageStatus;
 }
 
 export enum MessageType {
   TEXT,
   IMAGE,
   FILE,
+}
+
+export enum MessageStatus {
+  PENDING,
+  SENT,
+  RECEIVED,
+  ERROR,
 }

@@ -9,9 +9,11 @@ export default class Socket implements IMessageSocket, ISocket {
 
   private socket: SocketIO;
   private url: string;
+  private isConnecting: boolean;
 
   private constructor(url: string) {
     this.url = url;
+    this.isConnecting = false;
   }
 
   public static getIntance() {
@@ -26,6 +28,9 @@ export default class Socket implements IMessageSocket, ISocket {
     this.socket = io(this.url);
 
     this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+
+    this.socket.on("connect", () => (this.isConnecting = true));
+    this.socket.on("disconnect", () => (this.isConnecting = false));
   }
 
   listen(channel: string, callback: (data: any) => any): void {
@@ -33,10 +38,18 @@ export default class Socket implements IMessageSocket, ISocket {
   }
 
   send(channel: string, data: any): void {
+    if (!this.isConnecting) {
+      throw "Socket disconnected";
+    }
+
     this.socket.emit(channel, data);
   }
 
   sendMessage(message: IMessage): void {
+    if (!this.isConnecting) {
+      throw "Socket disconnected";
+    }
+
     this.socket.emit(SOCKET_CONSTANTS.CHAT_MESSAGE, message);
   }
 

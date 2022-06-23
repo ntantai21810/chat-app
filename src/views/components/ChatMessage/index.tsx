@@ -41,10 +41,9 @@ export default function ChatMessage(props: IChatMessageProps) {
         {message.type === MessageType.TEXT && (
           <MessageItem
             bgColor={reverse ? "#d5edff" : "#fff"}
-            message={message.content}
+            message={message}
           />
         )}
-
         {message.type === MessageType.IMAGE && (
           <div className={styles.imagesContainer}>
             {message.content.split("-").map((url, index) => (

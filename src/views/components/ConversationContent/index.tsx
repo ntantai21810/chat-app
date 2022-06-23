@@ -23,6 +23,7 @@ function ConversationContent(props: IConversationContentProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const lastConversationId = useRef("");
   const lastConversationSendTime = useRef("");
+  const lastMessageLength = useRef(0);
   const scrollFromBottom = useRef(0);
 
   const handleScroll = () => {
@@ -54,19 +55,16 @@ function ConversationContent(props: IConversationContentProps) {
             messages[messages.length - 1].sendTime !==
             lastConversationSendTime.current
           ) {
-            console.log("New message");
             ref.current.scrollTop = ref.current.scrollHeight;
           }
           //Load more
-          else {
-            console.log("Load more");
+          else if (lastMessageLength.current < messages.length) {
             ref.current.scrollTop =
               ref.current.scrollHeight - scrollFromBottom.current;
           }
         }
         //Change conversation
         else {
-          console.log("Change conversation");
           ref.current.scrollTop = ref.current.scrollHeight;
         }
       }
@@ -77,6 +75,8 @@ function ConversationContent(props: IConversationContentProps) {
 
     lastConversationSendTime.current =
       messages.length > 0 ? messages[messages.length - 1].sendTime : "";
+
+    lastMessageLength.current = messages.length;
   });
 
   return (

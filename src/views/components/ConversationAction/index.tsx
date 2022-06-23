@@ -8,6 +8,7 @@ export interface IConversationActionProps {
 
 export default function ConversationAction(props: IConversationActionProps) {
   const { onFileChange } = props;
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     if (!e.target.files) return;
@@ -38,13 +39,18 @@ export default function ConversationAction(props: IConversationActionProps) {
 
           if (totalSize > 5000000) {
             isOverSize = true;
+            if (inputRef.current) inputRef.current.value = "";
             return;
           }
 
           files.push(reader.result);
         }
 
-        if (numberOfLoadedFiles === e.target.files!.length) onFileChange(files);
+        if (numberOfLoadedFiles === e.target.files!.length) {
+          onFileChange(files);
+
+          if (inputRef.current) inputRef.current.value = "";
+        }
       };
 
       reader.onerror = function (error) {
@@ -52,7 +58,11 @@ export default function ConversationAction(props: IConversationActionProps) {
 
         numberOfLoadedFiles++;
 
-        if (numberOfLoadedFiles === e.target.files!.length) onFileChange(files);
+        if (numberOfLoadedFiles === e.target.files!.length) {
+          onFileChange(files);
+
+          if (inputRef.current) inputRef.current.value = "";
+        }
       };
     }
   };
@@ -66,6 +76,7 @@ export default function ConversationAction(props: IConversationActionProps) {
           type="file"
           multiple
           onChange={handleFileChange}
+          ref={inputRef}
         />
       </div>
     </div>

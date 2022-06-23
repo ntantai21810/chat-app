@@ -1,6 +1,7 @@
 import * as React from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { BsSearch } from "react-icons/bs";
+import { v4 as uuidv4 } from "uuid";
 import { getDispatch } from "../../../adapter/frameworkAdapter";
 import {
   useAuth,
@@ -18,7 +19,7 @@ import {
   userController,
 } from "../../../bootstrap";
 import { IConversation } from "../../../domains/Conversation";
-import { IMessage, MessageType } from "../../../domains/Message";
+import { IMessage, MessageStatus, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
 import { removeAllMessage } from "../../../framework/redux/message";
 import { Moment } from "../../../helper/configs/moment";
@@ -27,12 +28,12 @@ import ChattedUserList from "../../components/ChattedUserList";
 import Banner from "../../components/common/Banner";
 import Image from "../../components/common/Image";
 import Input from "../../components/common/Input";
+import TypingIcon from "../../components/common/Typing";
 import ConversationAction from "../../components/ConversationAction";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import SearchUserList from "../../components/SearchUserList";
 import styles from "./style.module.scss";
-import { v4 as uuidv4 } from "uuid";
 
 export interface IChatPageProps {}
 
@@ -53,6 +54,7 @@ export default function ChatPage(props: IChatPageProps) {
   const friend = useFriends();
   const dispatch = getDispatch();
 
+  const [isTyping, setIsTyping] = React.useState(false);
   const [page, setPage] = React.useState(1);
   const [isFullMessage, setIsFullMessage] = React.useState(false);
   const [search, setSearch] = React.useState("");
@@ -63,18 +65,25 @@ export default function ChatPage(props: IChatPageProps) {
     id: string;
     user: IUser;
   }>();
-  // const typingRef = React.useRef<NodeJS.Timeout | undefined>();
+  const typingRef = React.useRef<NodeJS.Timeout | undefined>();
 
   //Handler
   const handleChangeMessage = (e: React.ChangeEvent<any>) => {
-    // if (!typingRef.current) {
-    //   messageController.sendTyping(activeConversation?.user._id || "", true);
-    // } else clearTimeout(typingRef.current);
+    if (!typingRef.current) {
+      socketController.send(SOCKET_CONSTANTS.TYPING, {
+        isTyping: true,
+        toUserId: activeConversation?.user._id,
+      });
+    } else clearTimeout(typingRef.current);
 
-    // typingRef.current = setTimeout(() => {
-    //   messageController.sendTyping(activeConversation?.user._id || "", false);
-    //   typingRef.current = undefined;
-    // }, 2000);
+    typingRef.current = setTimeout(() => {
+      socketController.send(SOCKET_CONSTANTS.TYPING, {
+        isTyping: false,
+        toUserId: activeConversation?.user._id,
+      });
+
+      typingRef.current = undefined;
+    }, 2000);
 
     setMessage(e.target.value);
   };
@@ -101,9 +110,10 @@ export default function ChatPage(props: IChatPageProps) {
           toId: activeConversation.user._id,
           type: MessageType.TEXT,
           content: message,
-          sendTime: Moment().toISOString(),
           conversationId: "",
+          sendTime: Moment().toISOString(),
           clientId: uuidv4(),
+          status: MessageStatus.PENDING,
         });
       }
 
@@ -116,6 +126,7 @@ export default function ChatPage(props: IChatPageProps) {
           sendTime: Moment().toISOString(),
           conversationId: "",
           clientId: uuidv4(),
+          status: MessageStatus.PENDING,
         });
       }
     }
@@ -134,6 +145,7 @@ export default function ChatPage(props: IChatPageProps) {
         sendTime: Moment().toISOString(),
         conversationId: "",
         clientId: uuidv4(),
+        status: MessageStatus.PENDING,
       });
     }
   };
@@ -287,15 +299,39 @@ export default function ChatPage(props: IChatPageProps) {
   React.useEffect(() => {
     if (common.isSocketConnected) {
       socketController.removeAllListener(SOCKET_CONSTANTS.CHAT_MESSAGE);
+      socketController.removeAllListener(SOCKET_CONSTANTS.UPDATE_MESSAGE);
+      socketController.removeAllListener(SOCKET_CONSTANTS.TYPING);
 
       socketController.listen(
         SOCKET_CONSTANTS.CHAT_MESSAGE,
         (message: IMessage) => {
+          message.status = MessageStatus.RECEIVED;
+
           messageController.receiveMessage(
             message,
             !activeConversation ||
               activeConversation.user._id !== message.fromId
           );
+
+          socketController.send(SOCKET_CONSTANTS.ACK_MESSAGE, message);
+        }
+      );
+
+      socketController.listen(
+        SOCKET_CONSTANTS.UPDATE_MESSAGE,
+        (message: IMessage) => {
+          messageController.updateMessage(
+            message,
+            !activeConversation || activeConversation.user._id !== message.toId
+          );
+        }
+      );
+
+      socketController.listen(
+        SOCKET_CONSTANTS.TYPING,
+        (data: { isTyping: boolean; fromUserId: string }) => {
+          if (activeConversation?.user._id === data.fromUserId)
+            setIsTyping(data.isTyping);
         }
       );
     }
@@ -322,7 +358,7 @@ export default function ChatPage(props: IChatPageProps) {
     }
   }, [activeConversation, common.isDatabaseConnected, dispatch]);
 
-  // Scroll top
+  // Load more
   React.useEffect(() => {
     const loadMore = async () => {
       if (page !== 1 && activeConversation && !isFullMessage) {
@@ -392,7 +428,7 @@ export default function ChatPage(props: IChatPageProps) {
               onScrollToTop={handleScrollToTop}
             />
 
-            {/* {messages.isTyping && (
+            {isTyping && (
               <div className={styles.typing}>
                 <span>
                   {activeConversation.user.fullName || ""} đang nhập ...
@@ -401,7 +437,7 @@ export default function ChatPage(props: IChatPageProps) {
                   <TypingIcon />
                 </div>
               </div>
-            )} */}
+            )}
           </div>
 
           <div className={styles.conversationAction}>

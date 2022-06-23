@@ -4,7 +4,7 @@ import { normalizeMessageData } from "../../domains/Message/helper";
 import {
   addManyMessage,
   addOneMessage,
-  removeAllMessage,
+  updateOneMessage,
 } from "../../framework/redux/message";
 import { IMessagePresenter } from "./IMessagePresenter";
 
@@ -31,5 +31,11 @@ export default class MessagePresenter implements IMessagePresenter {
     const message = normalizeMessageData(messageModel);
 
     this.dispatch(addOneMessage(message));
+  }
+
+  updateMessage(messageModel: MessageModel): void {
+    const message = normalizeMessageData(messageModel);
+
+    this.dispatch(updateOneMessage(message));
   }
 }

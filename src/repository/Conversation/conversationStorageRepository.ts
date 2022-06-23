@@ -6,12 +6,14 @@ import {
 } from "../../domains/Conversation";
 import { IGetAllConversationRepo } from "../../useCases";
 import { IAddConversationRepo } from "../../useCases/Conversation/addConversationUseCase";
-import { IGetConversationRepo } from "../../useCases/Conversation/getConversationByUserIdUseCase";
+import { IGetConversationByIdRepo } from "../../useCases/Conversation/getConversationByIdUseCase";
+import { IGetConversationByUserIdRepo } from "../../useCases/Conversation/getConversationByUserIdUseCase";
 import { IUpdateConversationRepo } from "../../useCases/Conversation/updateConversationUseCase";
 
 export interface IConversationStorageDataSource {
   getConversations(): Promise<IConversation[]>;
   getConversationByUserId(userId: string): Promise<IConversation | null>;
+  getConversationById(id: string): Promise<IConversation | null>;
   addConversation(conversation: IConversation): void;
   updateConversation(conversation: IConversation): void;
 }
@@ -19,9 +21,10 @@ export interface IConversationStorageDataSource {
 export default class ConversationStorageRepository
   implements
     IGetAllConversationRepo,
-    IGetConversationRepo,
+    IGetConversationByUserIdRepo,
     IAddConversationRepo,
-    IUpdateConversationRepo
+    IUpdateConversationRepo,
+    IGetConversationByIdRepo
 {
   private dataSource: IConversationStorageDataSource;
 
@@ -36,6 +39,7 @@ export default class ConversationStorageRepository
 
     for (let conversation of res) {
       const conversationModel = modelConversationData(conversation);
+
       conversationModels.push(conversationModel);
     }
 
@@ -64,5 +68,15 @@ export default class ConversationStorageRepository
     const conversation = normalizeConversationData(conversationModel);
 
     this.dataSource.updateConversation(conversation);
+  }
+
+  async getConversationById(userId: string): Promise<ConversationModel | null> {
+    const res = await this.dataSource.getConversationById(userId);
+
+    if (res) {
+      const conversationModel = modelConversationData(res);
+
+      return conversationModel;
+    } else return null;
   }
 }

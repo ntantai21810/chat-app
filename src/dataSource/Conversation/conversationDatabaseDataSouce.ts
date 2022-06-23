@@ -4,6 +4,7 @@ import { IConversationStorageDataSource } from "../../repository/Conversation/co
 export interface IConversationDatabase {
   getConversations(): Promise<IConversation[]>;
   getConversationByUserId(userId: string): Promise<IConversation | null>;
+  getConversationById(id: string): Promise<IConversation | null>;
   addConversation(conversation: IConversation): void;
   updateConversation(conversation: IConversation): void;
 }
@@ -31,5 +32,9 @@ export default class ConversationDatabaseDataSource
 
   updateConversation(conversation: IConversation): void {
     this.database.updateConversation(conversation);
+  }
+
+  getConversationById(id: string): Promise<IConversation | null> {
+    return this.database.getConversationById(id);
   }
 }

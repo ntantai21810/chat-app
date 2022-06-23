@@ -3,4 +3,21 @@
   padding: 1.4rem 1.8rem;
 
   border-radius: 14px;
+
+  .status {
+    text-align: end;
+    margin-top: 1.2rem;
+    font-size: 1.4rem;
+
+    color: rgb(98, 98, 98);
+
+    &.error {
+      color: red;
+      cursor: pointer;
+      font-weight: 500;
+      padding-top: 1.2rem;
+
+      border-top: 1px solid rgb(129, 129, 129);
+    }
+  }
 }

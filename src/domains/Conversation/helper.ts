@@ -12,8 +12,9 @@ export function modelConversationData(
     lastMessage.conversationId,
     lastMessage.type,
     lastMessage.content,
-    lastMessage.sendTime,
     lastMessage.clientId,
+    lastMessage.sendTime,
+    lastMessage.status,
     lastMessage.id
   );
 

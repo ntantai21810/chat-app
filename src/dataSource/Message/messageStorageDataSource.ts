@@ -8,6 +8,7 @@ export interface IMessageStorage {
     options?: IQueryOption
   ) => Promise<IMessage[]>;
   addMessage: (message: IMessage) => void;
+  updateMessage: (message: IMessage) => void;
 }
 
 export default class MessageStorageDataSource
@@ -28,5 +29,9 @@ export default class MessageStorageDataSource
 
   addMessage(message: IMessage): void {
     this.database.addMessage(message);
+  }
+
+  updateMessage(message: IMessage): void {
+    this.database.updateMessage(message);
   }
 }

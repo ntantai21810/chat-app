@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import ConversationDatabaseDataSource from "../../dataSource/Conversation/conversationDatabaseDataSouce";
 import FileDataSource from "../../dataSource/File/fileDataSouce";
 import FriendDataSource from "../../dataSource/Friend/friendDataSouce";
@@ -61,12 +60,11 @@ export default class SendMessageUseCase {
         messageModel.setContent(imageUrls.join("-"));
       }
     } catch (e) {
+      console.log("Upload error: ", e);
       return;
     }
 
     try {
-      messageModel.setId(uuidv4());
-
       const getConversationByUserIdUseCase = new GetConversationByUserIdUseCase(
         new ConversationStorageRepository(
           new ConversationDatabaseDataSource(IndexedDB.getInstance())
@@ -143,21 +141,19 @@ export default class SendMessageUseCase {
       addMessageDatabaseUseCase.execute(messageModel);
     } catch (e) {
       console.log("Add message database error: ", e);
+      return;
     }
 
     this.presenter.addMessage(messageModel);
 
     //Send socket
-    try {
-      const sendMessageSocketUseCase = new SendMessageSocketUseCase(
-        new MessageSocketRepository(
-          new MessageSocketDataSource(Socket.getIntance())
-        )
-      );
+    const sendMessageSocketUseCase = new SendMessageSocketUseCase(
+      new MessageSocketRepository(
+        new MessageSocketDataSource(Socket.getIntance())
+      ),
+      this.presenter
+    );
 
-      sendMessageSocketUseCase.execute(messageModel);
-    } catch (e) {
-      console.log("Add message socket error: ", e);
-    }
+    sendMessageSocketUseCase.execute(messageModel);
   }
 }

@@ -27,6 +27,10 @@ const messageSlice = createSlice({
         item.clientId === action.payload.clientId ? action.payload : item
       );
     },
+
+    removeOne(state, action: PayloadAction<IMessage>) {
+      return state.filter((item) => item.clientId !== action.payload.clientId);
+    },
   },
 });
 
@@ -37,6 +41,7 @@ export const {
   addMany: addManyMessage,
   addOne: addOneMessage,
   updateOne: updateOneMessage,
+  removeOne: removeOneMessage,
 } = messageSlice.actions;
 
 export default messageReducer;

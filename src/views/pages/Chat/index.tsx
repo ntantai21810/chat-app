@@ -274,6 +274,10 @@ export default function ChatPage(props: IChatPageProps) {
     []
   );
 
+  const handleRetry = (message: IMessage) => {
+    messageController.retryMessage(message);
+  };
+
   //Connect datasource
   React.useEffect(() => {
     if (auth.auth.accessToken) {
@@ -433,6 +437,7 @@ export default function ChatPage(props: IChatPageProps) {
               currentUserAvatar={auth.auth.user.avatar || ""}
               chattingUserAvatar={activeConversation?.user.avatar || ""}
               onScrollToTop={handleScrollToTop}
+              onRetry={handleRetry}
             />
 
             {isTyping && (

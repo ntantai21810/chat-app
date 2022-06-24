@@ -4,4 +4,5 @@ export interface IMessagePresenter {
   addMessages(messageModels: Array<MessageModel>): void;
   addMessage(messageModel: MessageModel): void;
   updateMessage(messageModel: MessageModel): void;
+  deleteMessage(messageModel: MessageModel): void;
 }

@@ -1,5 +1,5 @@
 //Data source
-import { IMessage, modelMessageData } from "../../domains/Message";
+import { IMessage, MessageType, modelMessageData } from "../../domains/Message";
 
 //Presenter
 import { IMessagePresenter } from "../../presenter";
@@ -21,6 +21,11 @@ import AddMessageDatabaseUseCase from "../../useCases/Message/addMessageDatabase
 import { IQueryOption } from "../../domains/common/helper";
 import UpdateMessageUseCase from "../../useCases/Message/updateMessageUseCase";
 import SyncMessageUseCase from "../../useCases/Message/syncMessageUseCase";
+import UploadImageUseCase from "../../useCases/File/uploadImageUseCase";
+import FileRepository from "../../repository/File/fileRepository";
+import FileDataSource from "../../dataSource/File/fileDataSouce";
+import API from "../../network/api/API";
+import RetryMessageUseCase from "../../useCases/Message/retryMessageUseCase";
 
 export default class MessageController {
   private presenter: IMessagePresenter;
@@ -88,7 +93,24 @@ export default class MessageController {
     }
   }
 
-  sendMessage(message: IMessage) {
+  async sendMessage(message: IMessage) {
+    try {
+      if (message.type === MessageType.IMAGE) {
+        const uploadImagesUseCase = new UploadImageUseCase(
+          new FileRepository(new FileDataSource(API.getIntance()))
+        );
+
+        const imageUrls = await uploadImagesUseCase.execute(
+          message.content.split("-")
+        );
+
+        message.content = imageUrls.join("-");
+      }
+    } catch (e) {
+      console.log("Upload error: ", e);
+      return;
+    }
+
     const sendMessageUseCase = new SendMessageUseCase(this.presenter);
 
     const messageModel = modelMessageData(message);
@@ -141,5 +163,13 @@ export default class MessageController {
     const syncMessageUseCase = new SyncMessageUseCase();
 
     syncMessageUseCase.execute();
+  }
+
+  retryMessage(message: IMessage) {
+    const retryMessageUseCase = new RetryMessageUseCase(this.presenter);
+
+    const messageModel = modelMessageData(message);
+
+    retryMessageUseCase.execute(messageModel);
   }
 }

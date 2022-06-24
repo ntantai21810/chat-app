@@ -35,8 +35,6 @@ export default class SendMessageUseCase {
 
   async execute(messageModel: MessageModel) {
     /* 
-    --- Upload file if have
-
     --- Add to DB
       if chatted (has conversation)
         updateConversation (lastMessage)
@@ -46,23 +44,6 @@ export default class SendMessageUseCase {
     
     --- sendSocket
     */
-
-    try {
-      if (messageModel.getType() === MessageType.IMAGE) {
-        const uploadImagesUseCase = new UploadImageUseCase(
-          new FileRepository(new FileDataSource(API.getIntance()))
-        );
-
-        const imageUrls = await uploadImagesUseCase.execute(
-          messageModel.getContent().split("-")
-        );
-
-        messageModel.setContent(imageUrls.join("-"));
-      }
-    } catch (e) {
-      console.log("Upload error: ", e);
-      return;
-    }
 
     try {
       const getConversationByUserIdUseCase = new GetConversationByUserIdUseCase(

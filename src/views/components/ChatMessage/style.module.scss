@@ -18,6 +18,7 @@
   .messageItem {
     margin-left: 1.2rem;
     max-width: 80%;
+    text-align: end;
 
     .imagesContainer {
       width: 100%;
@@ -51,6 +52,24 @@
             opacity: 0.2;
           }
         }
+      }
+    }
+
+    .status {
+      background-color: #fff;
+      display: inline-block;
+      padding: 0.6rem;
+      border-radius: 8px;
+      margin-top: 0.2rem;
+
+      font-size: 1.4rem;
+      &.error {
+        color: red;
+        font-weight: 500;
+
+        border: 1px solid red;
+        background-color: rgb(255, 240, 240);
+        cursor: pointer;
       }
     }
   }

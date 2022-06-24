@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import * as React from "react";
-import { IMessage, MessageType } from "../../../domains/Message";
+import { IMessage, MessageStatus, MessageType } from "../../../domains/Message";
 import Avatar from "../common/Avatar";
 import Image from "../common/Image";
 import MessageItem from "../Message";
@@ -11,10 +11,11 @@ export interface IChatMessageProps {
   avatar?: string;
   message: IMessage;
   showAvatar: boolean;
+  onRetry?: (message: IMessage) => any;
 }
 
 export default function ChatMessage(props: IChatMessageProps) {
-  const { reverse = false, avatar, message, showAvatar } = props;
+  const { reverse = false, avatar, message, showAvatar, onRetry } = props;
 
   return (
     <div
@@ -43,22 +44,43 @@ export default function ChatMessage(props: IChatMessageProps) {
             bgColor={reverse ? "#d5edff" : "#fff"}
             message={message}
             showStatus={reverse}
+            onRetry={onRetry}
           />
         )}
         {message.type === MessageType.IMAGE && (
-          <div className={styles.imagesContainer}>
-            {message.content.split("-").map((url, index) => (
-              <div className={styles.imageItem} key={index}>
-                <Image
-                  width="36rem"
-                  height="20rem"
-                  src={url}
-                  alt="Image message"
-                />
-                <div className={styles.overlay}></div>
+          <>
+            <div className={styles.imagesContainer}>
+              {message.content.split("-").map((url, index) => (
+                <div className={styles.imageItem} key={index}>
+                  <Image
+                    width="36rem"
+                    height="20rem"
+                    src={url}
+                    alt="Image message"
+                  />
+                  <div className={styles.overlay}></div>
+                </div>
+              ))}
+            </div>
+            {reverse && (
+              <div
+                className={classNames({
+                  [styles.status]: true,
+                  [styles.error]: message.status === MessageStatus.ERROR,
+                })}
+                onClick={() =>
+                  message.status === MessageStatus.ERROR && onRetry
+                    ? onRetry(message)
+                    : ""
+                }
+              >
+                {message.status === MessageStatus.PENDING && "Đang gửi"}
+                {message.status === MessageStatus.SENT && "Đã gửi"}
+                {message.status === MessageStatus.RECEIVED && "Đã nhận"}
+                {message.status === MessageStatus.ERROR && "Thử lại"}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -6,10 +6,11 @@ export interface IMessageProps {
   bgColor?: string;
   message: IMessage;
   showStatus: boolean;
+  onRetry?: (message: IMessage) => any;
 }
 
 export default function Message(props: IMessageProps) {
-  const { bgColor = "#fff", message, showStatus } = props;
+  const { bgColor = "#fff", message, showStatus, onRetry } = props;
 
   return (
     <div
@@ -26,6 +27,11 @@ export default function Message(props: IMessageProps) {
             [styles.status]: true,
             [styles.error]: message.status === MessageStatus.ERROR,
           })}
+          onClick={() =>
+            message.status === MessageStatus.ERROR && onRetry
+              ? onRetry(message)
+              : ""
+          }
         >
           {message.status === MessageStatus.PENDING && "Đang gửi"}
           {message.status === MessageStatus.SENT && "Đã gửi"}

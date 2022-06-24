@@ -9,6 +9,7 @@ export interface IConversationContentProps {
   currentUserAvatar: string;
   chattingUserAvatar: string;
   onScrollToTop?: () => any;
+  onRetry?: (message: IMessage) => any;
 }
 
 function ConversationContent(props: IConversationContentProps) {
@@ -18,6 +19,7 @@ function ConversationContent(props: IConversationContentProps) {
     currentUserAvatar,
     chattingUserAvatar,
     onScrollToTop,
+    onRetry,
   } = props;
 
   const ref = useRef<HTMLDivElement | null>(null);
@@ -99,6 +101,7 @@ function ConversationContent(props: IConversationContentProps) {
               reverse={currentUserId === item.fromId}
               avatar={avatar}
               showAvatar={showAvatar}
+              onRetry={onRetry}
             />
           </div>
         );

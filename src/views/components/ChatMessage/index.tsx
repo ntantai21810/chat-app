@@ -42,6 +42,7 @@ export default function ChatMessage(props: IChatMessageProps) {
           <MessageItem
             bgColor={reverse ? "#d5edff" : "#fff"}
             message={message}
+            showStatus={reverse}
           />
         )}
         {message.type === MessageType.IMAGE && (

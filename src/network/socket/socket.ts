@@ -53,6 +53,14 @@ export default class Socket implements IMessageSocket, ISocket {
     this.socket.emit(SOCKET_CONSTANTS.CHAT_MESSAGE, message);
   }
 
+  ackMessage(message: IMessage): void {
+    if (!this.isConnecting) {
+      throw "Socket disconnected";
+    }
+
+    this.socket.emit(SOCKET_CONSTANTS.ACK_MESSAGE, message);
+  }
+
   disconnect(): void {
     this.socket.disconnect();
   }

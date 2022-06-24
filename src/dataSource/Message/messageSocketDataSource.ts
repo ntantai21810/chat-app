@@ -3,6 +3,7 @@ import { IMessageSocketDataSouce } from "../../repository/Message/messageSocketR
 
 export interface IMessageSocket {
   sendMessage(message: IMessage): void;
+  ackMessage(message: IMessage): void;
 }
 
 export default class MessageSocketDataSource
@@ -16,5 +17,9 @@ export default class MessageSocketDataSource
 
   sendMessage(message: IMessage): void {
     this.socket.sendMessage(message);
+  }
+
+  ackMessage(message: IMessage): void {
+    this.socket.ackMessage(message);
   }
 }

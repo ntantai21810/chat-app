@@ -1,14 +1,15 @@
 import { IMessage } from "../../domains/Message";
-import { IMessageDatabaseDataSouce } from "../../repository/Message/messageDatabaseRepository";
+import { IMessageStorageDataSouce } from "../../repository/Message/messageStorageRepository";
 
 export interface IMessageCache {
   getMessagesByConversation: (conversationId: string) => Promise<IMessage[]>;
   addMessage: (message: IMessage) => void;
   updateMessage: (message: IMessage) => void;
+  deleteMessage: (message: IMessage) => void;
 }
 
 export default class MessageCacheDataSource
-  implements IMessageDatabaseDataSouce
+  implements IMessageStorageDataSouce
 {
   private cache: IMessageCache;
 
@@ -26,5 +27,9 @@ export default class MessageCacheDataSource
 
   updateMessage(message: IMessage): void {
     this.cache.updateMessage(message);
+  }
+
+  deleteMessage(message: IMessage): void {
+    this.cache.deleteMessage(message);
   }
 }

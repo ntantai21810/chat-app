@@ -1,6 +1,6 @@
 import { IQueryOption } from "../../domains/common/helper";
 import { IMessage } from "../../domains/Message";
-import { IMessageDatabaseDataSouce } from "../../repository/Message/messageDatabaseRepository";
+import { IMessageStorageDataSouce } from "../../repository/Message/messageStorageRepository";
 
 export interface IMessageStorage {
   getMessagesByConversation: (
@@ -9,10 +9,11 @@ export interface IMessageStorage {
   ) => Promise<IMessage[]>;
   addMessage: (message: IMessage) => void;
   updateMessage: (message: IMessage) => void;
+  deleteMessage: (message: IMessage) => void;
 }
 
 export default class MessageStorageDataSource
-  implements IMessageDatabaseDataSouce
+  implements IMessageStorageDataSouce
 {
   private database: IMessageStorage;
 
@@ -33,5 +34,9 @@ export default class MessageStorageDataSource
 
   updateMessage(message: IMessage): void {
     this.database.updateMessage(message);
+  }
+
+  deleteMessage(message: IMessage): void {
+    this.database.deleteMessage(message);
   }
 }

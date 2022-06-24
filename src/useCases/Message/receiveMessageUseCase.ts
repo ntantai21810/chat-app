@@ -1,6 +1,5 @@
 import ConversationDatabaseDataSource from "../../dataSource/Conversation/conversationDatabaseDataSouce";
 import FriendDataSource from "../../dataSource/Friend/friendDataSouce";
-import MessageCacheDataSource from "../../dataSource/Message/messageCacheDataSource";
 import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
 import UserAPIDataSource from "../../dataSource/User/userDataSouce";
 import { ConversationModel } from "../../domains/Conversation";
@@ -10,9 +9,8 @@ import { ConversationPresenter, IMessagePresenter } from "../../presenter";
 import FriendPresenter from "../../presenter/Friend/friendPresenter";
 import ConversationStorageRepository from "../../repository/Conversation/conversationStorageRepository";
 import FriendStorageRepository from "../../repository/Friend/friendStorageRepository";
-import MessageDatabaseRepository from "../../repository/Message/messageDatabaseRepository";
+import MessageStorageRepository from "../../repository/Message/messageStorageRepository";
 import UserAPIRepository from "../../repository/User/userAPIRepository";
-import Cache from "../../storage/cache";
 import IndexedDB from "../../storage/indexedDB";
 import AddConversationUseCase from "../Conversation/addConversationUseCase";
 import GetConversationByUserIdUseCase from "../Conversation/getConversationByUserIdUseCase";
@@ -106,7 +104,7 @@ export default class ReceiveMessageUseCase {
       }
 
       const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
-        new MessageDatabaseRepository(
+        new MessageStorageRepository(
           new MessageStorageDataSource(IndexedDB.getInstance())
         )
       );

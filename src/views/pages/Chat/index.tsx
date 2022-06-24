@@ -295,6 +295,13 @@ export default function ChatPage(props: IChatPageProps) {
     }
   }, [common.isDatabaseConnected]);
 
+  //Sync message
+  React.useEffect(() => {
+    if (common.isDatabaseConnected && common.isSocketConnected) {
+      messageController.syncMessage();
+    }
+  }, [common.isDatabaseConnected, common.isSocketConnected]);
+
   //Change conversation socket
   React.useEffect(() => {
     if (common.isSocketConnected) {

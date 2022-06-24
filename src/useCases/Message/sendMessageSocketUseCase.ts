@@ -1,7 +1,7 @@
 import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
 import { MessageModel, MessageStatus } from "../../domains/Message";
 import { IMessagePresenter } from "../../presenter";
-import MessageDatabaseRepository from "../../repository/Message/messageDatabaseRepository";
+import MessageStorageRepository from "../../repository/Message/messageStorageRepository";
 import IndexedDB from "../../storage/indexedDB";
 import UpdateMessageUseCase from "./updateMessageUseCase";
 
@@ -23,7 +23,7 @@ export default class SendMessageSocketUseCase {
       this.repository.sendMessage(messageModel);
     } catch (e) {
       const updateMessageUseCase = new UpdateMessageUseCase(
-        new MessageDatabaseRepository(
+        new MessageStorageRepository(
           new MessageStorageDataSource(IndexedDB.getInstance())
         ),
         this.presenter

@@ -13,7 +13,7 @@ import FriendPresenter from "../../presenter/Friend/friendPresenter";
 import ConversationStorageRepository from "../../repository/Conversation/conversationStorageRepository";
 import FileRepository from "../../repository/File/fileRepository";
 import FriendStorageRepository from "../../repository/Friend/friendStorageRepository";
-import MessageDatabaseRepository from "../../repository/Message/messageDatabaseRepository";
+import MessageStorageRepository from "../../repository/Message/messageStorageRepository";
 import MessageSocketRepository from "../../repository/Message/messageSocketRepository";
 import UserAPIRepository from "../../repository/User/userAPIRepository";
 import IndexedDB from "../../storage/indexedDB";
@@ -133,7 +133,7 @@ export default class SendMessageUseCase {
       }
 
       const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
-        new MessageDatabaseRepository(
+        new MessageStorageRepository(
           new MessageStorageDataSource(IndexedDB.getInstance())
         )
       );

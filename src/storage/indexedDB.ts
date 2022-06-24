@@ -250,4 +250,11 @@ export default class IndexedDB
       }
     });
   }
+
+  deleteMessage(message: IMessage): void {
+    this.db
+      .transaction("message", "readwrite")
+      .objectStore("message")
+      .delete([message.fromId, message.toId, message.clientId]);
+  }
 }

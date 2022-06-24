@@ -11,7 +11,7 @@ import IndexedDB from "../../storage/indexedDB";
 
 //Use case
 import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
-import MessageDatabaseRepository from "../../repository/Message/messageDatabaseRepository";
+import MessageStorageRepository from "../../repository/Message/messageStorageRepository";
 import GetMessageUseCase from "../../useCases/Message/getMessageByConversationUseCase";
 import ReceiveMessageUseCase from "../../useCases/Message/receiveMessageUseCase";
 import SendMessageUseCase from "../../useCases/Message/sendMessageUseCase";
@@ -20,6 +20,7 @@ import Cache from "../../storage/cache";
 import AddMessageDatabaseUseCase from "../../useCases/Message/addMessageDatabaseUseCase";
 import { IQueryOption } from "../../domains/common/helper";
 import UpdateMessageUseCase from "../../useCases/Message/updateMessageUseCase";
+import SyncMessageUseCase from "../../useCases/Message/syncMessageUseCase";
 
 export default class MessageController {
   private presenter: IMessagePresenter;
@@ -33,7 +34,7 @@ export default class MessageController {
     options?: IQueryOption
   ) {
     const getMessageFromCacheUseCase = new GetMessageUseCase(
-      new MessageDatabaseRepository(
+      new MessageStorageRepository(
         new MessageCacheDataSource(Cache.getInstance())
       ),
       this.presenter
@@ -43,7 +44,7 @@ export default class MessageController {
 
     if (result.length < 10) {
       const getMessageFromDBUseCase = new GetMessageUseCase(
-        new MessageDatabaseRepository(
+        new MessageStorageRepository(
           new MessageStorageDataSource(IndexedDB.getInstance())
         ),
         this.presenter
@@ -58,7 +59,7 @@ export default class MessageController {
     options?: IQueryOption
   ) {
     const getMessageFromDBUseCase = new GetMessageUseCase(
-      new MessageDatabaseRepository(
+      new MessageStorageRepository(
         new MessageStorageDataSource(IndexedDB.getInstance())
       ),
       this.presenter
@@ -71,7 +72,7 @@ export default class MessageController {
 
   addMessageToCache(messages: IMessage | IMessage[]) {
     const addMessageToCacheUseCase = new AddMessageDatabaseUseCase(
-      new MessageDatabaseRepository(
+      new MessageStorageRepository(
         new MessageCacheDataSource(Cache.getInstance())
       )
     );
@@ -104,7 +105,7 @@ export default class MessageController {
 
     if (addToCache) {
       const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
-        new MessageDatabaseRepository(
+        new MessageStorageRepository(
           new MessageCacheDataSource(Cache.getInstance())
         )
       );
@@ -115,7 +116,7 @@ export default class MessageController {
 
   updateMessage(message: IMessage, updateCache: boolean) {
     const updateMessageUseCase = new UpdateMessageUseCase(
-      new MessageDatabaseRepository(
+      new MessageStorageRepository(
         new MessageStorageDataSource(IndexedDB.getInstance())
       ),
       this.presenter
@@ -127,12 +128,18 @@ export default class MessageController {
 
     if (updateCache) {
       const updateCacheMessage = new UpdateMessageUseCase(
-        new MessageDatabaseRepository(
+        new MessageStorageRepository(
           new MessageCacheDataSource(Cache.getInstance())
         )
       );
 
       updateCacheMessage.execute(messageModel);
     }
+  }
+
+  syncMessage() {
+    const syncMessageUseCase = new SyncMessageUseCase();
+
+    syncMessageUseCase.execute();
   }
 }

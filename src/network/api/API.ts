@@ -1,12 +1,14 @@
 import axios, { AxiosInstance } from "axios";
 import { IAuthAPI } from "../../dataSource";
 import { IFileAPI } from "../../dataSource/File";
+import { IMessageAPI } from "../../dataSource/Message/messageAPIDataSource";
 import { IUserAPI } from "../../dataSource/User";
 import { IAuth } from "../../domains/Auth";
+import { IMessage } from "../../domains/Message";
 import { IUser } from "../../domains/User";
 import { CONSTANTS } from "../../helper/constants";
 
-export default class API implements IAuthAPI, IUserAPI, IFileAPI {
+export default class API implements IAuthAPI, IUserAPI, IFileAPI, IMessageAPI {
   private static instance: API;
 
   private axios: AxiosInstance;
@@ -92,6 +94,26 @@ export default class API implements IAuthAPI, IUserAPI, IFileAPI {
   async uploadImages(images: string[]): Promise<string[]> {
     try {
       return await this.axios.post(`/upload/images`, images);
+    } catch (e) {
+      console.log(e);
+
+      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
+    }
+  }
+
+  async getPendingMessages(): Promise<IMessage[]> {
+    try {
+      return await this.axios.get(`/messages/pending`);
+    } catch (e) {
+      console.log(e);
+
+      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
+    }
+  }
+
+  async deletePendingMessages(ids: string[]) {
+    try {
+      await this.axios.put(`/messages/pending/delete`, ids);
     } catch (e) {
       console.log(e);
 

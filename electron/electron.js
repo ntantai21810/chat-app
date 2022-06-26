@@ -1,7 +1,7 @@
 // main.js
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, webContents } = require("electron");
 const path = require("path");
 const isDev = require("electron-is-dev");
 const {
@@ -21,8 +21,36 @@ const createWindow = () => {
     },
   });
 
+  mainWindow.webContents.session.on(
+    "will-download",
+    (event, item, webContents) => {
+      item.on("updated", (event, state) => {
+        if (state === "interrupted") {
+          console.log("Download is interrupted but can be resumed");
+        } else if (state === "progressing") {
+          if (item.isPaused()) {
+            console.log("Download is paused");
+          } else {
+            console.log(`Received bytes: ${item.getReceivedBytes()}`);
+          }
+        }
+      });
+      item.once("done", (event, state) => {
+        if (state === "completed") {
+          console.log("Download successfully");
+        } else {
+          console.log(`Download failed: ${state}`);
+        }
+      });
+    }
+  );
+
   ipcMain.on("closeApp", (event, title) => {
     mainWindow.close();
+  });
+
+  ipcMain.on("download", (event, url) => {
+    mainWindow.webContents.downloadURL(url);
   });
 
   // and load the index.html of the app.

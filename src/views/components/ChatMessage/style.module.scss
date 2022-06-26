@@ -55,6 +55,50 @@
       }
     }
 
+    .filesContainer {
+      .file {
+        display: flex;
+        align-items: center;
+        background-color: #fff;
+        padding: 1.4rem;
+        border-radius: 8px;
+
+        .icon {
+          padding: 1rem;
+          border-radius: 50%;
+          background-color: #eee;
+          margin-right: 0.8rem;
+        }
+
+        .info {
+          text-align: start;
+
+          .name {
+            font-weight: bold;
+            margin-bottom: 1rem;
+          }
+
+          .size {
+            font-size: 1.4rem;
+          }
+        }
+
+        .downloadIcon {
+          padding: 1rem;
+          border-radius: 50%;
+          background-color: #eee;
+          margin-left: 2rem;
+
+          cursor: pointer;
+          transition: all linear 0.2s;
+
+          &:hover {
+            background-color: rgba($color: #eee, $alpha: 0.4);
+          }
+        }
+      }
+    }
+
     .status {
       background-color: #fff;
       display: inline-block;

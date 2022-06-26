@@ -1,3 +1,4 @@
+import { IFile } from "./../../domains/common/helper";
 import axios, { AxiosInstance } from "axios";
 import { IAuthAPI } from "../../dataSource";
 import { IFileAPI } from "../../dataSource/File";
@@ -91,9 +92,9 @@ export default class API implements IAuthAPI, IUserAPI, IFileAPI, IMessageAPI {
     }
   }
 
-  async uploadImages(images: string[]): Promise<string[]> {
+  async uploadFiles(images: IFile[]): Promise<string[]> {
     try {
-      return await this.axios.post(`/upload/images`, images);
+      return await this.axios.post(`/upload`, images);
     } catch (e) {
       console.log(e);
 

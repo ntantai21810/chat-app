@@ -1,7 +1,8 @@
+import { IFile } from "./../../domains/common/helper";
 import { IFileDataSource } from "../../repository/File/fileRepository";
 
 export interface IFileAPI {
-  uploadImages(images: string[]): Promise<string[]>;
+  uploadFiles(images: IFile[]): Promise<string[]>;
 }
 
 export default class FileDataSource implements IFileDataSource {
@@ -11,7 +12,7 @@ export default class FileDataSource implements IFileDataSource {
     this.database = database;
   }
 
-  uploadImages(images: string[]): Promise<string[]> {
-    return this.database.uploadImages(images);
+  uploadFiles(images: IFile[]): Promise<string[]> {
+    return this.database.uploadFiles(images);
   }
 }

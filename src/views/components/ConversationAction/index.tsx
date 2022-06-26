@@ -1,9 +1,11 @@
 import * as React from "react";
 import styles from "./style.module.scss";
 import { BsImage } from "react-icons/bs";
+import { GrAttachment } from "react-icons/gr";
+import { IFile } from "../../../domains/common/helper";
 
 export interface IConversationActionProps {
-  onFileChange: (files: string[]) => void;
+  onFileChange: (files: IFile[]) => void;
 }
 
 export default function ConversationAction(props: IConversationActionProps) {
@@ -13,7 +15,7 @@ export default function ConversationAction(props: IConversationActionProps) {
   const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     if (!e.target.files) return;
 
-    const files: string[] = [];
+    const files: IFile[] = [];
     let numberOfLoadedFiles = 0;
     let totalSize = 0;
     let isOverSize = false;
@@ -33,7 +35,8 @@ export default function ConversationAction(props: IConversationActionProps) {
         if (
           reader.result &&
           typeof reader.result === "string" &&
-          file.type.startsWith("image/")
+          (file.type.startsWith("image/") ||
+            ["application/pdf", "text/plain"].includes(file.type))
         ) {
           totalSize += file.size;
 
@@ -43,7 +46,12 @@ export default function ConversationAction(props: IConversationActionProps) {
             return;
           }
 
-          files.push(reader.result);
+          files.push({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            data: reader.result,
+          });
         }
 
         if (numberOfLoadedFiles === e.target.files!.length) {
@@ -77,6 +85,18 @@ export default function ConversationAction(props: IConversationActionProps) {
           multiple
           onChange={handleFileChange}
           ref={inputRef}
+          accept="image/png, image/gif, image/jpeg"
+        />
+      </div>
+      <div className={styles.action}>
+        <GrAttachment fontSize="2.2rem" />
+        <input
+          className={styles.input}
+          type="file"
+          multiple
+          onChange={handleFileChange}
+          ref={inputRef}
+          accept="application/pdf, text/plain"
         />
       </div>
     </div>

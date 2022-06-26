@@ -1,3 +1,4 @@
+import { IFile } from "../common/helper";
 import { MessageStatus, MessageType } from "./IMessage";
 
 export default class MessageModel {
@@ -7,7 +8,7 @@ export default class MessageModel {
   private fromId: string;
   private toId: string;
   private type: MessageType;
-  private content: string;
+  private content: string | IFile[];
   private sendTime: string;
   private status: MessageStatus;
 
@@ -16,7 +17,7 @@ export default class MessageModel {
     toId: string,
     conversationId: string,
     type: MessageType,
-    content: string,
+    content: string | IFile[],
     clientId: string,
     sendTime: string,
     status: MessageStatus = MessageStatus.PENDING,

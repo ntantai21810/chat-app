@@ -1,3 +1,4 @@
+import { IFile } from "./../../domains/common/helper";
 //Data source
 import { IMessage, MessageType, modelMessageData } from "../../domains/Message";
 
@@ -21,7 +22,7 @@ import AddMessageDatabaseUseCase from "../../useCases/Message/addMessageDatabase
 import { IQueryOption } from "../../domains/common/helper";
 import UpdateMessageUseCase from "../../useCases/Message/updateMessageUseCase";
 import SyncMessageUseCase from "../../useCases/Message/syncMessageUseCase";
-import UploadImageUseCase from "../../useCases/File/uploadImageUseCase";
+import UploadFileUseCase from "../../useCases/File/uploadFileUseCase";
 import FileRepository from "../../repository/File/fileRepository";
 import FileDataSource from "../../dataSource/File/fileDataSouce";
 import API from "../../network/api/API";
@@ -95,16 +96,22 @@ export default class MessageController {
 
   async sendMessage(message: IMessage) {
     try {
-      if (message.type === MessageType.IMAGE) {
-        const uploadImagesUseCase = new UploadImageUseCase(
+      if (
+        message.type === MessageType.IMAGE ||
+        message.type === MessageType.FILE
+      ) {
+        const uploadFileUseCase = new UploadFileUseCase(
           new FileRepository(new FileDataSource(API.getIntance()))
         );
 
-        const imageUrls = await uploadImagesUseCase.execute(
-          message.content.split("-")
+        const imageUrls = await uploadFileUseCase.execute(
+          message.content as IFile[]
         );
 
-        message.content = imageUrls.join("-");
+        message.content = (message.content as IFile[]).map((item, index) => ({
+          ...item,
+          data: imageUrls[index],
+        }));
       }
     } catch (e) {
       console.log("Upload error: ", e);

@@ -1,9 +1,11 @@
+import { IFile } from "../common/helper";
+
 export interface IMessage {
   id?: string;
   fromId: string;
   toId: string;
   type: MessageType;
-  content: string;
+  content: string | IFile[];
   sendTime: string;
   conversationId: string;
   clientId: string;

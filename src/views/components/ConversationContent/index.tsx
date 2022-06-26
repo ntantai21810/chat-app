@@ -10,6 +10,7 @@ export interface IConversationContentProps {
   chattingUserAvatar: string;
   onScrollToTop?: () => any;
   onRetry?: (message: IMessage) => any;
+  onDownloadFile?: (url: string) => any;
 }
 
 function ConversationContent(props: IConversationContentProps) {
@@ -20,6 +21,7 @@ function ConversationContent(props: IConversationContentProps) {
     chattingUserAvatar,
     onScrollToTop,
     onRetry,
+    onDownloadFile,
   } = props;
 
   const ref = useRef<HTMLDivElement | null>(null);
@@ -102,6 +104,7 @@ function ConversationContent(props: IConversationContentProps) {
               avatar={avatar}
               showAvatar={showAvatar}
               onRetry={onRetry}
+              onDownloadFile={onDownloadFile}
             />
           </div>
         );

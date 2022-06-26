@@ -19,7 +19,7 @@ export default function Message(props: IMessageProps) {
       })}
       style={{ backgroundColor: bgColor }}
     >
-      {message.content}
+      {message.content as string}
 
       {showStatus && (
         <div

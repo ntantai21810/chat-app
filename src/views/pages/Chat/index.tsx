@@ -18,6 +18,7 @@ import {
   socketController,
   userController,
 } from "../../../bootstrap";
+import { IFile } from "../../../domains/common/helper";
 import { IConversation } from "../../../domains/Conversation";
 import { IMessage, MessageStatus, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
@@ -36,13 +37,6 @@ import SearchUserList from "../../components/SearchUserList";
 import styles from "./style.module.scss";
 
 export interface IChatPageProps {}
-
-interface IFile {
-  name: string;
-  size: number;
-  type: string;
-  data: string;
-}
 
 const PAGE_SIZE = 20;
 
@@ -122,7 +116,7 @@ export default function ChatPage(props: IChatPageProps) {
           fromId: auth.auth.user._id,
           toId: activeConversation.user._id,
           type: MessageType.IMAGE,
-          content: files.map((file) => file.data).join("-"),
+          content: files,
           sendTime: Moment().toISOString(),
           conversationId: "",
           clientId: uuidv4(),
@@ -135,18 +129,31 @@ export default function ChatPage(props: IChatPageProps) {
     setMessage("");
   };
 
-  const handleSubmitFiles = (files: string[]) => {
+  const handleSubmitFiles = (files: IFile[]) => {
     if (activeConversation && files.length > 0) {
-      messageController.sendMessage({
-        fromId: auth.auth.user._id,
-        toId: activeConversation.user._id,
-        type: MessageType.IMAGE,
-        content: files.join("-"),
-        sendTime: Moment().toISOString(),
-        conversationId: "",
-        clientId: uuidv4(),
-        status: MessageStatus.PENDING,
-      });
+      if (files[0].type.startsWith("image/")) {
+        messageController.sendMessage({
+          fromId: auth.auth.user._id,
+          toId: activeConversation.user._id,
+          type: MessageType.IMAGE,
+          content: files,
+          sendTime: Moment().toISOString(),
+          conversationId: "",
+          clientId: uuidv4(),
+          status: MessageStatus.PENDING,
+        });
+      } else {
+        messageController.sendMessage({
+          fromId: auth.auth.user._id,
+          toId: activeConversation.user._id,
+          type: MessageType.FILE,
+          content: files,
+          sendTime: Moment().toISOString(),
+          conversationId: "",
+          clientId: uuidv4(),
+          status: MessageStatus.PENDING,
+        });
+      }
     }
   };
 
@@ -252,12 +259,12 @@ export default function ChatPage(props: IChatPageProps) {
   const handleClickOnSearchUser = async (user: IUser) => {
     const userFriend = friend.find((item) => item._id === user._id);
 
-    if (userFriend) {
+    if (userFriend && userFriend._id !== activeConversation?.user._id) {
       setActiveConversation({
         id: conversations.find((item) => item.userId === user._id)!.id,
         user: userFriend,
       });
-    } else {
+    } else if (!userFriend) {
       const res = await userController.getUserById(user._id);
 
       setActiveConversation({
@@ -276,6 +283,10 @@ export default function ChatPage(props: IChatPageProps) {
 
   const handleRetry = (message: IMessage) => {
     messageController.retryMessage(message);
+  };
+
+  const handleDownloadFile = (url: string) => {
+    (window as any).electronAPI.download(url);
   };
 
   //Connect datasource
@@ -438,6 +449,7 @@ export default function ChatPage(props: IChatPageProps) {
               chattingUserAvatar={activeConversation?.user.avatar || ""}
               onScrollToTop={handleScrollToTop}
               onRetry={handleRetry}
+              onDownloadFile={handleDownloadFile}
             />
 
             {isTyping && (

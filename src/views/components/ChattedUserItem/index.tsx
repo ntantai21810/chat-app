@@ -41,7 +41,7 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
 
           <p className={styles.message}>
             {lastMessage?.type === MessageType.TEXT &&
-              (lastMessage?.content || "")}
+              ((lastMessage?.content as string) || "")}
 
             {lastMessage?.type === MessageType.IMAGE && "Đã gửi ảnh"}
           </p>

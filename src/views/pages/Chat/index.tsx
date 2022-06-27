@@ -129,6 +129,10 @@ export default function ChatPage(props: IChatPageProps) {
     setMessage("");
   };
 
+  const handleImageClick = (image: IFile) => {
+    (window as any).electronAPI.viewPhoto(image.data);
+  };
+
   const handleSubmitFiles = (files: IFile[]) => {
     if (activeConversation && files.length > 0) {
       if (files[0].type.startsWith("image/")) {
@@ -450,6 +454,7 @@ export default function ChatPage(props: IChatPageProps) {
               onScrollToTop={handleScrollToTop}
               onRetry={handleRetry}
               onDownloadFile={handleDownloadFile}
+              onImageClick={handleImageClick}
             />
 
             {isTyping && (

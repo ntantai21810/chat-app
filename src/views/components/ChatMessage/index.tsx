@@ -15,6 +15,7 @@ export interface IChatMessageProps {
   showAvatar: boolean;
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
+  onImageClick?: (message: IFile) => any;
 }
 
 export default function ChatMessage(props: IChatMessageProps) {
@@ -25,6 +26,7 @@ export default function ChatMessage(props: IChatMessageProps) {
     showAvatar,
     onRetry,
     onDownloadFile,
+    onImageClick,
   } = props;
 
   return (
@@ -61,7 +63,11 @@ export default function ChatMessage(props: IChatMessageProps) {
           <>
             <div className={styles.imagesContainer}>
               {(message.content as IFile[]).map((item, index) => (
-                <div className={styles.imageItem} key={index}>
+                <div
+                  className={styles.imageItem}
+                  key={index}
+                  onClick={() => (onImageClick ? onImageClick(item) : "")}
+                >
                   <Image
                     width="36rem"
                     height="20rem"

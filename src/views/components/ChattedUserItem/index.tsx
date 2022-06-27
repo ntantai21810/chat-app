@@ -27,7 +27,7 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
         <Avatar
           src={
             user?.avatar ||
-            "https://images.unsplash.com/photo-1653257340129-148be674836c?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=465"
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZDHvxAjE2bfJbB-asv9kqio9ItBvUUwSHiA&usqp=CAU"
           }
           alt="User avatar"
           width="5.6rem"

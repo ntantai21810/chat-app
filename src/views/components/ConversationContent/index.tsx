@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { IFile } from "../../../domains/common/helper";
 import { IMessage } from "../../../domains/Message";
 import ChatMessage from "../ChatMessage";
 import styles from "./styles.module.scss";
@@ -11,6 +12,7 @@ export interface IConversationContentProps {
   onScrollToTop?: () => any;
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
+  onImageClick?: (image: IFile) => any;
 }
 
 function ConversationContent(props: IConversationContentProps) {
@@ -22,6 +24,7 @@ function ConversationContent(props: IConversationContentProps) {
     onScrollToTop,
     onRetry,
     onDownloadFile,
+    onImageClick,
   } = props;
 
   const ref = useRef<HTMLDivElement | null>(null);
@@ -105,6 +108,7 @@ function ConversationContent(props: IConversationContentProps) {
               showAvatar={showAvatar}
               onRetry={onRetry}
               onDownloadFile={onDownloadFile}
+              onImageClick={onImageClick}
             />
           </div>
         );

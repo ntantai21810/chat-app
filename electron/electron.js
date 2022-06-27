@@ -53,6 +53,29 @@ const createWindow = () => {
     mainWindow.webContents.downloadURL(url);
   });
 
+  ipcMain.on("viewPhoto", (event, url) => {
+    const photoWindow = new BrowserWindow({
+      width: 800,
+      height: 600,
+      minWidth: 400,
+      webPreferences: {
+        preload: path.join(__dirname, "photo-view.preload.js"),
+      },
+    });
+
+    photoWindow.loadURL(
+      isDev
+        ? `file://${path.join(__dirname, "/../public/photo-view.html")}`
+        : `file://${path.join(__dirname, "photo-view.html")}`
+    );
+
+    photoWindow.webContents.once("dom-ready", () => {
+      photoWindow.webContents.send("img-src", url);
+    });
+
+    photoWindow.webContents.openDevTools();
+  });
+
   // and load the index.html of the app.
   mainWindow.loadURL(
     isDev
@@ -95,5 +118,3 @@ app.on("window-all-closed", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-
-export {};

@@ -9,6 +9,7 @@ export interface IConversationContentProps {
   currentUserId: string;
   currentUserAvatar: string;
   chattingUserAvatar: string;
+  percentFileDownloading?: { url: string; percent: number };
   onScrollToTop?: () => any;
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
@@ -25,6 +26,7 @@ function ConversationContent(props: IConversationContentProps) {
     onRetry,
     onDownloadFile,
     onImageClick,
+    percentFileDownloading,
   } = props;
 
   const ref = useRef<HTMLDivElement | null>(null);
@@ -109,6 +111,7 @@ function ConversationContent(props: IConversationContentProps) {
               onRetry={onRetry}
               onDownloadFile={onDownloadFile}
               onImageClick={onImageClick}
+              percentFileDownloading={percentFileDownloading}
             />
           </div>
         );

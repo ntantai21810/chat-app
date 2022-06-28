@@ -13,6 +13,7 @@ export interface IChatMessageProps {
   avatar?: string;
   message: IMessage;
   showAvatar: boolean;
+  percentFileDownloading?: { url: string; percent: number };
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
   onImageClick?: (message: IFile) => any;
@@ -27,6 +28,7 @@ export default function ChatMessage(props: IChatMessageProps) {
     onRetry,
     onDownloadFile,
     onImageClick,
+    percentFileDownloading,
   } = props;
 
   return (
@@ -101,7 +103,14 @@ export default function ChatMessage(props: IChatMessageProps) {
                   <BsDownload fontSize={"2rem"} />
                 </div>
 
-                <div className={styles.progress}></div>
+                <div
+                  className={styles.progress}
+                  style={
+                    item.data === percentFileDownloading?.url
+                      ? { width: `${percentFileDownloading?.percent || 0}%` }
+                      : {}
+                  }
+                ></div>
               </div>
             ))}
           </div>

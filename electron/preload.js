@@ -10,7 +10,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.send("viewPhoto", url);
   },
   onDownloadFileProgress: (callback) => {
-    console.log("Subcribe");
     ipcRenderer.on("downloadProgress", (_event, bytes) => callback(bytes));
   },
 

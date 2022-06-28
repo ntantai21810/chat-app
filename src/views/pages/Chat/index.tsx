@@ -64,6 +64,13 @@ export default function ChatPage(props: IChatPageProps) {
     id: string;
     user: IUser;
   }>();
+  const [percentFileDownloading, setPercentFileDownloading] = React.useState<{
+    url: string;
+    percent: number;
+  }>({
+    url: "",
+    percent: 0,
+  });
 
   const typingRef = React.useRef<NodeJS.Timeout | undefined>();
 
@@ -135,9 +142,9 @@ export default function ChatPage(props: IChatPageProps) {
     setMessage("");
   };
 
-  const handleImageClick = (image: IFile) => {
+  const handleImageClick = React.useCallback((image: IFile) => {
     (window as any).electronAPI.viewPhoto(image.data);
-  };
+  }, []);
 
   const handleSubmitFiles = (files: IFile[]) => {
     if (activeConversation && files.length > 0) {
@@ -291,13 +298,18 @@ export default function ChatPage(props: IChatPageProps) {
     []
   );
 
-  const handleRetry = (message: IMessage) => {
+  const handleRetry = React.useCallback((message: IMessage) => {
     messageController.retryMessage(message);
-  };
+  }, []);
 
-  const handleDownloadFile = (url: string) => {
+  const handleDownloadFile = React.useCallback((url: string) => {
+    setPercentFileDownloading({
+      url: url,
+      percent: 0,
+    });
+
     (window as any).electronAPI.download(url);
-  };
+  }, []);
 
   //Connect datasource
   React.useEffect(() => {
@@ -337,8 +349,8 @@ export default function ChatPage(props: IChatPageProps) {
 
     (window as any).electronAPI.removeDownloadFileListener();
 
-    (window as any).electronAPI.onDownloadFileProgress((bytes: number) => {
-      console.log(bytes);
+    (window as any).electronAPI.onDownloadFileProgress((percent: number) => {
+      setPercentFileDownloading((state) => ({ ...state, percent }));
     });
   }, []);
 
@@ -487,6 +499,7 @@ export default function ChatPage(props: IChatPageProps) {
                 onRetry={handleRetry}
                 onDownloadFile={handleDownloadFile}
                 onImageClick={handleImageClick}
+                percentFileDownloading={percentFileDownloading}
               />
 
               {isTyping && (

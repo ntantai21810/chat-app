@@ -1,8 +1,7 @@
 import classNames from "classnames";
-import * as React from "react";
 import { IMessage, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
-import { Moment } from "../../../helper/configs/moment";
+import { getRemainingTime } from "../../../helper/function";
 import Avatar from "../common/Avatar";
 import styles from "./style.module.scss";
 
@@ -10,16 +9,17 @@ export interface IChattedUserItemProps {
   user: IUser;
   lastMessage: IMessage;
   onClick?: Function;
+  active?: boolean;
 }
 
 export default function ChattedUserItem(props: IChattedUserItemProps) {
-  const { user, lastMessage, onClick } = props;
+  const { user, lastMessage, onClick, active } = props;
 
   return (
     <div
       className={classNames({
         [styles.container]: true,
-        [styles.active]: false, //active
+        [styles.active]: active, //active
       })}
       onClick={() => (onClick ? onClick() : "")}
     >
@@ -46,9 +46,9 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
             {lastMessage?.type === MessageType.IMAGE && "Đã gửi ảnh"}
           </p>
         </div>
-        <p className={styles.time}>{`${Math.floor(
-          Moment().diff(Moment(lastMessage.sendTime)) / 1000 / 60
-        )} phút`}</p>
+        <p className={styles.time}>
+          {getRemainingTime(new Date(lastMessage.sendTime).getTime())}
+        </p>
       </div>
     </div>
   );

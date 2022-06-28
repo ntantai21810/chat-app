@@ -10,7 +10,8 @@ export interface IConversationActionProps {
 
 export default function ConversationAction(props: IConversationActionProps) {
   const { onFileChange } = props;
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const inputImageRef = React.useRef<HTMLInputElement | null>(null);
+  const inputFileRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     if (!e.target.files) return;
@@ -42,7 +43,8 @@ export default function ConversationAction(props: IConversationActionProps) {
 
           if (totalSize > 5000000) {
             isOverSize = true;
-            if (inputRef.current) inputRef.current.value = "";
+            if (inputImageRef.current) inputImageRef.current.value = "";
+            if (inputFileRef.current) inputFileRef.current.value = "";
             return;
           }
 
@@ -57,7 +59,8 @@ export default function ConversationAction(props: IConversationActionProps) {
         if (numberOfLoadedFiles === e.target.files!.length) {
           onFileChange(files);
 
-          if (inputRef.current) inputRef.current.value = "";
+          if (inputImageRef.current) inputImageRef.current.value = "";
+          if (inputFileRef.current) inputFileRef.current.value = "";
         }
       };
 
@@ -69,7 +72,8 @@ export default function ConversationAction(props: IConversationActionProps) {
         if (numberOfLoadedFiles === e.target.files!.length) {
           onFileChange(files);
 
-          if (inputRef.current) inputRef.current.value = "";
+          if (inputImageRef.current) inputImageRef.current.value = "";
+          if (inputFileRef.current) inputFileRef.current.value = "";
         }
       };
     }
@@ -84,7 +88,7 @@ export default function ConversationAction(props: IConversationActionProps) {
           type="file"
           multiple
           onChange={handleFileChange}
-          ref={inputRef}
+          ref={inputImageRef}
           accept="image/png, image/gif, image/jpeg"
         />
       </div>
@@ -95,7 +99,7 @@ export default function ConversationAction(props: IConversationActionProps) {
           type="file"
           multiple
           onChange={handleFileChange}
-          ref={inputRef}
+          ref={inputFileRef}
           accept="application/pdf, text/plain"
         />
       </div>

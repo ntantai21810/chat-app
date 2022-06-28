@@ -49,6 +49,8 @@ export default class MessageController {
     const result = await getMessageFromCacheUseCase.execute(conversationId);
 
     if (result.length < 10) {
+      this.presenter.removeAllMessage();
+
       const getMessageFromDBUseCase = new GetMessageUseCase(
         new MessageStorageRepository(
           new MessageStorageDataSource(IndexedDB.getInstance())
@@ -114,6 +116,7 @@ export default class MessageController {
         }));
       }
     } catch (e) {
+      this.presenter.setShowNotification(true);
       console.log("Upload error: ", e);
       return;
     }

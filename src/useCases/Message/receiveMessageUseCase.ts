@@ -1,6 +1,5 @@
 import ConversationDatabaseDataSource from "../../dataSource/Conversation/conversationDatabaseDataSouce";
 import FriendDataSource from "../../dataSource/Friend/friendDataSouce";
-import MessageCacheDataSource from "../../dataSource/Message/messageCacheDataSource";
 import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
 import UserAPIDataSource from "../../dataSource/User/userDataSouce";
 import { ConversationModel } from "../../domains/Conversation";
@@ -10,9 +9,8 @@ import { ConversationPresenter, IMessagePresenter } from "../../presenter";
 import FriendPresenter from "../../presenter/Friend/friendPresenter";
 import ConversationStorageRepository from "../../repository/Conversation/conversationStorageRepository";
 import FriendStorageRepository from "../../repository/Friend/friendStorageRepository";
-import MessageDatabaseRepository from "../../repository/Message/messageDatabaseRepository";
+import MessageStorageRepository from "../../repository/Message/messageStorageRepository";
 import UserAPIRepository from "../../repository/User/userAPIRepository";
-import Cache from "../../storage/cache";
 import IndexedDB from "../../storage/indexedDB";
 import AddConversationUseCase from "../Conversation/addConversationUseCase";
 import GetConversationByUserIdUseCase from "../Conversation/getConversationByUserIdUseCase";
@@ -24,11 +22,13 @@ import AddMessageDatabaseUseCase from "./addMessageDatabaseUseCase";
 export default class ReceiveMessageUseCase {
   private presenter: IMessagePresenter;
 
-  constructor(presenter: IMessagePresenter) {
-    this.presenter = presenter;
+  constructor(presenter?: IMessagePresenter) {
+    if (presenter) {
+      this.presenter = presenter;
+    }
   }
 
-  async execute(messageModel: MessageModel, addToCache: boolean) {
+  async execute(messageModel: MessageModel) {
     //Add to DB
     try {
       let conversationId = "";
@@ -99,21 +99,12 @@ export default class ReceiveMessageUseCase {
 
       messageModel.setConversationId(conversationId);
 
-      if (addToCache) {
-        //Add to cache
-        const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
-          new MessageDatabaseRepository(
-            new MessageCacheDataSource(Cache.getInstance())
-          )
-        );
-
-        addMessageDatabaseUseCase.execute(messageModel);
-      } else {
+      if (this.presenter) {
         this.presenter.addMessage(messageModel);
       }
 
       const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
-        new MessageDatabaseRepository(
+        new MessageStorageRepository(
           new MessageStorageDataSource(IndexedDB.getInstance())
         )
       );

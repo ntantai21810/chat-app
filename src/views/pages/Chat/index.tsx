@@ -1,6 +1,7 @@
 import * as React from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { BsSearch } from "react-icons/bs";
+import { v4 as uuidv4 } from "uuid";
 import { getDispatch } from "../../../adapter/frameworkAdapter";
 import {
   useAuth,
@@ -17,9 +18,14 @@ import {
   socketController,
   userController,
 } from "../../../bootstrap";
+import { IFile } from "../../../domains/common/helper";
 import { IConversation } from "../../../domains/Conversation";
-import { IMessage, MessageType } from "../../../domains/Message";
+import { IMessage, MessageStatus, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
+import {
+  setShowNotification,
+  setSocketConnect,
+} from "../../../framework/redux/common";
 import { removeAllMessage } from "../../../framework/redux/message";
 import { Moment } from "../../../helper/configs/moment";
 import { SOCKET_CONSTANTS } from "../../../helper/constants";
@@ -27,21 +33,15 @@ import ChattedUserList from "../../components/ChattedUserList";
 import Banner from "../../components/common/Banner";
 import Image from "../../components/common/Image";
 import Input from "../../components/common/Input";
+import Notification from "../../components/common/Notification";
+import TypingIcon from "../../components/common/Typing";
 import ConversationAction from "../../components/ConversationAction";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import SearchUserList from "../../components/SearchUserList";
 import styles from "./style.module.scss";
-import { v4 as uuidv4 } from "uuid";
 
 export interface IChatPageProps {}
-
-interface IFile {
-  name: string;
-  size: number;
-  type: string;
-  data: string;
-}
 
 const PAGE_SIZE = 20;
 
@@ -53,6 +53,7 @@ export default function ChatPage(props: IChatPageProps) {
   const friend = useFriends();
   const dispatch = getDispatch();
 
+  const [isTyping, setIsTyping] = React.useState(false);
   const [page, setPage] = React.useState(1);
   const [isFullMessage, setIsFullMessage] = React.useState(false);
   const [search, setSearch] = React.useState("");
@@ -63,18 +64,26 @@ export default function ChatPage(props: IChatPageProps) {
     id: string;
     user: IUser;
   }>();
-  // const typingRef = React.useRef<NodeJS.Timeout | undefined>();
+
+  const typingRef = React.useRef<NodeJS.Timeout | undefined>();
 
   //Handler
   const handleChangeMessage = (e: React.ChangeEvent<any>) => {
-    // if (!typingRef.current) {
-    //   messageController.sendTyping(activeConversation?.user._id || "", true);
-    // } else clearTimeout(typingRef.current);
+    if (!typingRef.current) {
+      socketController.send(SOCKET_CONSTANTS.TYPING, {
+        isTyping: true,
+        toUserId: activeConversation?.user._id,
+      });
+    } else clearTimeout(typingRef.current);
 
-    // typingRef.current = setTimeout(() => {
-    //   messageController.sendTyping(activeConversation?.user._id || "", false);
-    //   typingRef.current = undefined;
-    // }, 2000);
+    typingRef.current = setTimeout(() => {
+      socketController.send(SOCKET_CONSTANTS.TYPING, {
+        isTyping: false,
+        toUserId: activeConversation?.user._id,
+      });
+
+      typingRef.current = undefined;
+    }, 2000);
 
     setMessage(e.target.value);
   };
@@ -101,9 +110,10 @@ export default function ChatPage(props: IChatPageProps) {
           toId: activeConversation.user._id,
           type: MessageType.TEXT,
           content: message,
-          sendTime: Moment().toISOString(),
           conversationId: "",
+          sendTime: Moment().toISOString(),
           clientId: uuidv4(),
+          status: MessageStatus.PENDING,
         });
       }
 
@@ -112,10 +122,11 @@ export default function ChatPage(props: IChatPageProps) {
           fromId: auth.auth.user._id,
           toId: activeConversation.user._id,
           type: MessageType.IMAGE,
-          content: files.map((file) => file.data).join("-"),
+          content: files,
           sendTime: Moment().toISOString(),
           conversationId: "",
           clientId: uuidv4(),
+          status: MessageStatus.PENDING,
         });
       }
     }
@@ -124,17 +135,35 @@ export default function ChatPage(props: IChatPageProps) {
     setMessage("");
   };
 
-  const handleSubmitFiles = (files: string[]) => {
+  const handleImageClick = (image: IFile) => {
+    (window as any).electronAPI.viewPhoto(image.data);
+  };
+
+  const handleSubmitFiles = (files: IFile[]) => {
     if (activeConversation && files.length > 0) {
-      messageController.sendMessage({
-        fromId: auth.auth.user._id,
-        toId: activeConversation.user._id,
-        type: MessageType.IMAGE,
-        content: files.join("-"),
-        sendTime: Moment().toISOString(),
-        conversationId: "",
-        clientId: uuidv4(),
-      });
+      if (files[0].type.startsWith("image/")) {
+        messageController.sendMessage({
+          fromId: auth.auth.user._id,
+          toId: activeConversation.user._id,
+          type: MessageType.IMAGE,
+          content: files,
+          sendTime: Moment().toISOString(),
+          conversationId: "",
+          clientId: uuidv4(),
+          status: MessageStatus.PENDING,
+        });
+      } else {
+        messageController.sendMessage({
+          fromId: auth.auth.user._id,
+          toId: activeConversation.user._id,
+          type: MessageType.FILE,
+          content: files,
+          sendTime: Moment().toISOString(),
+          conversationId: "",
+          clientId: uuidv4(),
+          status: MessageStatus.PENDING,
+        });
+      }
     }
   };
 
@@ -240,12 +269,12 @@ export default function ChatPage(props: IChatPageProps) {
   const handleClickOnSearchUser = async (user: IUser) => {
     const userFriend = friend.find((item) => item._id === user._id);
 
-    if (userFriend) {
+    if (userFriend && userFriend._id !== activeConversation?.user._id) {
       setActiveConversation({
         id: conversations.find((item) => item.userId === user._id)!.id,
         user: userFriend,
       });
-    } else {
+    } else if (!userFriend) {
       const res = await userController.getUserById(user._id);
 
       setActiveConversation({
@@ -262,6 +291,14 @@ export default function ChatPage(props: IChatPageProps) {
     []
   );
 
+  const handleRetry = (message: IMessage) => {
+    messageController.retryMessage(message);
+  };
+
+  const handleDownloadFile = (url: string) => {
+    (window as any).electronAPI.download(url);
+  };
+
   //Connect datasource
   React.useEffect(() => {
     if (auth.auth.accessToken) {
@@ -275,6 +312,15 @@ export default function ChatPage(props: IChatPageProps) {
     }
   }, [auth.auth.accessToken, auth.auth.user._id, common]);
 
+  //Notification
+  React.useEffect(() => {
+    if (common.showNotification) {
+      setTimeout(() => {
+        dispatch(setShowNotification(false));
+      }, 2000);
+    }
+  }, [common.showNotification]);
+
   //Get data from DB
   React.useEffect(() => {
     if (common.isDatabaseConnected) {
@@ -283,19 +329,57 @@ export default function ChatPage(props: IChatPageProps) {
     }
   }, [common.isDatabaseConnected]);
 
+  React.useEffect(() => {
+    socketController.listen("connect", () => dispatch(setSocketConnect(true)));
+    socketController.listen("disconnect", () =>
+      dispatch(setSocketConnect(false))
+    );
+  }, []);
+
+  //Sync message
+  React.useEffect(() => {
+    if (common.isDatabaseConnected && common.isSocketConnected) {
+      messageController.syncMessage();
+    }
+  }, [common.isDatabaseConnected, common.isSocketConnected]);
+
   //Change conversation socket
   React.useEffect(() => {
     if (common.isSocketConnected) {
       socketController.removeAllListener(SOCKET_CONSTANTS.CHAT_MESSAGE);
+      socketController.removeAllListener(SOCKET_CONSTANTS.UPDATE_MESSAGE);
+      socketController.removeAllListener(SOCKET_CONSTANTS.TYPING);
 
       socketController.listen(
         SOCKET_CONSTANTS.CHAT_MESSAGE,
         (message: IMessage) => {
+          message.status = MessageStatus.RECEIVED;
+
           messageController.receiveMessage(
             message,
             !activeConversation ||
               activeConversation.user._id !== message.fromId
           );
+
+          socketController.send(SOCKET_CONSTANTS.ACK_MESSAGE, message);
+        }
+      );
+
+      socketController.listen(
+        SOCKET_CONSTANTS.UPDATE_MESSAGE,
+        (message: IMessage) => {
+          messageController.updateMessage(
+            message,
+            !activeConversation || activeConversation.user._id !== message.toId
+          );
+        }
+      );
+
+      socketController.listen(
+        SOCKET_CONSTANTS.TYPING,
+        (data: { isTyping: boolean; fromUserId: string }) => {
+          if (activeConversation?.user._id === data.fromUserId)
+            setIsTyping(data.isTyping);
         }
       );
     }
@@ -322,7 +406,7 @@ export default function ChatPage(props: IChatPageProps) {
     }
   }, [activeConversation, common.isDatabaseConnected, dispatch]);
 
-  // Scroll top
+  // Load more
   React.useEffect(() => {
     const loadMore = async () => {
       if (page !== 1 && activeConversation && !isFullMessage) {
@@ -343,111 +427,123 @@ export default function ChatPage(props: IChatPageProps) {
   }, [page, isFullMessage]);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.userListSection}>
-        <div className={styles.search}>
-          <Input
-            placeholder="Tìm kiếm"
-            endIcon={<BsSearch />}
-            className={styles.searchInput}
-            border={false}
-            value={search}
-            onChange={handleChangeSearch}
-            onSubmit={handleSubmitSearch}
-          />
-        </div>
-        {search ? (
-          <div className={styles.searchUser}>
-            <p className={styles.title}>Kết quả tìm kiếm</p>
-            <SearchUserList
-              users={searchUsers}
-              onClick={handleClickOnSearchUser}
+    <>
+      <div className={styles.container}>
+        <div className={styles.userListSection}>
+          <div className={styles.search}>
+            <Input
+              placeholder="Tìm kiếm"
+              endIcon={<BsSearch />}
+              className={styles.searchInput}
+              border={false}
+              value={search}
+              onChange={handleChangeSearch}
+              onSubmit={handleSubmitSearch}
             />
           </div>
+          {search ? (
+            <div className={styles.searchUser}>
+              <p className={styles.title}>Kết quả tìm kiếm</p>
+              <SearchUserList
+                users={searchUsers}
+                onClick={handleClickOnSearchUser}
+              />
+            </div>
+          ) : (
+            <div className={styles.chattedUserList}>
+              <ChattedUserList
+                conversations={conversations.map((item) => ({
+                  ...item,
+                  user: friend.find((f) => f._id === item.userId)!,
+                }))}
+                onConversationClick={handleClickOnConversation}
+                currentConversationId={activeConversation?.id}
+              />
+            </div>
+          )}
+        </div>
+
+        {activeConversation ? (
+          <div className={styles.conversationSection}>
+            <div className={styles.conversationTitle}>
+              <ConversationTitle
+                name={activeConversation?.user.fullName || ""}
+              />
+            </div>
+
+            <div className={styles.conversationContent}>
+              <ConversationContent
+                messages={messages}
+                currentUserId={auth.auth.user._id}
+                currentUserAvatar={auth.auth.user.avatar || ""}
+                chattingUserAvatar={activeConversation?.user.avatar || ""}
+                onScrollToTop={handleScrollToTop}
+                onRetry={handleRetry}
+                onDownloadFile={handleDownloadFile}
+                onImageClick={handleImageClick}
+              />
+
+              {isTyping && (
+                <div className={styles.typing}>
+                  <span>
+                    {activeConversation.user.fullName || ""} đang nhập ...
+                  </span>
+                  <div>
+                    <TypingIcon />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.conversationAction}>
+              <ConversationAction onFileChange={handleSubmitFiles} />
+            </div>
+
+            <div className={styles.conversationInput}>
+              <Input
+                border={false}
+                endIcon={<AiOutlineSend />}
+                placeholder="Nhập tin nhắn ..."
+                value={message}
+                onSubmit={handleSubmitMessage}
+                onChange={handleChangeMessage}
+                onPaste={handlePaste}
+                onDrop={handleDrop}
+              />
+
+              {files.length > 0 && (
+                <div className={styles.images}>
+                  <div className={styles.title}>
+                    <span>{files.length}</span> ảnh được chọn
+                  </div>
+                  <div className={styles.imagesContainer}>
+                    {files.map((file, index) => (
+                      <div className={styles.image} key={index}>
+                        <Image
+                          src={file.data}
+                          alt="Image from clipboard"
+                          width="100%"
+                          height="100%"
+                          closable={true}
+                          onClose={() => handleCancleFile(index)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         ) : (
-          <div className={styles.chattedUserList}>
-            <ChattedUserList
-              conversations={conversations.map((item) => ({
-                ...item,
-                user: friend.find((f) => f._id === item.userId)!,
-              }))}
-              onConversationClick={handleClickOnConversation}
-            />
+          <div className={styles.banner}>
+            <Banner />
           </div>
         )}
       </div>
 
-      {activeConversation ? (
-        <div className={styles.conversationSection}>
-          <div className={styles.conversationTitle}>
-            <ConversationTitle name={activeConversation?.user.fullName || ""} />
-          </div>
-
-          <div className={styles.conversationContent}>
-            <ConversationContent
-              messages={messages}
-              currentUserId={auth.auth.user._id}
-              currentUserAvatar={auth.auth.user.avatar || ""}
-              chattingUserAvatar={activeConversation?.user.avatar || ""}
-              onScrollToTop={handleScrollToTop}
-            />
-
-            {/* {messages.isTyping && (
-              <div className={styles.typing}>
-                <span>
-                  {activeConversation.user.fullName || ""} đang nhập ...
-                </span>
-                <div>
-                  <TypingIcon />
-                </div>
-              </div>
-            )} */}
-          </div>
-
-          <div className={styles.conversationAction}>
-            <ConversationAction onFileChange={handleSubmitFiles} />
-          </div>
-
-          <div className={styles.conversationInput}>
-            <Input
-              border={false}
-              endIcon={<AiOutlineSend />}
-              placeholder="Nhập tin nhắn ..."
-              value={message}
-              onSubmit={handleSubmitMessage}
-              onChange={handleChangeMessage}
-              onPaste={handlePaste}
-              onDrop={handleDrop}
-            />
-
-            {files.length > 0 && (
-              <div className={styles.images}>
-                <div className={styles.title}>
-                  <span>{files.length}</span> ảnh được chọn
-                </div>
-                <div className={styles.imagesContainer}>
-                  {files.map((file, index) => (
-                    <div className={styles.image} key={index}>
-                      <Image
-                        src={file.data}
-                        alt="Image from clipboard"
-                        width="100%"
-                        height="100%"
-                        closable={true}
-                        onClose={() => handleCancleFile(index)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className={styles.banner}>
-          <Banner />
-        </div>
+      {common.showNotification && (
+        <Notification type="error" message="Tải ảnh lên thất bại" />
       )}
-    </div>
+    </>
   );
 }

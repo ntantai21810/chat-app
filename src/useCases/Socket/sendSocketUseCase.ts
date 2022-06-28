@@ -10,6 +10,10 @@ export default class SendSocketUseCase {
   }
 
   async execute(channel: string, data: any) {
-    this.repository.send(channel, data);
+    try {
+      this.repository.send(channel, data);
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

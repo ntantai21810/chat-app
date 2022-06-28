@@ -6,21 +6,29 @@ import {
 } from "../../domains/Message/helper";
 import { IGetMessageRepo } from "../../useCases";
 import { IAddMessageRepo } from "../../useCases/Message/addMessageDatabaseUseCase";
+import { IDeleteMessageRepo } from "../../useCases/Message/deleteMessageUseCase";
+import { IUpdateMessageRepo } from "../../useCases/Message/updateMessageUseCase";
 
-export interface IMessageDatabaseDataSouce {
+export interface IMessageStorageDataSouce {
   getMessagesByConversation(
     conversationId: string,
     options?: IQueryOption
   ): Promise<IMessage[]>;
   addMessage(message: IMessage): void;
+  updateMessage(message: IMessage): void;
+  deleteMessage(message: IMessage): void;
 }
 
-export default class MessageDatabaseRepository
-  implements IGetMessageRepo, IAddMessageRepo
+export default class MessageStorageRepository
+  implements
+    IGetMessageRepo,
+    IAddMessageRepo,
+    IUpdateMessageRepo,
+    IDeleteMessageRepo
 {
-  private dataSource: IMessageDatabaseDataSouce;
+  private dataSource: IMessageStorageDataSouce;
 
-  constructor(dataSource: IMessageDatabaseDataSouce) {
+  constructor(dataSource: IMessageStorageDataSouce) {
     this.dataSource = dataSource;
   }
 
@@ -46,5 +54,17 @@ export default class MessageDatabaseRepository
     const message = normalizeMessageData(messageModel);
 
     this.dataSource.addMessage(message);
+  }
+
+  updateMessage(messageModel: MessageModel): void {
+    const message = normalizeMessageData(messageModel);
+
+    this.dataSource.updateMessage(message);
+  }
+
+  deleteMessage(messageModel: MessageModel): void {
+    const message = normalizeMessageData(messageModel);
+
+    this.dataSource.deleteMessage(message);
   }
 }

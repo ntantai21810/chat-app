@@ -1,5 +1,6 @@
 import * as React from "react";
-import { useDetectClickOutside } from "../../../../helper/hooks/index.ts";
+import ReactDOM from "react-dom";
+import { useDetectClickOutside } from "../../../../helper/hooks";
 import styles from "./style.module.scss";
 
 export interface IModalProps {
@@ -8,10 +9,13 @@ export interface IModalProps {
   height?: string;
   show: boolean;
   onClose?: Function;
+  overlay?: boolean;
 }
 
+const ModalRoot = document.getElementById("modal-root");
+
 export default function Modal(props: IModalProps) {
-  const { children, width, height, show, onClose } = props;
+  const { children, width, height, show, onClose, overlay = true } = props;
 
   const ref = React.createRef<any>();
 
@@ -21,12 +25,12 @@ export default function Modal(props: IModalProps) {
 
   useDetectClickOutside(ref, handleClickOutside);
 
-  return (
+  return ReactDOM.createPortal(
     <div
       className={styles.modal}
       style={{ display: !!show ? "block" : "none" }}
     >
-      <div className={styles.overlay}></div>
+      {overlay && <div className={styles.overlay}></div>}
       <div
         ref={ref}
         className={styles.main}
@@ -34,6 +38,7 @@ export default function Modal(props: IModalProps) {
       >
         {children}
       </div>
-    </div>
+    </div>,
+    ModalRoot!
   );
 }

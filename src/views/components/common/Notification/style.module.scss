@@ -1,0 +1,33 @@
+.container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+
+  padding: 1.6rem;
+  border-radius: 8px;
+
+  display: flex;
+  align-items: center;
+
+  &.success {
+    background-color: rgba(0, 128, 0, 0.1);
+  }
+
+  &.error {
+    background-color: rgba(255, 0, 0, 0.1);
+  }
+
+  .icon {
+    margin-right: 1rem;
+  }
+
+  .message {
+    &.success {
+      color: green;
+    }
+
+    &.error {
+      color: red;
+    }
+  }
+}

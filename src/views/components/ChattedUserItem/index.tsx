@@ -1,8 +1,7 @@
 import classNames from "classnames";
-import * as React from "react";
 import { IMessage, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
-import { Moment } from "../../../helper/configs/moment";
+import { getRemainingTime } from "../../../helper/function";
 import Avatar from "../common/Avatar";
 import styles from "./style.module.scss";
 
@@ -10,16 +9,17 @@ export interface IChattedUserItemProps {
   user: IUser;
   lastMessage: IMessage;
   onClick?: Function;
+  active?: boolean;
 }
 
 export default function ChattedUserItem(props: IChattedUserItemProps) {
-  const { user, lastMessage, onClick } = props;
+  const { user, lastMessage, onClick, active } = props;
 
   return (
     <div
       className={classNames({
         [styles.container]: true,
-        [styles.active]: false, //active
+        [styles.active]: active, //active
       })}
       onClick={() => (onClick ? onClick() : "")}
     >
@@ -27,7 +27,7 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
         <Avatar
           src={
             user?.avatar ||
-            "https://images.unsplash.com/photo-1653257340129-148be674836c?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=465"
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZDHvxAjE2bfJbB-asv9kqio9ItBvUUwSHiA&usqp=CAU"
           }
           alt="User avatar"
           width="5.6rem"
@@ -41,14 +41,14 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
 
           <p className={styles.message}>
             {lastMessage?.type === MessageType.TEXT &&
-              (lastMessage?.content || "")}
+              ((lastMessage?.content as string) || "")}
 
             {lastMessage?.type === MessageType.IMAGE && "Đã gửi ảnh"}
           </p>
         </div>
-        <p className={styles.time}>{`${Math.floor(
-          Moment().diff(Moment(lastMessage.sendTime)) / 1000 / 60
-        )} phút`}</p>
+        <p className={styles.time}>
+          {getRemainingTime(new Date(lastMessage.sendTime).getTime())}
+        </p>
       </div>
     </div>
   );

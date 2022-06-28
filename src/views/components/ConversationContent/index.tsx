@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { IFile } from "../../../domains/common/helper";
 import { IMessage } from "../../../domains/Message";
 import ChatMessage from "../ChatMessage";
 import styles from "./styles.module.scss";
@@ -9,6 +10,9 @@ export interface IConversationContentProps {
   currentUserAvatar: string;
   chattingUserAvatar: string;
   onScrollToTop?: () => any;
+  onRetry?: (message: IMessage) => any;
+  onDownloadFile?: (url: string) => any;
+  onImageClick?: (image: IFile) => any;
 }
 
 function ConversationContent(props: IConversationContentProps) {
@@ -18,11 +22,15 @@ function ConversationContent(props: IConversationContentProps) {
     currentUserAvatar,
     chattingUserAvatar,
     onScrollToTop,
+    onRetry,
+    onDownloadFile,
+    onImageClick,
   } = props;
 
   const ref = useRef<HTMLDivElement | null>(null);
   const lastConversationId = useRef("");
   const lastConversationSendTime = useRef("");
+  const lastMessageLength = useRef(0);
   const scrollFromBottom = useRef(0);
 
   const handleScroll = () => {
@@ -54,19 +62,16 @@ function ConversationContent(props: IConversationContentProps) {
             messages[messages.length - 1].sendTime !==
             lastConversationSendTime.current
           ) {
-            console.log("New message");
             ref.current.scrollTop = ref.current.scrollHeight;
           }
           //Load more
-          else {
-            console.log("Load more");
+          else if (lastMessageLength.current < messages.length) {
             ref.current.scrollTop =
               ref.current.scrollHeight - scrollFromBottom.current;
           }
         }
         //Change conversation
         else {
-          console.log("Change conversation");
           ref.current.scrollTop = ref.current.scrollHeight;
         }
       }
@@ -77,6 +82,8 @@ function ConversationContent(props: IConversationContentProps) {
 
     lastConversationSendTime.current =
       messages.length > 0 ? messages[messages.length - 1].sendTime : "";
+
+    lastMessageLength.current = messages.length;
   });
 
   return (
@@ -99,6 +106,9 @@ function ConversationContent(props: IConversationContentProps) {
               reverse={currentUserId === item.fromId}
               avatar={avatar}
               showAvatar={showAvatar}
+              onRetry={onRetry}
+              onDownloadFile={onDownloadFile}
+              onImageClick={onImageClick}
             />
           </div>
         );

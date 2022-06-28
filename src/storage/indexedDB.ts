@@ -65,7 +65,7 @@ export default class IndexedDB
 
           // Message
           const messageObjectStore = db.createObjectStore("message", {
-            keyPath: "id",
+            keyPath: ["fromId", "toId", "clientId"],
           });
 
           messageObjectStore.createIndex("conversationId", "conversationId", {
@@ -221,5 +221,40 @@ export default class IndexedDB
       .transaction("friend", "readwrite")
       .objectStore("friend")
       .add(friend);
+  }
+
+  updateMessage(message: IMessage): void {
+    this.db
+      .transaction("message", "readwrite")
+      .objectStore("message")
+      .put(message);
+  }
+
+  getConversationById(id: string): Promise<IConversation | null> {
+    return new Promise((resolve, reject) => {
+      if (this.db) {
+        const request = this.db
+          .transaction("conversation")
+          .objectStore("conversation")
+          .get(id);
+
+        request.onsuccess = (event) => {
+          resolve((event.target as IDBRequest).result);
+        };
+
+        request.onerror = (event) => {
+          reject(event);
+        };
+      } else {
+        reject();
+      }
+    });
+  }
+
+  deleteMessage(message: IMessage): void {
+    this.db
+      .transaction("message", "readwrite")
+      .objectStore("message")
+      .delete([message.fromId, message.toId, message.clientId]);
   }
 }

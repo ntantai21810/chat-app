@@ -1,4 +1,5 @@
-import { MessageType } from "./IMessage";
+import { IFile } from "../common/helper";
+import { MessageStatus, MessageType } from "./IMessage";
 
 export default class MessageModel {
   private id: string;
@@ -7,17 +8,19 @@ export default class MessageModel {
   private fromId: string;
   private toId: string;
   private type: MessageType;
-  private content: string;
+  private content: string | IFile[];
   private sendTime: string;
+  private status: MessageStatus;
 
   constructor(
     fromId: string,
     toId: string,
     conversationId: string,
     type: MessageType,
-    content: string,
-    sendTime: string,
+    content: string | IFile[],
     clientId: string,
+    sendTime: string,
+    status: MessageStatus = MessageStatus.PENDING,
     id?: string
   ) {
     this.fromId = fromId;
@@ -27,6 +30,7 @@ export default class MessageModel {
     this.conversationId = conversationId;
     this.clientId = clientId;
     this.sendTime = sendTime;
+    this.status = status;
 
     if (id) this.id = id;
   }
@@ -63,6 +67,10 @@ export default class MessageModel {
     return this.clientId;
   }
 
+  getStatus() {
+    return this.status;
+  }
+
   setId(id: string) {
     this.id = id;
   }
@@ -93,5 +101,9 @@ export default class MessageModel {
 
   setClientId(clientId: string) {
     this.clientId = clientId;
+  }
+
+  setStatus(status: MessageStatus) {
+    this.status = status;
   }
 }

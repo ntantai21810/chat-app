@@ -16,6 +16,7 @@ export default class AddMessageDatabaseUseCase {
       this.repository.addMessage(messageModel);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

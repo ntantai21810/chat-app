@@ -1,13 +1,13 @@
 import { ConversationModel } from "../../domains/Conversation";
 
-export interface IGetConversationRepo {
+export interface IGetConversationByUserIdRepo {
   getConversationByUserId(userId: string): Promise<ConversationModel | null>;
 }
 
 export default class GetConversationByUserIdUseCase {
-  private repository: IGetConversationRepo;
+  private repository: IGetConversationByUserIdRepo;
 
-  constructor(repository: IGetConversationRepo) {
+  constructor(repository: IGetConversationByUserIdRepo) {
     this.repository = repository;
   }
 

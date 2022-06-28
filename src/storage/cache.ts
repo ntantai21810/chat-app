@@ -38,4 +38,22 @@ export default class Cache implements IMessageCache {
       memCache[message.conversationId] = [message];
     }
   }
+
+  updateMessage(message: IMessage): void {
+    if (memCache[message.conversationId]) {
+      memCache[message.conversationId] = memCache[message.conversationId].map(
+        (m) => (m.id !== message.id ? m : message)
+      );
+    } else {
+      memCache[message.conversationId] = [message];
+    }
+  }
+
+  deleteMessage(message: IMessage): void {
+    if (memCache[message.conversationId]) {
+      memCache[message.conversationId] = memCache[
+        message.conversationId
+      ].filter((item) => item.id !== message.id);
+    }
+  }
 }

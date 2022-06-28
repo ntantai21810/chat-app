@@ -10,7 +10,6 @@ import AuthAPIRepository from "../../repository/Auth/authAPIRepository";
 //Network
 
 //Repo
-import AuthRepository from "../../repository/Auth/authAPIRepository";
 import AuthStorageRepository from "../../repository/Auth/authStorageRepository";
 import LocalStorage from "../../storage/localStorage";
 

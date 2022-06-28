@@ -3,11 +3,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export interface ICommonState {
   isSocketConnected: boolean;
   isDatabaseConnected: boolean;
+  showNotification: boolean;
 }
 
 const initialState: ICommonState = {
   isSocketConnected: false,
   isDatabaseConnected: false,
+  showNotification: false,
 };
 
 const commonSlice = createSlice({
@@ -22,6 +24,10 @@ const commonSlice = createSlice({
       state.isDatabaseConnected = action.payload;
     },
 
+    setShowNotification(state, action: PayloadAction<boolean>) {
+      state.showNotification = action.payload;
+    },
+
     reset() {
       return initialState;
     },
@@ -34,6 +40,7 @@ export const {
   reset: resetCommon,
   setSocketConnect,
   setDatabaseConnect,
+  setShowNotification,
 } = commonSlice.actions;
 
 export default commonReducer;

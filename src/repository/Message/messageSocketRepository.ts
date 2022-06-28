@@ -1,18 +1,16 @@
 import { IMessage, MessageModel } from "../../domains/Message";
 import { normalizeMessageData } from "../../domains/Message/helper";
+import { IAckMessageRepo } from "../../useCases/Message/ackMessageUseCase";
 import { ISendMessageRepo } from "../../useCases/Message/sendMessageSocketUseCase";
 
 export interface IMessageSocketDataSouce {
   sendMessage(message: IMessage): void;
-  // sendTyping(userId: string, isTyping: boolean): void;
-  // listenTyping(callback: (userId: string, isTyping: boolean) => void): void;
-  // removeListenTyping(): void;
+  ackMessage(message: IMessage): void;
 }
 
-export default class MessageSocketRepository implements ISendMessageRepo {
-  // IListenTypingRepo,
-  // IRemoveListenTypingRepo,
-  // ISendTypingRepo
+export default class MessageSocketRepository
+  implements ISendMessageRepo, IAckMessageRepo
+{
   private dataSource: IMessageSocketDataSouce;
 
   constructor(dataSource: IMessageSocketDataSouce) {
@@ -25,15 +23,9 @@ export default class MessageSocketRepository implements ISendMessageRepo {
     this.dataSource.sendMessage(message);
   }
 
-  // sendTyping(toUserId: string, isTyping: boolean): void {
-  //   this.dataSource.sendTyping(toUserId, isTyping);
-  // }
+  ackMessage(messageModel: MessageModel): void {
+    const message = normalizeMessageData(messageModel);
 
-  // listenTyping(callback: (userId: string, isTyping: boolean) => void): void {
-  //   this.dataSource.listenTyping(callback);
-  // }
-
-  // removeListenTyping(): void {
-  //   this.dataSource.removeListenTyping();
-  // }
+    this.dataSource.ackMessage(message);
+  }
 }

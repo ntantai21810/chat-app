@@ -1,20 +1,36 @@
-import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IMessage } from "../../domains/Message";
 import { Moment } from "../../helper/configs/moment";
-import { defaultActions } from "./defaultActions";
-import { RootState } from "./store";
 
-const messageAdapter = createEntityAdapter<IMessage>({
-  selectId: (message) => message.id!,
-  sortComparer: (m1, m2) =>
-    Moment(m1.sendTime).unix() - Moment(m2.sendTime).unix(),
-});
+const initialState: IMessage[] = [];
 
 const messageSlice = createSlice({
   name: "message",
-  initialState: messageAdapter.getInitialState(),
+  initialState: initialState,
   reducers: {
-    ...defaultActions(messageAdapter),
+    removeAll() {
+      return initialState;
+    },
+
+    addMany(state, action: PayloadAction<IMessage[]>) {
+      return [...state, ...action.payload].sort(
+        (m1, m2) => Moment(m1.sendTime).unix() - Moment(m2.sendTime).unix()
+      );
+    },
+    addOne(state, action: PayloadAction<IMessage>) {
+      return [...state, action.payload].sort(
+        (m1, m2) => Moment(m1.sendTime).unix() - Moment(m2.sendTime).unix()
+      );
+    },
+    updateOne(state, action: PayloadAction<IMessage>) {
+      return state.map((item) =>
+        item.clientId === action.payload.clientId ? action.payload : item
+      );
+    },
+
+    removeOne(state, action: PayloadAction<IMessage>) {
+      return state.filter((item) => item.clientId !== action.payload.clientId);
+    },
   },
 });
 
@@ -24,10 +40,8 @@ export const {
   removeAll: removeAllMessage,
   addMany: addManyMessage,
   addOne: addOneMessage,
+  updateOne: updateOneMessage,
+  removeOne: removeOneMessage,
 } = messageSlice.actions;
-
-export const { selectAll: selectAllMessages } = messageAdapter.getSelectors(
-  (state: RootState) => state.message
-);
 
 export default messageReducer;

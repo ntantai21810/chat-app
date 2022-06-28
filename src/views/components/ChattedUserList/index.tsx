@@ -5,10 +5,11 @@ import ChattedUserItem from "../ChattedUserItem";
 export interface IChattedUserListProps {
   conversations: (IConversation & { user: IUser })[];
   onConversationClick?: (conversation: IConversation) => any;
+  currentConversationId?: string;
 }
 
 export default function ChattedUserList(props: IChattedUserListProps) {
-  const { conversations, onConversationClick } = props;
+  const { conversations, onConversationClick, currentConversationId } = props;
 
   return (
     <>
@@ -18,6 +19,7 @@ export default function ChattedUserList(props: IChattedUserListProps) {
           lastMessage={item.lastMessage}
           key={item.id}
           onClick={() => (onConversationClick ? onConversationClick(item) : "")}
+          active={item.id === currentConversationId}
         />
       ))}
     </>

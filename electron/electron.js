@@ -31,14 +31,20 @@ const createWindow = () => {
           if (item.isPaused()) {
             console.log("Download is paused");
           } else {
+            mainWindow.webContents.send(
+              "downloadProgress",
+              item.getReceivedBytes()
+            );
             console.log(`Received bytes: ${item.getReceivedBytes()}`);
           }
         }
       });
       item.once("done", (event, state) => {
         if (state === "completed") {
+          mainWindow.webContents.send("downloadProgress", 0);
           console.log("Download successfully");
         } else {
+          mainWindow.webContents.send("downloadProgress", 0);
           console.log(`Download failed: ${state}`);
         }
       });
@@ -72,8 +78,6 @@ const createWindow = () => {
     photoWindow.webContents.once("dom-ready", () => {
       photoWindow.webContents.send("img-src", url);
     });
-
-    photoWindow.webContents.openDevTools();
   });
 
   // and load the index.html of the app.

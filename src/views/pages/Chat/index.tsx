@@ -334,6 +334,12 @@ export default function ChatPage(props: IChatPageProps) {
     socketController.listen("disconnect", () =>
       dispatch(setSocketConnect(false))
     );
+
+    (window as any).electronAPI.removeDownloadFileListener();
+
+    (window as any).electronAPI.onDownloadFileProgress((bytes: number) => {
+      console.log(bytes);
+    });
   }, []);
 
   //Sync message

@@ -45,4 +45,10 @@ window.addEventListener("DOMContentLoaded", () => {
     console.log(url);
     render(url);
   });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      window.close();
+    }
+  });
 });

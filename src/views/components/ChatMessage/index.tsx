@@ -100,6 +100,8 @@ export default function ChatMessage(props: IChatMessageProps) {
                 >
                   <BsDownload fontSize={"2rem"} />
                 </div>
+
+                <div className={styles.progress}></div>
               </div>
             ))}
           </div>

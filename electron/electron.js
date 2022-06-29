@@ -4,11 +4,6 @@
 const { app, BrowserWindow, ipcMain, webContents } = require("electron");
 const path = require("path");
 const isDev = require("electron-is-dev");
-const {
-  default: installExtension,
-  REDUX_DEVTOOLS,
-  REACT_DEVELOPER_TOOLS,
-} = require("electron-devtools-installer");
 
 const createWindow = () => {
   // Create the browser window.
@@ -91,21 +86,27 @@ const createWindow = () => {
   );
 
   //Show in dev mode to use devTools
-  // if (!isDev) mainWindow.setMenu(null);
+  if (!isDev) mainWindow.setMenu(null);
 
   // Open the DevTools.
-  // if (isDev) mainWindow.webContents.openDevTools();
-  mainWindow.webContents.openDevTools();
+  if (isDev) mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  if (true)
+  if (isDev) {
+    const {
+      default: installExtension,
+      REDUX_DEVTOOLS,
+      REACT_DEVELOPER_TOOLS,
+    } = require("electron-devtools-installer");
+
     installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
       .then((name) => console.log(`Added Extension:  ${name}`))
       .catch((err) => console.log("An error occurred: ", err));
+  }
 
   createWindow();
 

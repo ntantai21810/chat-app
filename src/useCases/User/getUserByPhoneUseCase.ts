@@ -1,10 +1,10 @@
-import { UserModel } from "../../domains/User";
+import { UserModel } from "../../domains";
 
 export interface IGetUserByPhoneRepo {
   getUsersByPhone(phone: string): Promise<UserModel[]>;
 }
 
-export default class GetUsersByPhoneUseCase {
+export class GetUsersByPhoneUseCase {
   private repository: IGetUserByPhoneRepo;
 
   constructor(repository: IGetUserByPhoneRepo) {
@@ -18,7 +18,7 @@ export default class GetUsersByPhoneUseCase {
       return res;
     } catch (e) {
       console.log(e);
-      return [];
+      throw e;
     }
   }
 }

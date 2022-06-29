@@ -1,10 +1,10 @@
-import { IFile } from "../../domains/common/helper";
+import { IFile } from "../../domains";
 
 export interface IUploadFileRepo {
   uploadFile(images: IFile[]): Promise<string[]>;
 }
 
-export default class UploadFileUseCase {
+export class UploadFileUseCase {
   private repository: IUploadFileRepo;
 
   constructor(repository: IUploadFileRepo) {

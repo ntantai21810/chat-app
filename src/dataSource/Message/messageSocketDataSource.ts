@@ -1,14 +1,12 @@
-import { IMessage } from "../../domains/Message";
-import { IMessageSocketDataSouce } from "../../repository/Message/messageSocketRepository";
+import { IMessage } from "../../domains";
+import { IMessageSocketDataSouce } from "../../repository";
 
 export interface IMessageSocket {
   sendMessage(message: IMessage): void;
   ackMessage(message: IMessage): void;
 }
 
-export default class MessageSocketDataSource
-  implements IMessageSocketDataSouce
-{
+export class MessageSocketDataSource implements IMessageSocketDataSouce {
   private socket: IMessageSocket;
 
   constructor(socket: IMessageSocket) {

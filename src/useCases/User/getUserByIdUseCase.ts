@@ -1,10 +1,10 @@
-import { UserModel } from "../../domains/User";
+import { UserModel } from "../../domains";
 
 export interface IGetUserByIdRepo {
   getUserById(id: string): Promise<UserModel | null>;
 }
 
-export default class GetUseByIdUseCase {
+export class GetUseByIdUseCase {
   private repository: IGetUserByIdRepo;
 
   constructor(repository: IGetUserByIdRepo) {
@@ -18,7 +18,7 @@ export default class GetUseByIdUseCase {
       return res;
     } catch (e) {
       console.log(e);
-      return null;
+      throw e;
     }
   }
 }

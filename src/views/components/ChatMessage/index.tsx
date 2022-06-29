@@ -6,7 +6,7 @@ import { IMessage, MessageStatus, MessageType } from "../../../domains/Message";
 import Avatar from "../common/Avatar";
 import Image from "../common/Image";
 import MessageItem from "../Message";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/ChatMessage.module.scss";
 
 export interface IChatMessageProps {
   reverse?: boolean;

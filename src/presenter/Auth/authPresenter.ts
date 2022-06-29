@@ -1,6 +1,5 @@
 import { getDispatch } from "../../adapter/frameworkAdapter";
-import { AuthModel } from "../../domains/Auth";
-import { normalizeAuthData } from "../../domains/Auth/helper";
+import { AuthModel, normalizeAuthData } from "../../domains";
 import {
   logout,
   setAuth,
@@ -8,10 +7,10 @@ import {
   setAuthIsLoading,
   setAuthIsLoggingIn,
   setAuthIsLoggingOut,
-} from "../../framework/redux/auth";
+} from "../../framework/redux";
 import { IAuthPresenter } from "./IAuthPresenter";
 
-export default class AuthPresenter implements IAuthPresenter {
+export class AuthPresenter implements IAuthPresenter {
   private dispatch;
 
   constructor() {

@@ -1,11 +1,11 @@
-import { UserModel } from "../../domains/User";
+import { UserModel } from "../../domains";
 import { IFriendPresenter } from "../../presenter";
 
 export interface IGetAllFriendRepo {
   getAllFriend(): Promise<UserModel[]>;
 }
 
-export default class GetAllFriendUseCase {
+export class GetAllFriendUseCase {
   private repository: IGetAllFriendRepo;
   private presenter: IFriendPresenter;
 
@@ -21,6 +21,7 @@ export default class GetAllFriendUseCase {
       this.presenter.addFriends(res);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

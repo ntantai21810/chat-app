@@ -1,10 +1,10 @@
-import { MessageModel } from "../../domains/Message";
+import { MessageModel } from "../../domains";
 
 export interface IAckMessageRepo {
   ackMessage(messageModel: MessageModel): void;
 }
 
-export default class AckMessageUseCase {
+export class AckMessageUseCase {
   private repository: IAckMessageRepo;
 
   constructor(repository: IAckMessageRepo) {
@@ -16,6 +16,7 @@ export default class AckMessageUseCase {
       this.repository.ackMessage(messageModel);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

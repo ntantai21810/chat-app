@@ -4,7 +4,7 @@ export interface IConnectSocketRepo {
   connect(userId: string, accessToken: string): void;
 }
 
-export default class ConnectSocketUseCase {
+export class ConnectSocketUseCase {
   private repository: IConnectSocketRepo;
   private presenter: ISocketPresenter;
 
@@ -20,6 +20,7 @@ export default class ConnectSocketUseCase {
       this.presenter.setConnect(true);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

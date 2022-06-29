@@ -1,19 +1,10 @@
-import SocketRepository from "../../repository/Socket/socketRepository";
+import { DatabaseDataSource } from "../../dataSource";
+import { IDatabasePresenter } from "../../presenter";
+import { DatabaseRepository } from "../../repository";
+import { IndexedDB } from "../../storage";
+import { ConnectDatabaseUseCase } from "../../useCases";
 
-//Use case
-import ConnectSocketUseCase from "../../useCases/Socket/connectSocketUseCase";
-
-//Presenter
-import SocketDataSource from "../../dataSource/Socket/socketDataSouce";
-import Socket from "../../network/socket/socket";
-import { IDatabasePresenter } from "../../presenter/Database";
-import DisconnectSocketUseCase from "../../useCases/Socket/disconnectSocketUseCase";
-import ConnectDatabaseUseCase from "../../useCases/Database/connectDatabaseUseCase";
-import DatabaseRepository from "../../repository/Database/databaseRepository";
-import DatabaseDataSource from "../../dataSource/Database/databaseDataSouce";
-import IndexedDB from "../../storage/indexedDB";
-
-export default class DatabaseController {
+export class DatabaseController {
   private presenter: IDatabasePresenter;
 
   constructor(presenter: IDatabasePresenter) {
@@ -21,11 +12,15 @@ export default class DatabaseController {
   }
 
   connect(name: string, userId: string) {
-    const connectDatabaseUseCase = new ConnectDatabaseUseCase(
-      new DatabaseRepository(new DatabaseDataSource(IndexedDB.getInstance())),
-      this.presenter
-    );
+    try {
+      const connectDatabaseUseCase = new ConnectDatabaseUseCase(
+        new DatabaseRepository(new DatabaseDataSource(IndexedDB.getInstance())),
+        this.presenter
+      );
 
-    connectDatabaseUseCase.execute(name, userId);
+      connectDatabaseUseCase.execute(name, userId);
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

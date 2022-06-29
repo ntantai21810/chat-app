@@ -1,34 +1,32 @@
-import { IFile } from "./../../domains/common/helper";
-//Data source
-import { IMessage, MessageType, modelMessageData } from "../../domains/Message";
-
-//Presenter
+import {
+  FileDataSource,
+  MessageCacheDataSource,
+  MessageStorageDataSource,
+} from "../../dataSource";
+import {
+  IFile,
+  IMessage,
+  IQueryOption,
+  MessageModel,
+  MessageType,
+  modelMessageData,
+} from "../../domains";
+import { API } from "../../network";
 import { IMessagePresenter } from "../../presenter";
+import { FileRepository, MessageStorageRepository } from "../../repository";
+import { CacheStorage, IndexedDB } from "../../storage";
+import {
+  AddMessageDatabaseUseCase,
+  GetMessageByConversationUseCase,
+  ReceiveMessageUseCase,
+  RetryMessageUseCase,
+  SendMessageUseCase,
+  SyncMessageUseCase,
+  UpdateMessageUseCase,
+  UploadFileUseCase,
+} from "../../useCases";
 
-//Repo
-
-//DB
-import IndexedDB from "../../storage/indexedDB";
-
-//Use case
-import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
-import MessageStorageRepository from "../../repository/Message/messageStorageRepository";
-import GetMessageUseCase from "../../useCases/Message/getMessageByConversationUseCase";
-import ReceiveMessageUseCase from "../../useCases/Message/receiveMessageUseCase";
-import SendMessageUseCase from "../../useCases/Message/sendMessageUseCase";
-import MessageCacheDataSource from "../../dataSource/Message/messageCacheDataSource";
-import Cache from "../../storage/cache";
-import AddMessageDatabaseUseCase from "../../useCases/Message/addMessageDatabaseUseCase";
-import { IQueryOption } from "../../domains/common/helper";
-import UpdateMessageUseCase from "../../useCases/Message/updateMessageUseCase";
-import SyncMessageUseCase from "../../useCases/Message/syncMessageUseCase";
-import UploadFileUseCase from "../../useCases/File/uploadFileUseCase";
-import FileRepository from "../../repository/File/fileRepository";
-import FileDataSource from "../../dataSource/File/fileDataSouce";
-import API from "../../network/api/API";
-import RetryMessageUseCase from "../../useCases/Message/retryMessageUseCase";
-
-export default class MessageController {
+export class MessageController {
   private presenter: IMessagePresenter;
 
   constructor(presenter: IMessagePresenter) {
@@ -39,26 +37,35 @@ export default class MessageController {
     conversationId: string,
     options?: IQueryOption
   ) {
-    const getMessageFromCacheUseCase = new GetMessageUseCase(
-      new MessageStorageRepository(
-        new MessageCacheDataSource(Cache.getInstance())
-      ),
-      this.presenter
-    );
-
-    const result = await getMessageFromCacheUseCase.execute(conversationId);
-
-    if (result.length < 10) {
-      this.presenter.removeAllMessage();
-
-      const getMessageFromDBUseCase = new GetMessageUseCase(
+    let result: MessageModel[] = [];
+    try {
+      const getMessageFromCacheUseCase = new GetMessageByConversationUseCase(
         new MessageStorageRepository(
-          new MessageStorageDataSource(IndexedDB.getInstance())
+          new MessageCacheDataSource(CacheStorage.getInstance())
         ),
         this.presenter
       );
 
-      getMessageFromDBUseCase.execute(conversationId, options);
+      result = await getMessageFromCacheUseCase.execute(conversationId);
+    } catch (e) {
+      console.log(e);
+    }
+
+    if (result.length < 10) {
+      try {
+        this.presenter.removeAllMessage();
+
+        const getMessageFromDBUseCase = new GetMessageByConversationUseCase(
+          new MessageStorageRepository(
+            new MessageStorageDataSource(IndexedDB.getInstance())
+          ),
+          this.presenter
+        );
+
+        getMessageFromDBUseCase.execute(conversationId, options);
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
@@ -66,33 +73,45 @@ export default class MessageController {
     conversationId: string,
     options?: IQueryOption
   ) {
-    const getMessageFromDBUseCase = new GetMessageUseCase(
-      new MessageStorageRepository(
-        new MessageStorageDataSource(IndexedDB.getInstance())
-      ),
-      this.presenter
-    );
+    try {
+      const getMessageFromDBUseCase = new GetMessageByConversationUseCase(
+        new MessageStorageRepository(
+          new MessageStorageDataSource(IndexedDB.getInstance())
+        ),
+        this.presenter
+      );
 
-    const res = await getMessageFromDBUseCase.execute(conversationId, options);
+      const res = await getMessageFromDBUseCase.execute(
+        conversationId,
+        options
+      );
 
-    return res;
+      return res;
+    } catch (e) {
+      console.log(e);
+      return [];
+    }
   }
 
   addMessageToCache(messages: IMessage | IMessage[]) {
-    const addMessageToCacheUseCase = new AddMessageDatabaseUseCase(
-      new MessageStorageRepository(
-        new MessageCacheDataSource(Cache.getInstance())
-      )
-    );
+    try {
+      const addMessageToCacheUseCase = new AddMessageDatabaseUseCase(
+        new MessageStorageRepository(
+          new MessageCacheDataSource(CacheStorage.getInstance())
+        )
+      );
 
-    if (Array.isArray(messages)) {
-      for (let message of messages) {
-        const messageModel = modelMessageData(message);
+      if (Array.isArray(messages)) {
+        for (let message of messages) {
+          const messageModel = modelMessageData(message);
+          addMessageToCacheUseCase.execute(messageModel);
+        }
+      } else {
+        const messageModel = modelMessageData(messages);
         addMessageToCacheUseCase.execute(messageModel);
       }
-    } else {
-      const messageModel = modelMessageData(messages);
-      addMessageToCacheUseCase.execute(messageModel);
+    } catch (e) {
+      console.log(e);
     }
   }
 
@@ -121,65 +140,92 @@ export default class MessageController {
       return;
     }
 
-    const sendMessageUseCase = new SendMessageUseCase(this.presenter);
+    try {
+      const sendMessageUseCase = new SendMessageUseCase(this.presenter);
 
-    const messageModel = modelMessageData(message);
+      const messageModel = modelMessageData(message);
 
-    sendMessageUseCase.execute(messageModel);
+      sendMessageUseCase.execute(messageModel);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   receiveMessage(message: IMessage, addToCache: boolean) {
-    const receiveMessageUseCase = new ReceiveMessageUseCase(this.presenter);
+    try {
+      const receiveMessageUseCase = new ReceiveMessageUseCase(this.presenter);
 
-    const messageModel = modelMessageData(message);
+      const messageModel = modelMessageData(message);
 
-    receiveMessageUseCase.execute(messageModel);
+      receiveMessageUseCase.execute(messageModel);
 
-    if (addToCache) {
-      const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
-        new MessageStorageRepository(
-          new MessageCacheDataSource(Cache.getInstance())
-        )
-      );
+      if (addToCache) {
+        const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
+          new MessageStorageRepository(
+            new MessageCacheDataSource(CacheStorage.getInstance())
+          )
+        );
 
-      addMessageDatabaseUseCase.execute(messageModel);
+        addMessageDatabaseUseCase.execute(messageModel);
+      }
+    } catch (e) {
+      console.log(e);
     }
   }
 
   updateMessage(message: IMessage, updateCache: boolean) {
-    const updateMessageUseCase = new UpdateMessageUseCase(
-      new MessageStorageRepository(
-        new MessageStorageDataSource(IndexedDB.getInstance())
-      ),
-      this.presenter
-    );
+    let messageModel: MessageModel;
 
-    const messageModel = modelMessageData(message);
-
-    updateMessageUseCase.execute(messageModel);
-
-    if (updateCache) {
-      const updateCacheMessage = new UpdateMessageUseCase(
+    try {
+      const updateMessageUseCase = new UpdateMessageUseCase(
         new MessageStorageRepository(
-          new MessageCacheDataSource(Cache.getInstance())
-        )
+          new MessageStorageDataSource(IndexedDB.getInstance())
+        ),
+        this.presenter
       );
 
-      updateCacheMessage.execute(messageModel);
+      messageModel = modelMessageData(message);
+
+      updateMessageUseCase.execute(messageModel);
+    } catch (e) {
+      console.log(e);
+      return;
+    }
+
+    if (updateCache) {
+      try {
+        const updateCacheMessage = new UpdateMessageUseCase(
+          new MessageStorageRepository(
+            new MessageCacheDataSource(CacheStorage.getInstance())
+          )
+        );
+
+        updateCacheMessage.execute(messageModel);
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
   syncMessage() {
-    const syncMessageUseCase = new SyncMessageUseCase();
+    try {
+      const syncMessageUseCase = new SyncMessageUseCase();
 
-    syncMessageUseCase.execute();
+      syncMessageUseCase.execute();
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   retryMessage(message: IMessage) {
-    const retryMessageUseCase = new RetryMessageUseCase(this.presenter);
+    try {
+      const retryMessageUseCase = new RetryMessageUseCase(this.presenter);
 
-    const messageModel = modelMessageData(message);
+      const messageModel = modelMessageData(message);
 
-    retryMessageUseCase.execute(messageModel);
+      retryMessageUseCase.execute(messageModel);
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

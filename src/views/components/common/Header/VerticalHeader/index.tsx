@@ -10,7 +10,7 @@ import { removeAllMessage } from "../../../../../framework/redux/message";
 import Avatar from "../../Avatar";
 import Dropdown from "../../Dropdown";
 import routes from "../routes";
-import styles from "./style.module.scss";
+import styles from "../../../../assets/styles/VerticalHeader.module.scss";
 
 export interface IVerticalHeaderProps {}
 

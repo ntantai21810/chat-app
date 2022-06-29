@@ -1,5 +1,5 @@
 import * as React from "react";
-import styles from "./style.module.scss";
+import styles from "../../../assets/styles/Avatar.module.scss";
 
 export interface IAvatarProps {
   width?: string;

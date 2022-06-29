@@ -27,7 +27,6 @@ import {
   setSocketConnect,
 } from "../../../framework/redux/common";
 import { removeAllMessage } from "../../../framework/redux/message";
-import { Moment } from "../../../helper/configs/moment";
 import { SOCKET_CONSTANTS } from "../../../helper/constants";
 import ChattedUserList from "../../components/ChattedUserList";
 import Banner from "../../components/common/Banner";
@@ -39,7 +38,7 @@ import ConversationAction from "../../components/ConversationAction";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import SearchUserList from "../../components/SearchUserList";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/ChatPage.module.scss";
 
 export interface IChatPageProps {}
 
@@ -118,7 +117,7 @@ export default function ChatPage(props: IChatPageProps) {
           type: MessageType.TEXT,
           content: message,
           conversationId: "",
-          sendTime: Moment().toISOString(),
+          sendTime: new Date().toISOString(),
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
         });
@@ -130,7 +129,7 @@ export default function ChatPage(props: IChatPageProps) {
           toId: activeConversation.user._id,
           type: MessageType.IMAGE,
           content: files,
-          sendTime: Moment().toISOString(),
+          sendTime: new Date().toISOString(),
           conversationId: "",
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
@@ -154,7 +153,7 @@ export default function ChatPage(props: IChatPageProps) {
           toId: activeConversation.user._id,
           type: MessageType.IMAGE,
           content: files,
-          sendTime: Moment().toISOString(),
+          sendTime: new Date().toISOString(),
           conversationId: "",
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
@@ -165,7 +164,7 @@ export default function ChatPage(props: IChatPageProps) {
           toId: activeConversation.user._id,
           type: MessageType.FILE,
           content: files,
-          sendTime: Moment().toISOString(),
+          sendTime: new Date().toISOString(),
           conversationId: "",
           clientId: uuidv4(),
           status: MessageStatus.PENDING,

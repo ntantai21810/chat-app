@@ -1,4 +1,3 @@
-export { default as CredentialModel } from "./credentialModel";
-
-export * from "./ICredential";
+export * from "./credentialModel";
 export * from "./helper";
+export * from "./ICredential";

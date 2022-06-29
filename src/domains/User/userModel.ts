@@ -1,4 +1,4 @@
-export default class UserModel {
+export class UserModel {
   private _id: string = "";
   private fullName: string = "";
   private phone: string = "";

@@ -1,6 +1,8 @@
-import { selectAllConversation } from "../framework/redux/conversation";
-import { selectAllFriends } from "../framework/redux/friend";
-import { useAppSelector } from "../framework/redux/hook";
+import {
+  selectAllConversation,
+  selectAllFriends,
+  useAppSelector,
+} from "../framework/redux";
 
 export function useAuth() {
   return useAppSelector((state) => state.auth);

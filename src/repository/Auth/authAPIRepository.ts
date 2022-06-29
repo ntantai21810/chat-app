@@ -1,11 +1,11 @@
-import { AuthModel, IAuth } from "../../domains/Auth";
-import { modelAuthData } from "../../domains/Auth/helper";
 import {
+  AuthModel,
   CredentialModel,
+  IAuth,
+  modelAuthData,
   normalizeCredentialData,
-} from "../../domains/Credential";
-import { ILoginRepo, IRegisterRepo } from "../../useCases";
-import { ISetAuthAPIRepo } from "../../useCases/Auth/setAuthAPIUseCase";
+} from "../../domains";
+import { ILoginRepo, IRegisterRepo, ISetAuthAPIRepo } from "../../useCases";
 
 export interface IAuthAPIDataSource {
   login(phone: string, password: string): Promise<IAuth>;
@@ -13,7 +13,7 @@ export interface IAuthAPIDataSource {
   setAccessTokenInterceptor(accessToken: string): void;
 }
 
-export default class AuthAPIRepository
+export class AuthAPIRepository
   implements ILoginRepo, IRegisterRepo, ISetAuthAPIRepo
 {
   private dataSource: IAuthAPIDataSource;

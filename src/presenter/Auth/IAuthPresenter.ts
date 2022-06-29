@@ -1,4 +1,4 @@
-import { AuthModel } from "../../domains/Auth";
+import { AuthModel } from "../../domains";
 
 export interface IAuthPresenter {
   setAuth(authModel: AuthModel): void;

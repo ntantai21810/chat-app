@@ -1,19 +1,18 @@
 import { io, Socket as SocketIO } from "socket.io-client";
-import { IMessageSocket } from "../../dataSource";
-import { ISocket } from "../../dataSource/Socket/socketDataSouce";
-import { IMessage } from "../../domains/Message";
-import { SOCKET_CONSTANTS } from "./../../helper/constants/index";
+import { IMessageSocket, ISocket } from "../../dataSource";
+import { IMessage } from "../../domains";
+import { SOCKET_CONSTANTS } from "../../helper/constants";
 
-export default class Socket implements IMessageSocket, ISocket {
+export class Socket implements IMessageSocket, ISocket {
   private static instance: Socket;
 
   private socket: SocketIO;
   private url: string;
-  private isConnecting: boolean;
+  private isConnected: boolean;
 
   private constructor(url: string) {
     this.url = url;
-    this.isConnecting = false;
+    this.isConnected = false;
   }
 
   public static getIntance() {
@@ -29,8 +28,8 @@ export default class Socket implements IMessageSocket, ISocket {
 
     this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
 
-    this.socket.on("connect", () => (this.isConnecting = true));
-    this.socket.on("disconnect", () => (this.isConnecting = false));
+    this.socket.on("connect", () => (this.isConnected = true));
+    this.socket.on("disconnect", () => (this.isConnected = false));
   }
 
   listen(channel: string, callback: (data: any) => any): void {
@@ -38,7 +37,7 @@ export default class Socket implements IMessageSocket, ISocket {
   }
 
   send(channel: string, data: any): void {
-    if (!this.isConnecting) {
+    if (!this.isConnected) {
       throw "Socket disconnected";
     }
 
@@ -46,7 +45,7 @@ export default class Socket implements IMessageSocket, ISocket {
   }
 
   sendMessage(message: IMessage): void {
-    if (!this.isConnecting) {
+    if (!this.isConnected) {
       throw "Socket disconnected";
     }
 
@@ -54,7 +53,7 @@ export default class Socket implements IMessageSocket, ISocket {
   }
 
   ackMessage(message: IMessage): void {
-    if (!this.isConnecting) {
+    if (!this.isConnected) {
       throw "Socket disconnected";
     }
 

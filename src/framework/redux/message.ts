@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IMessage } from "../../domains/Message";
-import { Moment } from "../../helper/configs/moment";
 
 const initialState: IMessage[] = [];
 
@@ -14,12 +13,14 @@ const messageSlice = createSlice({
 
     addMany(state, action: PayloadAction<IMessage[]>) {
       return [...state, ...action.payload].sort(
-        (m1, m2) => Moment(m1.sendTime).unix() - Moment(m2.sendTime).unix()
+        (m1, m2) =>
+          new Date(m1.sendTime).getTime() - new Date(m2.sendTime).getTime()
       );
     },
     addOne(state, action: PayloadAction<IMessage>) {
       return [...state, action.payload].sort(
-        (m1, m2) => Moment(m1.sendTime).unix() - Moment(m2.sendTime).unix()
+        (m1, m2) =>
+          new Date(m1.sendTime).getTime() - new Date(m2.sendTime).getTime()
       );
     },
     updateOne(state, action: PayloadAction<IMessage>) {
@@ -44,4 +45,4 @@ export const {
   removeOne: removeOneMessage,
 } = messageSlice.actions;
 
-export default messageReducer;
+export { messageReducer };

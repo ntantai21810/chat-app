@@ -1,10 +1,10 @@
-import { ConversationModel } from "../../domains/Conversation";
+import { ConversationModel } from "../../domains";
 
 export interface IGetConversationByUserIdRepo {
   getConversationByUserId(userId: string): Promise<ConversationModel | null>;
 }
 
-export default class GetConversationByUserIdUseCase {
+export class GetConversationByUserIdUseCase {
   private repository: IGetConversationByUserIdRepo;
 
   constructor(repository: IGetConversationByUserIdRepo) {
@@ -12,8 +12,12 @@ export default class GetConversationByUserIdUseCase {
   }
 
   async execute(userId: string) {
-    const res = await this.repository.getConversationByUserId(userId);
+    try {
+      const res = await this.repository.getConversationByUserId(userId);
 
-    return res;
+      return res;
+    } catch (e) {
+      throw e;
+    }
   }
 }

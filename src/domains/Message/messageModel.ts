@@ -1,7 +1,7 @@
 import { IFile } from "../common/helper";
 import { MessageStatus, MessageType } from "./IMessage";
 
-export default class MessageModel {
+export class MessageModel {
   private id: string;
   private clientId: string;
   private conversationId: string;

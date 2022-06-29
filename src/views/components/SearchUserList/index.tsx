@@ -1,7 +1,7 @@
 import * as React from "react";
 import { IUser } from "../../../domains/User";
 import SearchUserItem from "../SearchUserItem";
-import styles from "./styles.module.scss";
+import styles from "../../assets/styles/SearchUserList.module.scss";
 
 export interface ISearchUserListProps {
   users: IUser[];

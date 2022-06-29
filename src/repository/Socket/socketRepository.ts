@@ -1,8 +1,10 @@
-import { IConnectSocketRepo } from "../../useCases";
-import { IDisconnectSocketRepo } from "../../useCases/Socket/disconnectSocketUseCase";
-import { IListenSocketRepo } from "../../useCases/Socket/listenSocketUseCase";
-import { IRemoveAllListenerSocketRepo } from "../../useCases/Socket/removeAllListenerSocketUseCase";
-import { ISendSocketRepo } from "../../useCases/Socket/sendSocketUseCase";
+import {
+  IConnectSocketRepo,
+  IDisconnectSocketRepo,
+  IListenSocketRepo,
+  IRemoveAllListenerSocketRepo,
+  ISendSocketRepo,
+} from "../../useCases";
 
 export interface ISocketDataSource {
   connect(userId: string, accessToken: string): void;
@@ -11,7 +13,7 @@ export interface ISocketDataSource {
   send(channel: string, data: any): void;
   removeAllListener(channel: string): void;
 }
-export default class SocketRepository
+export class SocketRepository
   implements
     IConnectSocketRepo,
     IDisconnectSocketRepo,

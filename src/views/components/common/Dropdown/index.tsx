@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import * as React from "react";
-import styles from "./styles.module.scss";
+import styles from "../../../assets/styles/Dropdown.module.scss";
 
 export interface IDropdownProps {
   children: React.ReactNode;

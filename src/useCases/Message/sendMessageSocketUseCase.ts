@@ -1,15 +1,15 @@
-import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
-import { MessageModel, MessageStatus } from "../../domains/Message";
+import { MessageStorageDataSource } from "../../dataSource";
+import { MessageModel, MessageStatus } from "../../domains";
 import { IMessagePresenter } from "../../presenter";
-import MessageStorageRepository from "../../repository/Message/messageStorageRepository";
-import IndexedDB from "../../storage/indexedDB";
-import UpdateMessageUseCase from "./updateMessageUseCase";
+import { MessageStorageRepository } from "../../repository";
+import { IndexedDB } from "../../storage";
+import { UpdateMessageUseCase } from "./updateMessageUseCase";
 
 export interface ISendMessageRepo {
   sendMessage(messageModel: MessageModel): void;
 }
 
-export default class SendMessageSocketUseCase {
+export class SendMessageSocketUseCase {
   private repository: ISendMessageRepo;
   private presenter: IMessagePresenter;
 
@@ -32,6 +32,8 @@ export default class SendMessageSocketUseCase {
       messageModel.setStatus(MessageStatus.ERROR);
 
       updateMessageUseCase.execute(messageModel);
+
+      throw e;
     }
   }
 }

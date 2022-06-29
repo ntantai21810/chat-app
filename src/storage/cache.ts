@@ -1,5 +1,5 @@
-import { IMessageCache } from "../dataSource/Message/messageCacheDataSource";
-import { IMessage } from "../domains/Message";
+import { IMessageCache } from "../dataSource";
+import { IMessage } from "../domains";
 
 interface IMemCache {
   [conversationId: string]: IMessage[];
@@ -7,11 +7,11 @@ interface IMemCache {
 
 const memCache: IMemCache = {};
 
-export default class Cache implements IMessageCache {
-  private static instace: Cache;
+export class CacheStorage implements IMessageCache {
+  private static instace: CacheStorage;
 
   public static getInstance() {
-    if (!this.instace) this.instace = new Cache();
+    if (!this.instace) this.instace = new CacheStorage();
 
     return this.instace;
   }
@@ -23,7 +23,7 @@ export default class Cache implements IMessageCache {
       if (memCache[conversationId]) {
         resolve(memCache[conversationId]);
       } else {
-        reject();
+        resolve([]);
       }
     });
   }

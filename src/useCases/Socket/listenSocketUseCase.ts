@@ -2,7 +2,7 @@ export interface IListenSocketRepo {
   listen(channel: string, callback: Function): void;
 }
 
-export default class ListenSocketUseCase {
+export class ListenSocketUseCase {
   private repository: IListenSocketRepo;
 
   constructor(repository: IListenSocketRepo) {
@@ -10,6 +10,10 @@ export default class ListenSocketUseCase {
   }
 
   async execute(channel: string, callback: Function) {
-    this.repository.listen(channel, callback);
+    try {
+      this.repository.listen(channel, callback);
+    } catch (e) {
+      throw e;
+    }
   }
 }

@@ -1,13 +1,16 @@
-import { IQueryOption } from "../../domains/common/helper";
-import { IMessage, MessageModel } from "../../domains/Message";
 import {
+  IMessage,
+  IQueryOption,
+  MessageModel,
   modelMessageData,
   normalizeMessageData,
-} from "../../domains/Message/helper";
-import { IGetMessageRepo } from "../../useCases";
-import { IAddMessageRepo } from "../../useCases/Message/addMessageDatabaseUseCase";
-import { IDeleteMessageRepo } from "../../useCases/Message/deleteMessageUseCase";
-import { IUpdateMessageRepo } from "../../useCases/Message/updateMessageUseCase";
+} from "../../domains";
+import {
+  IAddMessageRepo,
+  IDeleteMessageRepo,
+  IGetMessageRepo,
+  IUpdateMessageRepo,
+} from "../../useCases";
 
 export interface IMessageStorageDataSouce {
   getMessagesByConversation(
@@ -19,7 +22,7 @@ export interface IMessageStorageDataSouce {
   deleteMessage(message: IMessage): void;
 }
 
-export default class MessageStorageRepository
+export class MessageStorageRepository
   implements
     IGetMessageRepo,
     IAddMessageRepo,

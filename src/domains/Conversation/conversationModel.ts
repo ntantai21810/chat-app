@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { MessageModel } from "../Message/index";
 
-export default class ConversationModel {
+export class ConversationModel {
   private id: string;
   private userId: string;
   private lastMessage: MessageModel;

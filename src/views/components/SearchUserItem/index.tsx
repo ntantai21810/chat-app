@@ -1,6 +1,6 @@
 import * as React from "react";
 import Avatar from "../common/Avatar";
-import styles from "./styles.module.scss";
+import styles from "../../assets/styles/SearchUserItem.module.scss";
 
 export interface ISearchUserItemProps {
   avatar?: string;

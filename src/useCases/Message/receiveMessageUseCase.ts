@@ -1,25 +1,33 @@
-import ConversationDatabaseDataSource from "../../dataSource/Conversation/conversationDatabaseDataSouce";
-import FriendDataSource from "../../dataSource/Friend/friendDataSouce";
-import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
-import UserAPIDataSource from "../../dataSource/User/userDataSouce";
-import { ConversationModel } from "../../domains/Conversation";
-import { MessageModel } from "../../domains/Message";
-import API from "../../network/api/API";
-import { ConversationPresenter, IMessagePresenter } from "../../presenter";
-import FriendPresenter from "../../presenter/Friend/friendPresenter";
-import ConversationStorageRepository from "../../repository/Conversation/conversationStorageRepository";
-import FriendStorageRepository from "../../repository/Friend/friendStorageRepository";
-import MessageStorageRepository from "../../repository/Message/messageStorageRepository";
-import UserAPIRepository from "../../repository/User/userAPIRepository";
-import IndexedDB from "../../storage/indexedDB";
-import AddConversationUseCase from "../Conversation/addConversationUseCase";
-import GetConversationByUserIdUseCase from "../Conversation/getConversationByUserIdUseCase";
-import UpdateConversationUseCase from "../Conversation/updateConversationUseCase";
-import AddFriendUseCase from "../Friend/addFriendUseCase";
-import GetUseByIdUseCase from "../User/getUserByIdUseCase";
-import AddMessageDatabaseUseCase from "./addMessageDatabaseUseCase";
+import {
+  ConversationDatabaseDataSource,
+  FriendDataSource,
+  MessageStorageDataSource,
+  UserAPIDataSource,
+} from "../../dataSource";
+import { ConversationModel, MessageModel } from "../../domains";
+import { API } from "../../network";
+import {
+  ConversationPresenter,
+  FriendPresenter,
+  IMessagePresenter,
+} from "../../presenter";
+import {
+  ConversationStorageRepository,
+  FriendStorageRepository,
+  MessageStorageRepository,
+  UserAPIRepository,
+} from "../../repository";
+import { IndexedDB } from "../../storage";
+import {
+  AddConversationUseCase,
+  GetConversationByUserIdUseCase,
+  UpdateConversationUseCase,
+} from "../Conversation";
+import { AddFriendUseCase } from "../Friend";
+import { GetUseByIdUseCase } from "../User";
+import { AddMessageDatabaseUseCase } from "./addMessageDatabaseUseCase";
 
-export default class ReceiveMessageUseCase {
+export class ReceiveMessageUseCase {
   private presenter: IMessagePresenter;
 
   constructor(presenter?: IMessagePresenter) {
@@ -112,6 +120,7 @@ export default class ReceiveMessageUseCase {
       addMessageDatabaseUseCase.execute(messageModel);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { UserModel } from "../../domains/User";
+import { UserModel } from "../../domains";
 
 export interface IFriendPresenter {
   addFriends(userModels: UserModel | UserModel[]): void;

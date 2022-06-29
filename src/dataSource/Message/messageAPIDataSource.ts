@@ -1,12 +1,12 @@
-import { IMessage } from "../../domains/Message";
-import { IMessageAPIDataSouce } from "../../repository/Message/messageAPIRepository";
+import { IMessage } from "../../domains";
+import { IMessageAPIDataSouce } from "../../repository";
 
 export interface IMessageAPI {
   getPendingMessages: () => Promise<IMessage[]>;
   deletePendingMessages: (ids: string[]) => void;
 }
 
-export default class MessageAPIDataSource implements IMessageAPIDataSouce {
+export class MessageAPIDataSource implements IMessageAPIDataSouce {
   private api: IMessageAPI;
 
   constructor(api: IMessageAPI) {

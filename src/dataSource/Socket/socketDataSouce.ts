@@ -1,4 +1,4 @@
-import { ISocketDataSource } from "../../repository/Socket/socketRepository";
+import { ISocketDataSource } from "../../repository";
 
 export interface ISocket {
   connect(userId: string, accessToken: string): void;
@@ -8,7 +8,7 @@ export interface ISocket {
   removeAllListener(channel: string): void;
 }
 
-export default class SocketDataSource implements ISocketDataSource {
+export class SocketDataSource implements ISocketDataSource {
   private socket: ISocket;
 
   constructor(socket: ISocket) {

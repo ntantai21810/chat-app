@@ -1,17 +1,16 @@
 import { getDispatch } from "../../adapter/frameworkAdapter";
-import { IMessage, MessageModel } from "../../domains/Message";
-import { normalizeMessageData } from "../../domains/Message/helper";
-import { setShowNotification } from "../../framework/redux/common";
+import { IMessage, MessageModel, normalizeMessageData } from "../../domains";
 import {
   addManyMessage,
   addOneMessage,
   removeAllMessage,
   removeOneMessage,
+  setShowNotification,
   updateOneMessage,
-} from "../../framework/redux/message";
+} from "../../framework/redux";
 import { IMessagePresenter } from "./IMessagePresenter";
 
-export default class MessagePresenter implements IMessagePresenter {
+export class MessagePresenter implements IMessagePresenter {
   private dispatch;
 
   constructor() {

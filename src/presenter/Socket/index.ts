@@ -1,3 +1,2 @@
-export { default as SocketPresenter } from "./socketPresenter";
-
 export * from "./ISocketPresenter";
+export * from "./socketPresenter";

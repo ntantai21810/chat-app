@@ -4,7 +4,7 @@ export interface IDisconnectSocketRepo {
   disconnect(): void;
 }
 
-export default class DisconnectSocketUseCase {
+export class DisconnectSocketUseCase {
   private repository: IDisconnectSocketRepo;
   private presenter: ISocketPresenter;
 
@@ -20,6 +20,7 @@ export default class DisconnectSocketUseCase {
       this.presenter.setConnect(false);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

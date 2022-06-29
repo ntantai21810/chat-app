@@ -1,6 +1,5 @@
-import { IQueryOption } from "../../domains/common/helper";
-import { IMessage } from "../../domains/Message";
-import { IMessageStorageDataSouce } from "../../repository/Message/messageStorageRepository";
+import { IMessage, IQueryOption } from "../../domains";
+import { IMessageStorageDataSouce } from "../../repository";
 
 export interface IMessageStorage {
   getMessagesByConversation: (
@@ -12,9 +11,7 @@ export interface IMessageStorage {
   deleteMessage: (message: IMessage) => void;
 }
 
-export default class MessageStorageDataSource
-  implements IMessageStorageDataSouce
-{
+export class MessageStorageDataSource implements IMessageStorageDataSouce {
   private database: IMessageStorage;
 
   constructor(storage: IMessageStorage) {

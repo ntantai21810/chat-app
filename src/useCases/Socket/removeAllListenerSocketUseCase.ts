@@ -2,7 +2,7 @@ export interface IRemoveAllListenerSocketRepo {
   removeAllListener(channel: string): void;
 }
 
-export default class RemoveAllListenerSocketUseCase {
+export class RemoveAllListenerSocketUseCase {
   private repository: IRemoveAllListenerSocketRepo;
 
   constructor(repository: IRemoveAllListenerSocketRepo) {
@@ -10,6 +10,10 @@ export default class RemoveAllListenerSocketUseCase {
   }
 
   async execute(channel: string) {
-    this.repository.removeAllListener(channel);
+    try {
+      this.repository.removeAllListener(channel);
+    } catch (e) {
+      throw e;
+    }
   }
 }

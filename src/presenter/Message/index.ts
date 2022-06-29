@@ -1,3 +1,2 @@
-export { default as MessagePresenter } from "./messagePresenter";
-
 export * from "./IMessagePresenter";
+export * from "./messagePresenter";

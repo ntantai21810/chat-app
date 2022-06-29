@@ -43,4 +43,4 @@ export const {
   setShowNotification,
 } = commonSlice.actions;
 
-export default commonReducer;
+export { commonReducer };

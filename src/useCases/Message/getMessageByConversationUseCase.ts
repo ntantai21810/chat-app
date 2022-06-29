@@ -1,5 +1,4 @@
-import { IPaginate, IQueryOption } from "../../domains/common/helper";
-import { MessageModel } from "../../domains/Message";
+import { IQueryOption, MessageModel } from "../../domains";
 import { IMessagePresenter } from "../../presenter";
 
 export interface IGetMessageRepo {
@@ -9,7 +8,7 @@ export interface IGetMessageRepo {
   ): Promise<MessageModel[]>;
 }
 
-export default class GetMessageByConversationUseCase {
+export class GetMessageByConversationUseCase {
   private repository: IGetMessageRepo;
   private presenter: IMessagePresenter;
 
@@ -30,7 +29,7 @@ export default class GetMessageByConversationUseCase {
 
       return res;
     } catch (e) {
-      return [];
+      throw e;
     }
   }
 }

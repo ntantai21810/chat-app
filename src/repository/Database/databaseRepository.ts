@@ -3,7 +3,7 @@ import { IConnectDatabaseRepo } from "../../useCases/Database";
 export interface IDatabaseDataSource {
   connect(name: string, userId: string): Promise<void>;
 }
-export default class DatabaseRepository implements IConnectDatabaseRepo {
+export class DatabaseRepository implements IConnectDatabaseRepo {
   private dataSource: IDatabaseDataSource;
 
   constructor(dataSource: IDatabaseDataSource) {

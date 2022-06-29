@@ -1,9 +1,9 @@
 import CryptoJS from "crypto-js";
 import jwtDecode from "jwt-decode";
 import { IAuthStorage } from "../dataSource";
-import { IAuth } from "../domains/Auth";
+import { IAuth } from "../domains";
 
-export default class LocalStorage implements IAuthStorage {
+export class LocalStorage implements IAuthStorage {
   private static instance: LocalStorage;
 
   public static getInstance() {
@@ -38,12 +38,14 @@ export default class LocalStorage implements IAuthStorage {
   }
 
   setAuth(auth: IAuth): void {
-    const ciphertext = CryptoJS.AES.encrypt(
-      JSON.stringify(auth),
-      "secret key 123"
-    ).toString();
+    try {
+      const ciphertext = CryptoJS.AES.encrypt(
+        JSON.stringify(auth),
+        "secret key 123"
+      ).toString();
 
-    localStorage.setItem("auth", ciphertext);
+      localStorage.setItem("auth", ciphertext);
+    } catch (e) {}
   }
 
   clearAuth(): void {

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../adapter/redux";
 import LoadingIcon from "../LoadingIcon";
 import Modal from "../Modal";
-import styles from "./styles.module.scss";
+import styles from "../../../assets/styles/AuthProvider.module.scss";
 
 export interface IAuthProviderProps {
   children: React.ReactNode;

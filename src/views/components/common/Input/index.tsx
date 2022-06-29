@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import * as React from "react";
-import styles from "./style.module.scss";
+import styles from "../../../assets/styles/Input.module.scss";
 import { BiError } from "react-icons/bi";
 
 export interface IInputProps {

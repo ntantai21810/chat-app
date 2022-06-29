@@ -1,6 +1,6 @@
 import * as React from "react";
 import { VscLoading } from "react-icons/vsc";
-import styles from "./style.module.scss";
+import styles from "../../../assets/styles/LoadingIcon.module.scss";
 
 export interface ILoadingIconProps {}
 

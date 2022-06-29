@@ -1,11 +1,11 @@
-import { ConversationModel } from "../../domains/Conversation";
+import { ConversationModel } from "../../domains";
 import { IConversationPresenter } from "../../presenter";
 
 export interface IAddConversationRepo {
   addConversation(conversationModel: ConversationModel): void;
 }
 
-export default class AddConversationUseCase {
+export class AddConversationUseCase {
   private repository: IAddConversationRepo;
   private presenter: IConversationPresenter;
 
@@ -19,8 +19,12 @@ export default class AddConversationUseCase {
   }
 
   execute(conversationModel: ConversationModel) {
-    this.repository.addConversation(conversationModel);
+    try {
+      this.repository.addConversation(conversationModel);
 
-    this.presenter.addConversation(conversationModel);
+      this.presenter.addConversation(conversationModel);
+    } catch (e) {
+      throw e;
+    }
   }
 }

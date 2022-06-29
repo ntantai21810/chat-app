@@ -1,21 +1,24 @@
-import MessageAPIDataSource from "../../dataSource/Message/messageAPIDataSource";
-import MessageSocketDataSource from "../../dataSource/Message/messageSocketDataSource";
-import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
-import { MessageStatus } from "../../domains/Message";
-import API from "../../network/api/API";
-import Socket from "../../network/socket/socket";
-import MessageAPIRepository from "../../repository/Message/messageAPIRepository";
-import MessageSocketRepository from "../../repository/Message/messageSocketRepository";
-import MessageStorageRepository from "../../repository/Message/messageStorageRepository";
-import IndexedDB from "../../storage/indexedDB";
-import AckMessageUseCase from "./ackMessageUseCase";
-import DeleteMessageUseCase from "./deleteMessageUseCase";
-import DeletePendingMessageUseCase from "./deletePendingMessageUseCase";
-import GetPendingMessageUseCase from "./getPendingMessageUseCase";
-import ReceiveMessageUseCase from "./receiveMessageUseCase";
-import UpdateMessageUseCase from "./updateMessageUseCase";
+import {
+  MessageAPIDataSource,
+  MessageSocketDataSource,
+  MessageStorageDataSource,
+} from "../../dataSource";
+import { MessageStatus } from "../../domains";
+import { API, Socket } from "../../network";
+import {
+  MessageAPIRepository,
+  MessageSocketRepository,
+  MessageStorageRepository,
+} from "../../repository";
+import { IndexedDB } from "../../storage";
+import { AckMessageUseCase } from "./ackMessageUseCase";
+import { DeleteMessageUseCase } from "./deleteMessageUseCase";
+import { DeletePendingMessageUseCase } from "./deletePendingMessageUseCase";
+import { GetPendingMessageUseCase } from "./getPendingMessageUseCase";
+import { ReceiveMessageUseCase } from "./receiveMessageUseCase";
+import { UpdateMessageUseCase } from "./updateMessageUseCase";
 
-export default class SyncMessageUseCase {
+export class SyncMessageUseCase {
   async execute() {
     try {
       const getPendingMessageUseCase = new GetPendingMessageUseCase(
@@ -74,6 +77,7 @@ export default class SyncMessageUseCase {
       }
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

@@ -3,7 +3,7 @@ import { IMessage, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
 import { getRemainingTime } from "../../../helper/function";
 import Avatar from "../common/Avatar";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/ChattedUserItem.module.scss";
 
 export interface IChattedUserItemProps {
   user: IUser;
@@ -44,6 +44,8 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
               ((lastMessage?.content as string) || "")}
 
             {lastMessage?.type === MessageType.IMAGE && "Đã gửi ảnh"}
+
+            {lastMessage?.type === MessageType.FILE && "Đã gửi file"}
           </p>
         </div>
         <p className={styles.time}>

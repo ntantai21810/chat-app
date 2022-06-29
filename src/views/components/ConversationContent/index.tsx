@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { IFile } from "../../../domains/common/helper";
 import { IMessage } from "../../../domains/Message";
 import ChatMessage from "../ChatMessage";
-import styles from "./styles.module.scss";
+import styles from "../../assets/styles/ConversationContent.module.scss";
 
 export interface IConversationContentProps {
   messages: IMessage[];

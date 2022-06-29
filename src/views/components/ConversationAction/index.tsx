@@ -1,5 +1,5 @@
 import * as React from "react";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/ConversationAction.module.scss";
 import { BsImage } from "react-icons/bs";
 import { GrAttachment } from "react-icons/gr";
 import { IFile } from "../../../domains/common/helper";

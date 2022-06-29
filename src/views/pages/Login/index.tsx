@@ -7,7 +7,7 @@ import { setAuthError } from "../../../framework/redux/auth";
 import Logo from "../../assets/images/Logo.png";
 import Divider from "../../components/common/Divider";
 import LoginForm from "../../components/LoginForm";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/LoginPage.module.scss";
 
 export interface ILoginPageProps {}
 

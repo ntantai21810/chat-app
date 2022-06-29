@@ -1,5 +1,5 @@
 import * as React from "react";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/RegisterForm.module.scss";
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";

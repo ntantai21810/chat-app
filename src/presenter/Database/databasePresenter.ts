@@ -1,8 +1,8 @@
 import { getDispatch } from "../../adapter/frameworkAdapter";
-import { setDatabaseConnect } from "../../framework/redux/common";
+import { setDatabaseConnect } from "../../framework/redux";
 import { IDatabasePresenter } from "./IDatabasePresenter";
 
-export default class DatabasePresenter implements IDatabasePresenter {
+export class DatabasePresenter implements IDatabasePresenter {
   private dispatch;
 
   constructor() {

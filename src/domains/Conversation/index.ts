@@ -1,4 +1,3 @@
-export { default as ConversationModel } from "./conversationModel";
-
-export * from "./IConversation";
+export * from "./conversationModel";
 export * from "./helper";
+export * from "./IConversation";

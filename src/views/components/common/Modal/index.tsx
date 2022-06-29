@@ -1,7 +1,7 @@
 import * as React from "react";
 import ReactDOM from "react-dom";
 import { useDetectClickOutside } from "../../../../helper/hooks";
-import styles from "./style.module.scss";
+import styles from "../../../assets/styles/Modal.module.scss";
 
 export interface IModalProps {
   children: React.ReactNode;

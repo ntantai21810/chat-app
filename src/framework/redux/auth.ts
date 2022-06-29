@@ -87,4 +87,4 @@ export const {
   logout,
 } = authSlice.actions;
 
-export default authReducer;
+export { authReducer };

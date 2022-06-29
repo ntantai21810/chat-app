@@ -1,40 +1,48 @@
-import { IUser } from "./../../domains/User/IUser";
-import UserAPIDataSource from "../../dataSource/User/userDataSouce";
-import { normalizeUserData } from "../../domains/User/helper";
-import API from "../../network/api/API";
-import UserAPIRepository from "../../repository/User/userAPIRepository";
-import GetUsersByPhoneUseCase from "../../useCases/User/getUserByPhoneUseCase";
-import GetUseByIdUseCase from "../../useCases/User/getUserByIdUseCase";
+import { UserAPIDataSource } from "../../dataSource";
+import { IUser, normalizeUserData } from "../../domains";
+import { API } from "../../network";
+import { UserAPIRepository } from "../../repository";
+import { GetUseByIdUseCase, GetUsersByPhoneUseCase } from "../../useCases";
 
-export default class UserController {
+export class UserController {
   async getUserByPhone(phone: string) {
-    const getUserByPhoneUseCase = new GetUsersByPhoneUseCase(
-      new UserAPIRepository(new UserAPIDataSource(API.getIntance()))
-    );
+    try {
+      const getUserByPhoneUseCase = new GetUsersByPhoneUseCase(
+        new UserAPIRepository(new UserAPIDataSource(API.getIntance()))
+      );
 
-    const res = await getUserByPhoneUseCase.execute(phone);
+      const res = await getUserByPhoneUseCase.execute(phone);
 
-    const users: IUser[] = [];
+      const users: IUser[] = [];
 
-    for (let userModel of res) {
-      const user = normalizeUserData(userModel);
-      users.push(user);
+      for (let userModel of res) {
+        const user = normalizeUserData(userModel);
+        users.push(user);
+      }
+
+      return users;
+    } catch (e) {
+      console.log(e);
+      return [];
     }
-
-    return users;
   }
 
   async getUserById(id: string) {
-    const getUserByIdUseCase = new GetUseByIdUseCase(
-      new UserAPIRepository(new UserAPIDataSource(API.getIntance()))
-    );
+    try {
+      const getUserByIdUseCase = new GetUseByIdUseCase(
+        new UserAPIRepository(new UserAPIDataSource(API.getIntance()))
+      );
 
-    const res = await getUserByIdUseCase.execute(id);
+      const res = await getUserByIdUseCase.execute(id);
 
-    if (!res) return null;
+      if (!res) return null;
 
-    const user = normalizeUserData(res);
+      const user = normalizeUserData(res);
 
-    return user;
+      return user;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   }
 }

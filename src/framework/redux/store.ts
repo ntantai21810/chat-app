@@ -1,10 +1,9 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-
-import authReducer from "./auth";
-import commonReducer from "./common";
-import conversationReducer from "./conversation";
-import friendReducer from "./friend";
-import messageReducer from "./message";
+import { authReducer } from "./auth";
+import { commonReducer } from "./common";
+import { conversationReducer } from "./conversation";
+import { friendReducer } from "./friend";
+import { messageReducer } from "./message";
 
 const rootReducer = combineReducers({
   auth: authReducer,

@@ -1,13 +1,12 @@
-import { IMessageStorage } from "../dataSource";
-import { IConversationDatabase } from "../dataSource/Conversation/conversationDatabaseDataSouce";
-import { IDatabase } from "../dataSource/Database";
-import { IFriendDatabase } from "../dataSource/Friend";
-import { IQueryOption } from "../domains/common/helper";
-import { IConversation } from "../domains/Conversation";
-import { IMessage } from "../domains/Message";
-import { IUser } from "../domains/User";
+import {
+  IConversationDatabase,
+  IDatabase,
+  IFriendDatabase,
+  IMessageStorage,
+} from "../dataSource";
+import { IConversation, IMessage, IQueryOption, IUser } from "../domains";
 
-export default class IndexedDB
+export class IndexedDB
   implements IConversationDatabase, IMessageStorage, IDatabase, IFriendDatabase
 {
   private static instace: IndexedDB;
@@ -26,7 +25,7 @@ export default class IndexedDB
           "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
         );
 
-        throw new Error(
+        reject(
           "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
         );
       }
@@ -38,7 +37,7 @@ export default class IndexedDB
         );
 
         request.onerror = (event: Event) => {
-          throw event;
+          reject(event);
         };
 
         request.onsuccess = (event: Event) => {

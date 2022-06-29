@@ -1,5 +1,5 @@
 import Avatar from "../common/Avatar";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/ConversationTitle.module.scss";
 
 export interface IConversationTitleProps {
   name: string;

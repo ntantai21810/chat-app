@@ -1,12 +1,12 @@
-import { IUser } from "../../domains/User";
-import { IFriendStorageDataSource } from "../../repository/Friend/friendStorageRepository";
+import { IUser } from "../../domains";
+import { IFriendStorageDataSource } from "../../repository";
 
 export interface IFriendDatabase {
   getAllFriend(): Promise<IUser[]>;
   addFriend(friend: IUser): void;
 }
 
-export default class FriendDataSource implements IFriendStorageDataSource {
+export class FriendDataSource implements IFriendStorageDataSource {
   private database: IFriendDatabase;
 
   constructor(database: IFriendDatabase) {

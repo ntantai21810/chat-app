@@ -2,7 +2,7 @@ export interface ISendSocketRepo {
   send(channel: string, data: any): void;
 }
 
-export default class SendSocketUseCase {
+export class SendSocketUseCase {
   private repository: ISendSocketRepo;
 
   constructor(repository: ISendSocketRepo) {
@@ -14,6 +14,7 @@ export default class SendSocketUseCase {
       this.repository.send(channel, data);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

@@ -6,13 +6,14 @@ import { IMessage, MessageStatus, MessageType } from "../../../domains/Message";
 import Avatar from "../common/Avatar";
 import Image from "../common/Image";
 import MessageItem from "../Message";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/ChatMessage.module.scss";
 
 export interface IChatMessageProps {
   reverse?: boolean;
   avatar?: string;
   message: IMessage;
   showAvatar: boolean;
+  percentFileDownloading?: { url: string; percent: number };
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
   onImageClick?: (message: IFile) => any;
@@ -27,6 +28,7 @@ export default function ChatMessage(props: IChatMessageProps) {
     onRetry,
     onDownloadFile,
     onImageClick,
+    percentFileDownloading,
   } = props;
 
   return (
@@ -100,6 +102,15 @@ export default function ChatMessage(props: IChatMessageProps) {
                 >
                   <BsDownload fontSize={"2rem"} />
                 </div>
+
+                <div
+                  className={styles.progress}
+                  style={
+                    item.data === percentFileDownloading?.url
+                      ? { width: `${percentFileDownloading?.percent || 0}%` }
+                      : {}
+                  }
+                ></div>
               </div>
             ))}
           </div>

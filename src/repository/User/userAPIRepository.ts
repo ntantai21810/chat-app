@@ -1,14 +1,12 @@
-import { IUser, UserModel } from "../../domains/User";
-import { modelUserData } from "../../domains/User/helper";
-import { IGetUserByIdRepo } from "../../useCases/User";
-import { IGetUserByPhoneRepo } from "../../useCases/User/getUserByPhoneUseCase";
+import { IUser, modelUserData, UserModel } from "../../domains";
+import { IGetUserByIdRepo, IGetUserByPhoneRepo } from "../../useCases";
 
 export interface IUserAPIDataSource {
   getUserById(id: string): Promise<IUser | null>;
   getUserByPhone(phone: string): Promise<IUser[]>;
 }
 
-export default class UserAPIRepository
+export class UserAPIRepository
   implements IGetUserByIdRepo, IGetUserByPhoneRepo
 {
   private dataSource: IUserAPIDataSource;

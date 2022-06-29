@@ -1,14 +1,12 @@
-import { IMessage, MessageModel } from "../../domains/Message";
-import { normalizeMessageData } from "../../domains/Message/helper";
-import { IAckMessageRepo } from "../../useCases/Message/ackMessageUseCase";
-import { ISendMessageRepo } from "../../useCases/Message/sendMessageSocketUseCase";
+import { IMessage, MessageModel, normalizeMessageData } from "../../domains";
+import { IAckMessageRepo, ISendMessageRepo } from "../../useCases";
 
 export interface IMessageSocketDataSouce {
   sendMessage(message: IMessage): void;
   ackMessage(message: IMessage): void;
 }
 
-export default class MessageSocketRepository
+export class MessageSocketRepository
   implements ISendMessageRepo, IAckMessageRepo
 {
   private dataSource: IMessageSocketDataSouce;

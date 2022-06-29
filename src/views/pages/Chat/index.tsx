@@ -27,7 +27,6 @@ import {
   setSocketConnect,
 } from "../../../framework/redux/common";
 import { removeAllMessage } from "../../../framework/redux/message";
-import { Moment } from "../../../helper/configs/moment";
 import { SOCKET_CONSTANTS } from "../../../helper/constants";
 import ChattedUserList from "../../components/ChattedUserList";
 import Banner from "../../components/common/Banner";
@@ -39,7 +38,7 @@ import ConversationAction from "../../components/ConversationAction";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import SearchUserList from "../../components/SearchUserList";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/ChatPage.module.scss";
 
 export interface IChatPageProps {}
 
@@ -64,6 +63,13 @@ export default function ChatPage(props: IChatPageProps) {
     id: string;
     user: IUser;
   }>();
+  const [percentFileDownloading, setPercentFileDownloading] = React.useState<{
+    url: string;
+    percent: number;
+  }>({
+    url: "",
+    percent: 0,
+  });
 
   const typingRef = React.useRef<NodeJS.Timeout | undefined>();
 
@@ -111,7 +117,7 @@ export default function ChatPage(props: IChatPageProps) {
           type: MessageType.TEXT,
           content: message,
           conversationId: "",
-          sendTime: Moment().toISOString(),
+          sendTime: new Date().toISOString(),
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
         });
@@ -123,7 +129,7 @@ export default function ChatPage(props: IChatPageProps) {
           toId: activeConversation.user._id,
           type: MessageType.IMAGE,
           content: files,
-          sendTime: Moment().toISOString(),
+          sendTime: new Date().toISOString(),
           conversationId: "",
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
@@ -135,9 +141,9 @@ export default function ChatPage(props: IChatPageProps) {
     setMessage("");
   };
 
-  const handleImageClick = (image: IFile) => {
+  const handleImageClick = React.useCallback((image: IFile) => {
     (window as any).electronAPI.viewPhoto(image.data);
-  };
+  }, []);
 
   const handleSubmitFiles = (files: IFile[]) => {
     if (activeConversation && files.length > 0) {
@@ -147,7 +153,7 @@ export default function ChatPage(props: IChatPageProps) {
           toId: activeConversation.user._id,
           type: MessageType.IMAGE,
           content: files,
-          sendTime: Moment().toISOString(),
+          sendTime: new Date().toISOString(),
           conversationId: "",
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
@@ -158,7 +164,7 @@ export default function ChatPage(props: IChatPageProps) {
           toId: activeConversation.user._id,
           type: MessageType.FILE,
           content: files,
-          sendTime: Moment().toISOString(),
+          sendTime: new Date().toISOString(),
           conversationId: "",
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
@@ -291,13 +297,18 @@ export default function ChatPage(props: IChatPageProps) {
     []
   );
 
-  const handleRetry = (message: IMessage) => {
+  const handleRetry = React.useCallback((message: IMessage) => {
     messageController.retryMessage(message);
-  };
+  }, []);
 
-  const handleDownloadFile = (url: string) => {
+  const handleDownloadFile = React.useCallback((url: string) => {
+    setPercentFileDownloading({
+      url: url,
+      percent: 0,
+    });
+
     (window as any).electronAPI.download(url);
-  };
+  }, []);
 
   //Connect datasource
   React.useEffect(() => {
@@ -334,6 +345,12 @@ export default function ChatPage(props: IChatPageProps) {
     socketController.listen("disconnect", () =>
       dispatch(setSocketConnect(false))
     );
+
+    (window as any).electronAPI.removeDownloadFileListener();
+
+    (window as any).electronAPI.onDownloadFileProgress((percent: number) => {
+      setPercentFileDownloading((state) => ({ ...state, percent }));
+    });
   }, []);
 
   //Sync message
@@ -481,6 +498,7 @@ export default function ChatPage(props: IChatPageProps) {
                 onRetry={handleRetry}
                 onDownloadFile={handleDownloadFile}
                 onImageClick={handleImageClick}
+                percentFileDownloading={percentFileDownloading}
               />
 
               {isTyping && (

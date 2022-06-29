@@ -1,12 +1,12 @@
-import { IUser } from "../../domains/User";
-import { IUserAPIDataSource } from "../../repository/User/userAPIRepository";
+import { IUser } from "../../domains";
+import { IUserAPIDataSource } from "../../repository";
 
 export interface IUserAPI {
   getUserById(id: string): Promise<IUser | null>;
   getUserByPhone(phone: string): Promise<IUser[]>;
 }
 
-export default class UserAPIDataSource implements IUserAPIDataSource {
+export class UserAPIDataSource implements IUserAPIDataSource {
   private api: IUserAPI;
 
   constructor(api: IUserAPI) {

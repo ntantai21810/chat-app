@@ -1,5 +1,5 @@
-import { IConversation } from "../../domains/Conversation";
-import { IConversationStorageDataSource } from "../../repository/Conversation/conversationStorageRepository";
+import { IConversation } from "../../domains";
+import { IConversationStorageDataSource } from "../../repository";
 
 export interface IConversationDatabase {
   getConversations(): Promise<IConversation[]>;
@@ -9,7 +9,7 @@ export interface IConversationDatabase {
   updateConversation(conversation: IConversation): void;
 }
 
-export default class ConversationDatabaseDataSource
+export class ConversationDatabaseDataSource
   implements IConversationStorageDataSource
 {
   private database: IConversationDatabase;

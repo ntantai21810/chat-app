@@ -3,12 +3,14 @@ import {
   IConversation,
   modelConversationData,
   normalizeConversationData,
-} from "../../domains/Conversation";
-import { IGetAllConversationRepo } from "../../useCases";
-import { IAddConversationRepo } from "../../useCases/Conversation/addConversationUseCase";
-import { IGetConversationByIdRepo } from "../../useCases/Conversation/getConversationByIdUseCase";
-import { IGetConversationByUserIdRepo } from "../../useCases/Conversation/getConversationByUserIdUseCase";
-import { IUpdateConversationRepo } from "../../useCases/Conversation/updateConversationUseCase";
+} from "../../domains";
+import {
+  IAddConversationRepo,
+  IGetAllConversationRepo,
+  IGetConversationByIdRepo,
+  IGetConversationByUserIdRepo,
+  IUpdateConversationRepo,
+} from "../../useCases";
 
 export interface IConversationStorageDataSource {
   getConversations(): Promise<IConversation[]>;
@@ -18,7 +20,7 @@ export interface IConversationStorageDataSource {
   updateConversation(conversation: IConversation): void;
 }
 
-export default class ConversationStorageRepository
+export class ConversationStorageRepository
   implements
     IGetAllConversationRepo,
     IGetConversationByUserIdRepo,

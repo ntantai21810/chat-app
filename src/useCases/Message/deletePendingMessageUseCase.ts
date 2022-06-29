@@ -2,7 +2,7 @@ export interface IDeletePendingMessageRepo {
   deletePendingMessages(ids: string[]): void;
 }
 
-export default class DeletePendingMessageUseCase {
+export class DeletePendingMessageUseCase {
   private repository: IDeletePendingMessageRepo;
 
   constructor(repository: IDeletePendingMessageRepo) {
@@ -14,6 +14,7 @@ export default class DeletePendingMessageUseCase {
       this.repository.deletePendingMessages(ids);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

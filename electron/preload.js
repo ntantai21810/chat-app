@@ -9,4 +9,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
   viewPhoto: (url) => {
     ipcRenderer.send("viewPhoto", url);
   },
+  onDownloadFileProgress: (callback) => {
+    ipcRenderer.on("downloadProgress", (_event, bytes) => callback(bytes));
+  },
+
+  removeDownloadFileListener: () => {
+    ipcRenderer.removeAllListeners("downloadProgress");
+  },
 });

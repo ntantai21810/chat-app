@@ -1,2 +1,3 @@
-export { default as UserModel } from "./userModel";
+export * from "./helper";
 export * from "./IUser";
+export * from "./userModel";

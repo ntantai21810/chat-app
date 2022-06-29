@@ -1,8 +1,8 @@
 import { getDispatch } from "../../adapter/frameworkAdapter";
-import { setSocketConnect } from "../../framework/redux/common";
+import { setSocketConnect } from "../../framework/redux";
 import { ISocketPresenter } from "./ISocketPresenter";
 
-export default class SocketPresenter implements ISocketPresenter {
+export class SocketPresenter implements ISocketPresenter {
   private dispatch;
 
   constructor() {

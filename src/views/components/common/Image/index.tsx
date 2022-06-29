@@ -1,6 +1,6 @@
 import * as React from "react";
 import { AiOutlineClose } from "react-icons/ai";
-import styles from "./style.module.scss";
+import styles from "../../../assets/styles/Image.module.scss";
 
 export interface IImageProps {
   width?: string;

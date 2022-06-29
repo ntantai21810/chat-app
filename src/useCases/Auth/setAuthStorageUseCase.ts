@@ -1,10 +1,10 @@
-import { AuthModel } from "../../domains/Auth";
+import { AuthModel } from "../../domains";
 
 export interface ISetAuthStorageRepo {
   setAuth(authModel: AuthModel): void;
 }
 
-export default class SetAuthStorageUseCase {
+export class SetAuthStorageUseCase {
   private repository: ISetAuthStorageRepo;
 
   constructor(repository: ISetAuthStorageRepo) {
@@ -12,6 +12,10 @@ export default class SetAuthStorageUseCase {
   }
 
   execute(authModel: AuthModel) {
-    this.repository.setAuth(authModel);
+    try {
+      this.repository.setAuth(authModel);
+    } catch (e) {
+      throw e;
+    }
   }
 }

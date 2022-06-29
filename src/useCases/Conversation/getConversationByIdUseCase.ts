@@ -1,10 +1,10 @@
-import { ConversationModel } from "../../domains/Conversation";
+import { ConversationModel } from "../../domains";
 
 export interface IGetConversationByIdRepo {
   getConversationById(userId: string): Promise<ConversationModel | null>;
 }
 
-export default class GetConversationByIdUseCase {
+export class GetConversationByIdUseCase {
   private repository: IGetConversationByIdRepo;
 
   constructor(repository: IGetConversationByIdRepo) {
@@ -18,7 +18,7 @@ export default class GetConversationByIdUseCase {
       return res;
     } catch (e) {
       console.log(e);
-      return null;
+      throw e;
     }
   }
 }

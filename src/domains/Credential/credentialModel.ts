@@ -1,4 +1,4 @@
-export default class CredentialModel {
+export class CredentialModel {
   private phone: string = "";
   private fullName: string | undefined;
   private password: string = "";

@@ -1,11 +1,11 @@
-import { IMessagePresenter } from "./../../presenter/Message/IMessagePresenter";
-import { MessageModel } from "../../domains/Message";
+import { MessageModel } from "../../domains";
+import { IMessagePresenter } from "../../presenter";
 
 export interface IDeleteMessageRepo {
   deleteMessage(messageModel: MessageModel): void;
 }
 
-export default class DeleteMessageUseCase {
+export class DeleteMessageUseCase {
   private repository: IDeleteMessageRepo;
   private presenter: IMessagePresenter;
 
@@ -22,6 +22,7 @@ export default class DeleteMessageUseCase {
       if (this.presenter) this.presenter.deleteMessage(messageModel);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

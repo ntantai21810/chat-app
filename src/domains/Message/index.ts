@@ -1,4 +1,3 @@
-export { default as MessageModel } from "./messageModel";
-
-export * from "./IMessage";
 export * from "./helper";
+export * from "./IMessage";
+export * from "./messageModel";

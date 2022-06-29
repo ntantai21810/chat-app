@@ -1,10 +1,10 @@
-import { MessageModel } from "../../domains/Message";
+import { MessageModel } from "../../domains";
 
 export interface IAddMessageRepo {
   addMessage(messageModel: MessageModel): void;
 }
 
-export default class AddMessageDatabaseUseCase {
+export class AddMessageDatabaseUseCase {
   private repository: IAddMessageRepo;
 
   constructor(repository: IAddMessageRepo) {

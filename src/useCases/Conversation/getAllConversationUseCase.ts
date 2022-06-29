@@ -1,11 +1,11 @@
-import { ConversationModel } from "../../domains/Conversation";
+import { ConversationModel } from "../../domains";
 import { IConversationPresenter } from "../../presenter";
 
 export interface IGetAllConversationRepo {
   getAllConversations(): Promise<ConversationModel[]>;
 }
 
-export default class GetAllConversationUseCase {
+export class GetAllConversationUseCase {
   private repository: IGetAllConversationRepo;
   private presenter: IConversationPresenter;
 
@@ -24,6 +24,7 @@ export default class GetAllConversationUseCase {
       this.presenter.setConversations(res);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

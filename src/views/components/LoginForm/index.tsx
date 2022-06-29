@@ -7,7 +7,7 @@ import * as yup from "yup";
 import Button from "../common/Button";
 import Input from "../common/Input";
 import LoadingIcon from "../common/LoadingIcon";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/LoginForm.module.scss";
 
 export interface ILoginFormProps {
   onSubmit: (data: ILoginFormData) => any;

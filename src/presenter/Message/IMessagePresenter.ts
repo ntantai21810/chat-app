@@ -1,4 +1,4 @@
-import { MessageModel } from "../../domains/Message";
+import { MessageModel } from "../../domains";
 
 export interface IMessagePresenter {
   addMessages(messageModels: Array<MessageModel>): void;

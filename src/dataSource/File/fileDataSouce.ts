@@ -1,11 +1,11 @@
-import { IFile } from "./../../domains/common/helper";
-import { IFileDataSource } from "../../repository/File/fileRepository";
+import { IFile } from "../../domains";
+import { IFileDataSource } from "../../repository";
 
 export interface IFileAPI {
   uploadFiles(images: IFile[]): Promise<string[]>;
 }
 
-export default class FileDataSource implements IFileDataSource {
+export class FileDataSource implements IFileDataSource {
   private database: IFileAPI;
 
   constructor(database: IFileAPI) {

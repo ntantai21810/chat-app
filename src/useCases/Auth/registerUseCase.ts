@@ -1,16 +1,15 @@
-import AuthStorageDataSource from "../../dataSource/Auth/authStorageDataSouce";
-import { AuthModel } from "../../domains/Auth";
-import { CredentialModel } from "../../domains/Credential";
-import { IAuthPresenter } from "../../presenter/Auth/IAuthPresenter";
-import AuthStorageRepository from "../../repository/Auth/authStorageRepository";
-import LocalStorage from "../../storage/localStorage";
-import SetAuthStorageUseCase from "./setAuthStorageUseCase";
+import { AuthStorageDataSource } from "../../dataSource";
+import { AuthModel, CredentialModel } from "../../domains";
+import { IAuthPresenter } from "../../presenter";
+import { AuthStorageRepository } from "../../repository";
+import { LocalStorage } from "../../storage";
+import { SetAuthStorageUseCase } from "./setAuthStorageUseCase";
 
 export interface IRegisterRepo {
   register(credential: CredentialModel): Promise<AuthModel>;
 }
 
-export default class RegisterUseCase {
+export class RegisterUseCase {
   private repository: IRegisterRepo;
   private presenter: IAuthPresenter;
 
@@ -37,6 +36,8 @@ export default class RegisterUseCase {
       this.presenter.setAuth(authModel);
     } catch (error) {
       this.presenter.setError(error);
+      this.presenter.setIsLoggingIn(false);
+      throw error;
     }
 
     this.presenter.setIsLoggingIn(false);

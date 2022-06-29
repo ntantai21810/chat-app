@@ -1,10 +1,10 @@
-import { IFile } from "./../../domains/common/helper";
-import { IUploadFileRepo } from "../../useCases/File/uploadFileUseCase";
+import { IFile } from "../../domains";
+import { IUploadFileRepo } from "../../useCases";
 
 export interface IFileDataSource {
   uploadFiles(images: IFile[]): Promise<string[]>;
 }
-export default class FileRepository implements IUploadFileRepo {
+export class FileRepository implements IUploadFileRepo {
   private dataSource: IFileDataSource;
 
   constructor(dataSource: IFileDataSource) {

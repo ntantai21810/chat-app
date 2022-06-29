@@ -1,6 +1,6 @@
 import { UserModel } from "../User";
 
-export default class AuthModel {
+export class AuthModel {
   private user: UserModel;
   private accessToken: string = "";
 

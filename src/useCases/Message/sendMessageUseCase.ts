@@ -1,29 +1,36 @@
-import ConversationDatabaseDataSource from "../../dataSource/Conversation/conversationDatabaseDataSouce";
-import FriendDataSource from "../../dataSource/Friend/friendDataSouce";
-import MessageSocketDataSource from "../../dataSource/Message/messageSocketDataSource";
-import MessageStorageDataSource from "../../dataSource/Message/messageStorageDataSource";
-import UserAPIDataSource from "../../dataSource/User/userDataSouce";
-import { ConversationModel } from "../../domains/Conversation";
-import { MessageModel } from "../../domains/Message";
-import API from "../../network/api/API";
-import Socket from "../../network/socket/socket";
-import { ConversationPresenter, IMessagePresenter } from "../../presenter";
-import FriendPresenter from "../../presenter/Friend/friendPresenter";
-import ConversationStorageRepository from "../../repository/Conversation/conversationStorageRepository";
-import FriendStorageRepository from "../../repository/Friend/friendStorageRepository";
-import MessageSocketRepository from "../../repository/Message/messageSocketRepository";
-import MessageStorageRepository from "../../repository/Message/messageStorageRepository";
-import UserAPIRepository from "../../repository/User/userAPIRepository";
-import IndexedDB from "../../storage/indexedDB";
-import AddConversationUseCase from "../Conversation/addConversationUseCase";
-import GetConversationByUserIdUseCase from "../Conversation/getConversationByUserIdUseCase";
-import UpdateConversationUseCase from "../Conversation/updateConversationUseCase";
-import AddFriendUseCase from "../Friend/addFriendUseCase";
-import GetUseByIdUseCase from "../User/getUserByIdUseCase";
-import AddMessageDatabaseUseCase from "./addMessageDatabaseUseCase";
-import SendMessageSocketUseCase from "./sendMessageSocketUseCase";
+import {
+  ConversationDatabaseDataSource,
+  FriendDataSource,
+  MessageSocketDataSource,
+  MessageStorageDataSource,
+  UserAPIDataSource,
+} from "../../dataSource";
+import { ConversationModel, MessageModel } from "../../domains";
+import { API, Socket } from "../../network";
+import {
+  ConversationPresenter,
+  FriendPresenter,
+  IMessagePresenter,
+} from "../../presenter";
+import {
+  ConversationStorageRepository,
+  FriendStorageRepository,
+  MessageSocketRepository,
+  MessageStorageRepository,
+  UserAPIRepository,
+} from "../../repository";
+import { IndexedDB } from "../../storage";
+import {
+  AddConversationUseCase,
+  GetConversationByUserIdUseCase,
+  UpdateConversationUseCase,
+} from "../Conversation";
+import { AddFriendUseCase } from "../Friend";
+import { GetUseByIdUseCase } from "../User";
+import { AddMessageDatabaseUseCase } from "./addMessageDatabaseUseCase";
+import { SendMessageSocketUseCase } from "./sendMessageSocketUseCase";
 
-export default class SendMessageUseCase {
+export class SendMessageUseCase {
   private presenter: IMessagePresenter;
 
   constructor(presenter: IMessagePresenter) {
@@ -119,19 +126,23 @@ export default class SendMessageUseCase {
       addMessageDatabaseUseCase.execute(messageModel);
     } catch (e) {
       console.log("Add message database error: ", e);
-      return;
+      throw e;
     }
 
     this.presenter.addMessage(messageModel);
 
     //Send socket
-    const sendMessageSocketUseCase = new SendMessageSocketUseCase(
-      new MessageSocketRepository(
-        new MessageSocketDataSource(Socket.getIntance())
-      ),
-      this.presenter
-    );
+    try {
+      const sendMessageSocketUseCase = new SendMessageSocketUseCase(
+        new MessageSocketRepository(
+          new MessageSocketDataSource(Socket.getIntance())
+        ),
+        this.presenter
+      );
 
-    sendMessageSocketUseCase.execute(messageModel);
+      sendMessageSocketUseCase.execute(messageModel);
+    } catch (e) {
+      throw e;
+    }
   }
 }

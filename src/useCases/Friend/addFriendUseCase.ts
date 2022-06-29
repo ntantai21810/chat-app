@@ -1,11 +1,11 @@
-import { IFriendPresenter } from "./../../presenter/Friend/IFriendPresenter";
-import { UserModel } from "../../domains/User";
+import { UserModel } from "../../domains";
+import { IFriendPresenter } from "../../presenter";
 
 export interface IAddFriendRepo {
   addFriend(friendModel: UserModel): void;
 }
 
-export default class AddFriendUseCase {
+export class AddFriendUseCase {
   private repository: IAddFriendRepo;
   private presetner: IFriendPresenter;
 
@@ -20,6 +20,7 @@ export default class AddFriendUseCase {
       this.presetner.addFriends(friendModel);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

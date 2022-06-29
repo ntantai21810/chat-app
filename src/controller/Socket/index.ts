@@ -1,18 +1,16 @@
-import SocketRepository from "../../repository/Socket/socketRepository";
-
-//Use case
-import ConnectSocketUseCase from "../../useCases/Socket/connectSocketUseCase";
-
-//Presenter
-import SocketDataSource from "../../dataSource/Socket/socketDataSouce";
-import Socket from "../../network/socket/socket";
+import { SocketDataSource } from "../../dataSource";
+import { Socket } from "../../network";
 import { ISocketPresenter } from "../../presenter";
-import DisconnectSocketUseCase from "../../useCases/Socket/disconnectSocketUseCase";
-import ListenSocketUseCase from "../../useCases/Socket/listenSocketUseCase";
-import SendSocketUseCase from "../../useCases/Socket/sendSocketUseCase";
-import RemoveAllListenerSocketUseCase from "../../useCases/Socket/removeAllListenerSocketUseCase";
+import { SocketRepository } from "../../repository";
+import {
+  ConnectSocketUseCase,
+  DisconnectSocketUseCase,
+  ListenSocketUseCase,
+  RemoveAllListenerSocketUseCase,
+  SendSocketUseCase,
+} from "../../useCases";
 
-export default class SocketController {
+export class SocketController {
   private presenter: ISocketPresenter;
 
   constructor(presenter: ISocketPresenter) {
@@ -20,44 +18,64 @@ export default class SocketController {
   }
 
   connect(userId: string, accessToken: string) {
-    const connectSocketUseCase = new ConnectSocketUseCase(
-      new SocketRepository(new SocketDataSource(Socket.getIntance())),
-      this.presenter
-    );
+    try {
+      const connectSocketUseCase = new ConnectSocketUseCase(
+        new SocketRepository(new SocketDataSource(Socket.getIntance())),
+        this.presenter
+      );
 
-    connectSocketUseCase.execute(userId, accessToken);
+      connectSocketUseCase.execute(userId, accessToken);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   disconnect() {
-    const disconnectSocketUseCase = new DisconnectSocketUseCase(
-      new SocketRepository(new SocketDataSource(Socket.getIntance())),
-      this.presenter
-    );
+    try {
+      const disconnectSocketUseCase = new DisconnectSocketUseCase(
+        new SocketRepository(new SocketDataSource(Socket.getIntance())),
+        this.presenter
+      );
 
-    disconnectSocketUseCase.execute();
+      disconnectSocketUseCase.execute();
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   listen(channel: string, callback: Function) {
-    const listenSocketUseCase = new ListenSocketUseCase(
-      new SocketRepository(new SocketDataSource(Socket.getIntance()))
-    );
+    try {
+      const listenSocketUseCase = new ListenSocketUseCase(
+        new SocketRepository(new SocketDataSource(Socket.getIntance()))
+      );
 
-    listenSocketUseCase.execute(channel, callback);
+      listenSocketUseCase.execute(channel, callback);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   removeAllListener(channel: string) {
-    const removeAllListenerUseCase = new RemoveAllListenerSocketUseCase(
-      new SocketRepository(new SocketDataSource(Socket.getIntance()))
-    );
+    try {
+      const removeAllListenerUseCase = new RemoveAllListenerSocketUseCase(
+        new SocketRepository(new SocketDataSource(Socket.getIntance()))
+      );
 
-    removeAllListenerUseCase.execute(channel);
+      removeAllListenerUseCase.execute(channel);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   send(channel: string, data: any) {
-    const sendSocketUseCase = new SendSocketUseCase(
-      new SocketRepository(new SocketDataSource(Socket.getIntance()))
-    );
+    try {
+      const sendSocketUseCase = new SendSocketUseCase(
+        new SocketRepository(new SocketDataSource(Socket.getIntance()))
+      );
 
-    sendSocketUseCase.execute(channel, data);
+      sendSocketUseCase.execute(channel, data);
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

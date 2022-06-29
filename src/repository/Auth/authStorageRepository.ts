@@ -1,5 +1,9 @@
-import { AuthModel, IAuth } from "../../domains/Auth";
-import { modelAuthData, normalizeAuthData } from "../../domains/Auth/helper";
+import {
+  AuthModel,
+  IAuth,
+  modelAuthData,
+  normalizeAuthData,
+} from "../../domains";
 import {
   ILoadAuthRepo,
   ILogoutRepo,
@@ -12,7 +16,7 @@ export interface IAuthStorageDataSource {
   setAuth(auth: IAuth): void;
 }
 
-export default class AuthStorageRepository
+export class AuthStorageRepository
   implements ILoadAuthRepo, ILogoutRepo, ISetAuthStorageRepo
 {
   private dataSource: IAuthStorageDataSource;

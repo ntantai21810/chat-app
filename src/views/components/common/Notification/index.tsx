@@ -2,7 +2,7 @@ import classNames from "classnames";
 import * as React from "react";
 import ReactDOM from "react-dom";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
-import styles from "./style.module.scss";
+import styles from "../../../assets/styles/Notification.module.scss";
 
 export interface INotificationProps {
   type: "success" | "error";

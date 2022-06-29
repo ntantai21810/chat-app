@@ -1,14 +1,17 @@
-import { IUser, UserModel } from "../../domains/User";
-import { modelUserData, normalizeUserData } from "../../domains/User/helper";
-import { IAddFriendRepo } from "../../useCases/Friend/addFriendUseCase";
-import { IGetAllFriendRepo } from "../../useCases/Friend/getAllFriendUseCase";
+import {
+  IUser,
+  modelUserData,
+  normalizeUserData,
+  UserModel,
+} from "../../domains";
+import { IAddFriendRepo, IGetAllFriendRepo } from "../../useCases";
 
 export interface IFriendStorageDataSource {
   getAllFriend(): Promise<IUser[]>;
   addFriend(friend: IUser): void;
 }
 
-export default class FriendStorageRepository
+export class FriendStorageRepository
   implements IGetAllFriendRepo, IAddFriendRepo
 {
   private dataSource: IFriendStorageDataSource;

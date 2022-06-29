@@ -1,10 +1,10 @@
-import { MessageModel } from "../../domains/Message";
+import { MessageModel } from "../../domains";
 
 export interface IGetPendingMessageRepo {
   getPendingMessages(): Promise<MessageModel[]>;
 }
 
-export default class GetPendingMessageUseCase {
+export class GetPendingMessageUseCase {
   private repository: IGetPendingMessageRepo;
 
   constructor(repository: IGetPendingMessageRepo) {
@@ -17,7 +17,7 @@ export default class GetPendingMessageUseCase {
 
       return res;
     } catch (e) {
-      return [];
+      throw e;
     }
   }
 }

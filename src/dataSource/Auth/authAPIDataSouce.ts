@@ -1,5 +1,5 @@
-import { IAuth } from "../../domains/Auth";
-import { IAuthAPIDataSource } from "../../repository/Auth/authAPIRepository";
+import { IAuth } from "../../domains";
+import { IAuthAPIDataSource } from "../../repository";
 
 export interface IAuthAPI {
   login(phone: string, password: string): Promise<IAuth>;
@@ -7,7 +7,7 @@ export interface IAuthAPI {
   setAccessTokenInterceptor(accessToken: string): void;
 }
 
-export default class AuthAPIDataSource implements IAuthAPIDataSource {
+export class AuthAPIDataSource implements IAuthAPIDataSource {
   private api: IAuthAPI;
 
   constructor(api: IAuthAPI) {

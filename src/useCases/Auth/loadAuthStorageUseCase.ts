@@ -1,15 +1,15 @@
-import AuthAPIDataSource from "../../dataSource/Auth/authAPIDataSouce";
-import { AuthModel } from "../../domains/Auth";
-import API from "../../network/api/API";
-import { IAuthPresenter } from "../../presenter/Auth/IAuthPresenter";
-import AuthAPIRepository from "../../repository/Auth/authAPIRepository";
-import SetAuthAPIUseCase from "./setAuthAPIUseCase";
+import { AuthAPIDataSource } from "../../dataSource";
+import { AuthModel } from "../../domains";
+import { API } from "../../network";
+import { IAuthPresenter } from "../../presenter";
+import { AuthAPIRepository } from "../../repository";
+import { SetAuthAPIUseCase } from "./setAuthAPIUseCase";
 
 export interface ILoadAuthRepo {
   loadAuth(): AuthModel | null;
 }
 
-export default class LoadAuthCase {
+export class LoadAuthCase {
   private repository: ILoadAuthRepo;
   private presenter: IAuthPresenter;
 
@@ -31,7 +31,10 @@ export default class LoadAuthCase {
 
         this.presenter.setAuth(authModel);
       }
-    } catch (error) {}
+    } catch (error) {
+      this.presenter.setIsLoadingAuth(false);
+      throw error;
+    }
 
     this.presenter.setIsLoadingAuth(false);
   }

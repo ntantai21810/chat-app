@@ -2,13 +2,14 @@ import React, { useEffect, useRef } from "react";
 import { IFile } from "../../../domains/common/helper";
 import { IMessage } from "../../../domains/Message";
 import ChatMessage from "../ChatMessage";
-import styles from "./styles.module.scss";
+import styles from "../../assets/styles/ConversationContent.module.scss";
 
 export interface IConversationContentProps {
   messages: IMessage[];
   currentUserId: string;
   currentUserAvatar: string;
   chattingUserAvatar: string;
+  percentFileDownloading?: { url: string; percent: number };
   onScrollToTop?: () => any;
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
@@ -25,6 +26,7 @@ function ConversationContent(props: IConversationContentProps) {
     onRetry,
     onDownloadFile,
     onImageClick,
+    percentFileDownloading,
   } = props;
 
   const ref = useRef<HTMLDivElement | null>(null);
@@ -109,6 +111,7 @@ function ConversationContent(props: IConversationContentProps) {
               onRetry={onRetry}
               onDownloadFile={onDownloadFile}
               onImageClick={onImageClick}
+              percentFileDownloading={percentFileDownloading}
             />
           </div>
         );

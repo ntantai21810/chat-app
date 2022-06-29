@@ -1,5 +1,5 @@
 import * as React from "react";
-import styles from "./styles.module.scss";
+import styles from "../../../assets/styles/Typing.module.scss";
 
 export interface ITypingProps {}
 

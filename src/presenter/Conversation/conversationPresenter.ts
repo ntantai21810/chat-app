@@ -1,16 +1,18 @@
 import { getDispatch } from "../../adapter/frameworkAdapter";
-import { ConversationModel } from "../../domains/Conversation";
-import { normalizeConversationData } from "../../domains/Conversation/helper";
+import {
+  ConversationModel,
+  IConversation,
+  normalizeConversationData,
+} from "../../domains";
 import {
   addManyConversation,
   addOneConversation,
   removeAllConversation,
   updateOneConversation,
-} from "../../framework/redux/conversation";
-import { IConversation } from "./../../domains/Conversation/IConversation";
+} from "../../framework/redux";
 import { IConversationPresenter } from "./IConversationPresenter";
 
-export default class ConversationPresenter implements IConversationPresenter {
+export class ConversationPresenter implements IConversationPresenter {
   private dispatch;
 
   constructor() {

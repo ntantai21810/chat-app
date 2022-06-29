@@ -1,11 +1,9 @@
 import { getDispatch } from "../../adapter/frameworkAdapter";
-import { IUser, UserModel } from "../../domains/User";
-import { normalizeUserData } from "../../domains/User/helper";
-import { addManyFriend, addOneFriend } from "../../framework/redux/friend";
-
+import { IUser, normalizeUserData, UserModel } from "../../domains";
+import { addManyFriend, addOneFriend } from "../../framework/redux";
 import { IFriendPresenter } from "./IFriendPresenter";
 
-export default class FriendPresenter implements IFriendPresenter {
+export class FriendPresenter implements IFriendPresenter {
   private dispatch;
 
   constructor() {

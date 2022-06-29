@@ -1,5 +1,5 @@
-import { IUser } from "./../../domains/User/IUser";
 import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import { IUser } from "./../../domains/User/IUser";
 import { defaultActions } from "./defaultActions";
 import { RootState } from "./store";
 
@@ -17,7 +17,7 @@ const friendSlice = createSlice({
 
 const friendReducer = friendSlice.reducer;
 
-export default friendReducer;
+export { friendReducer };
 
 export const {
   addOne: addOneFriend,

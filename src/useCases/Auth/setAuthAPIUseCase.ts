@@ -1,10 +1,10 @@
-import { AuthModel } from "../../domains/Auth";
+import { AuthModel } from "../../domains";
 
 export interface ISetAuthAPIRepo {
   setAuth(authModel: AuthModel): void;
 }
 
-export default class SetAuthAPIUseCase {
+export class SetAuthAPIUseCase {
   private repository: ISetAuthAPIRepo;
 
   constructor(repository: ISetAuthAPIRepo) {
@@ -12,6 +12,10 @@ export default class SetAuthAPIUseCase {
   }
 
   execute(authModel: AuthModel) {
-    this.repository.setAuth(authModel);
+    try {
+      this.repository.setAuth(authModel);
+    } catch (e) {
+      throw e;
+    }
   }
 }

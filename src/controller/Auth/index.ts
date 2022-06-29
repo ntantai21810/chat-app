@@ -1,28 +1,17 @@
-//Data source
-import AuthAPIDataSource from "../../dataSource/Auth/authAPIDataSouce";
-import AuthStorageDataSource from "../../dataSource/Auth/authStorageDataSouce";
+import { AuthAPIDataSource, AuthStorageDataSource } from "../../dataSource";
+import { modelCredentialData } from "../../domains";
+import { API } from "../../network";
+import { IAuthPresenter } from "../../presenter";
+import { AuthAPIRepository, AuthStorageRepository } from "../../repository";
+import { LocalStorage } from "../../storage";
+import {
+  LoadAuthCase,
+  LoginUseCase,
+  LogoutUseCase,
+  RegisterUseCase,
+} from "../../useCases";
 
-//Domain
-import { modelCredentialData } from "../../domains/Credential";
-import API from "../../network/api/API";
-import AuthAPIRepository from "../../repository/Auth/authAPIRepository";
-
-//Network
-
-//Repo
-import AuthStorageRepository from "../../repository/Auth/authStorageRepository";
-import LocalStorage from "../../storage/localStorage";
-
-//Use case
-import LoadAuthCase from "../../useCases/Auth/loadAuthStorageUseCase";
-import LoginUseCase from "../../useCases/Auth/loginUseCase";
-import LogoutUseCase from "../../useCases/Auth/logoutUseCase";
-import RegisterUseCase from "../../useCases/Auth/registerUseCase";
-
-//Presenter
-import { IAuthPresenter } from "./../../presenter/Auth/IAuthPresenter";
-
-export default class AuthController {
+export class AuthController {
   private presenter: IAuthPresenter;
 
   constructor(presenter: IAuthPresenter) {
@@ -30,46 +19,66 @@ export default class AuthController {
   }
 
   login(phone: string, password: string) {
-    const credentialModel = modelCredentialData({ phone, password });
+    try {
+      const credentialModel = modelCredentialData({ phone, password });
 
-    const loginUseCase = new LoginUseCase(
-      new AuthAPIRepository(new AuthAPIDataSource(API.getIntance())),
-      this.presenter
-    );
+      const loginUseCase = new LoginUseCase(
+        new AuthAPIRepository(new AuthAPIDataSource(API.getIntance())),
+        this.presenter
+      );
 
-    loginUseCase.execute(credentialModel);
+      loginUseCase.execute(credentialModel);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   register(phone: string, fullName: string, password: string) {
-    const credentialModel = modelCredentialData({ phone, password, fullName });
+    try {
+      const credentialModel = modelCredentialData({
+        phone,
+        password,
+        fullName,
+      });
 
-    const registerUseCase = new RegisterUseCase(
-      new AuthAPIRepository(new AuthAPIDataSource(API.getIntance())),
-      this.presenter
-    );
+      const registerUseCase = new RegisterUseCase(
+        new AuthAPIRepository(new AuthAPIDataSource(API.getIntance())),
+        this.presenter
+      );
 
-    registerUseCase.execute(credentialModel);
+      registerUseCase.execute(credentialModel);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   loadAuth() {
-    const loadAuthUseCase = new LoadAuthCase(
-      new AuthStorageRepository(
-        new AuthStorageDataSource(LocalStorage.getInstance())
-      ),
-      this.presenter
-    );
+    try {
+      const loadAuthUseCase = new LoadAuthCase(
+        new AuthStorageRepository(
+          new AuthStorageDataSource(LocalStorage.getInstance())
+        ),
+        this.presenter
+      );
 
-    loadAuthUseCase.execute();
+      loadAuthUseCase.execute();
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   logout() {
-    const logoutUsecase = new LogoutUseCase(
-      new AuthStorageRepository(
-        new AuthStorageDataSource(LocalStorage.getInstance())
-      ),
-      this.presenter
-    );
+    try {
+      const logoutUsecase = new LogoutUseCase(
+        new AuthStorageRepository(
+          new AuthStorageDataSource(LocalStorage.getInstance())
+        ),
+        this.presenter
+      );
 
-    logoutUsecase.execute();
+      logoutUsecase.execute();
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

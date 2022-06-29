@@ -1,5 +1,5 @@
 import { IUser } from "./IUser";
-import UserModel from "./userModel";
+import { UserModel } from "./userModel";
 
 export function modelUserData(user: IUser): UserModel {
   const { _id, fullName, phone, avatar } = user;

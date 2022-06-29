@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { IMessage, MessageStatus } from "../../../domains/Message";
-import styles from "./style.module.scss";
+import styles from "../../assets/styles/Message.module.scss";
 
 export interface IMessageProps {
   bgColor?: string;

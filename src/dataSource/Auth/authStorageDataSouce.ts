@@ -1,5 +1,5 @@
-import { IAuth } from "../../domains/Auth";
-import { IAuthStorageDataSource } from "../../repository/Auth/authStorageRepository";
+import { IAuth } from "../../domains";
+import { IAuthStorageDataSource } from "../../repository";
 
 export interface IAuthStorage {
   getAuth(): IAuth | null;
@@ -7,7 +7,7 @@ export interface IAuthStorage {
   clearAuth(): void;
 }
 
-export default class AuthStorageDataSource implements IAuthStorageDataSource {
+export class AuthStorageDataSource implements IAuthStorageDataSource {
   private storage: IAuthStorage;
 
   constructor(storage: IAuthStorage) {

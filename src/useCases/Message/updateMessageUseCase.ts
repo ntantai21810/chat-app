@@ -1,17 +1,18 @@
-import ConversationDatabaseDataSource from "../../dataSource/Conversation/conversationDatabaseDataSouce";
-import { ConversationModel } from "../../domains/Conversation";
-import { MessageModel } from "../../domains/Message";
+import { ConversationDatabaseDataSource } from "../../dataSource";
+import { ConversationModel, MessageModel } from "../../domains";
 import { ConversationPresenter, IMessagePresenter } from "../../presenter";
-import ConversationStorageRepository from "../../repository/Conversation/conversationStorageRepository";
-import IndexedDB from "../../storage/indexedDB";
-import GetConversationByIdUseCase from "../Conversation/getConversationByIdUseCase";
-import UpdateConversationUseCase from "../Conversation/updateConversationUseCase";
+import { ConversationStorageRepository } from "../../repository";
+import { IndexedDB } from "../../storage";
+import {
+  GetConversationByIdUseCase,
+  UpdateConversationUseCase,
+} from "../Conversation";
 
 export interface IUpdateMessageRepo {
   updateMessage(messageModel: MessageModel): void;
 }
 
-export default class UpdateMessageUseCase {
+export class UpdateMessageUseCase {
   private repository: IUpdateMessageRepo;
   private presenter: IMessagePresenter;
 
@@ -59,6 +60,7 @@ export default class UpdateMessageUseCase {
       }
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

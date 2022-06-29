@@ -1,10 +1,10 @@
-import { IDatabasePresenter } from "../../presenter/Database";
+import { IDatabasePresenter } from "../../presenter";
 
 export interface IConnectDatabaseRepo {
   connect(name: string, userId: string): Promise<void>;
 }
 
-export default class ConnectDatabaseUseCase {
+export class ConnectDatabaseUseCase {
   private repository: IConnectDatabaseRepo;
   private presenter: IDatabasePresenter;
 
@@ -21,6 +21,7 @@ export default class ConnectDatabaseUseCase {
       this.presenter.setConnect(true);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

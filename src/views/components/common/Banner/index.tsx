@@ -1,5 +1,5 @@
 import * as React from "react";
-import styles from "./style.module.scss";
+import styles from "../../../assets/styles/Banner.module.scss";
 import BannerPng from "../../../assets/images/Banner.png";
 
 export interface IBannerProps {}

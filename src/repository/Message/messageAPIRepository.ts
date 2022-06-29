@@ -1,14 +1,15 @@
-import { IMessage, MessageModel } from "../../domains/Message";
-import { modelMessageData } from "../../domains/Message/helper";
-import { IDeletePendingMessageRepo } from "../../useCases/Message/deletePendingMessageUseCase";
-import { IGetPendingMessageRepo } from "../../useCases/Message/getPendingMessageUseCase";
+import { IMessage, MessageModel, modelMessageData } from "../../domains";
+import {
+  IDeletePendingMessageRepo,
+  IGetPendingMessageRepo,
+} from "../../useCases";
 
 export interface IMessageAPIDataSouce {
   getPendingMessages(): Promise<IMessage[]>;
   deletePendingMessages(ids: string[]): void;
 }
 
-export default class MessageAPIRepository
+export class MessageAPIRepository
   implements IGetPendingMessageRepo, IDeletePendingMessageRepo
 {
   private dataSource: IMessageAPIDataSouce;

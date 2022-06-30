@@ -1,10 +1,18 @@
+import { IFile } from "./../domains/common/helper";
 import {
   IConversationDatabase,
   IDatabase,
   IFriendDatabase,
   IMessageStorage,
 } from "../dataSource";
-import { IConversation, IMessage, IQueryOption, IUser } from "../domains";
+import {
+  IConversation,
+  IMessage,
+  IQueryOption,
+  IUser,
+  MessageType,
+} from "../domains";
+import { tokenizer } from "../helper";
 
 export class IndexedDB
   implements IConversationDatabase, IMessageStorage, IDatabase, IFriendDatabase
@@ -78,6 +86,15 @@ export class IndexedDB
               unique: true,
             }
           );
+
+          //Full text search
+          const searchObjectStore = db.createObjectStore("search", {
+            autoIncrement: true,
+          });
+
+          searchObjectStore.createIndex("keyword", "keyword", {
+            multiEntry: true,
+          });
         };
       } else {
         resolve();
@@ -184,11 +201,37 @@ export class IndexedDB
   }
 
   public addMessage(message: IMessage): void {
-    if (this.db)
+    if (this.db) {
       this.db
         .transaction("message", "readwrite")
         .objectStore("message")
         .add(message);
+
+      //Add to search DB
+      if (message.type === MessageType.TEXT) {
+        const tokens = tokenizer(message.content as string);
+
+        for (let keyword of tokens) {
+          this.db.transaction("search", "readwrite").objectStore("search").add({
+            keyword,
+            message,
+          });
+        }
+      }
+
+      if (message.type === MessageType.FILE) {
+        const tokens = tokenizer(
+          (message.content as IFile[]).map((file) => file.name).join(" ")
+        );
+
+        for (let keyword of tokens) {
+          this.db.transaction("search", "readwrite").objectStore("search").add({
+            keyword,
+            message,
+          });
+        }
+      }
+    }
   }
 
   addConversation(conversation: IConversation): void {

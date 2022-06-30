@@ -27,7 +27,6 @@ import {
   setSocketConnect,
 } from "../../../framework/redux/common";
 import { removeAllMessage } from "../../../framework/redux/message";
-import { SOCKET_CONSTANTS } from "../../../helper/constants";
 import ChattedUserList from "../../components/ChattedUserList";
 import Banner from "../../components/common/Banner";
 import Image from "../../components/common/Image";
@@ -39,6 +38,7 @@ import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import SearchUserList from "../../components/SearchUserList";
 import styles from "../../assets/styles/ChatPage.module.scss";
+import { SOCKET_CONSTANTS } from "../../../helper";
 
 export interface IChatPageProps {}
 

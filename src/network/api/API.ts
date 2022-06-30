@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import { IAuthAPI, IFileAPI, IMessageAPI, IUserAPI } from "../../dataSource";
 import { IAuth, IFile, IMessage, IUser } from "../../domains";
-import { CONSTANTS } from "../../helper/constants";
+import { CONSTANTS } from "../../helper";
 
 export class API implements IAuthAPI, IUserAPI, IFileAPI, IMessageAPI {
   private static instance: API;

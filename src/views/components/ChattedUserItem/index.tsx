@@ -1,9 +1,9 @@
 import classNames from "classnames";
 import { IMessage, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
-import { getRemainingTime } from "../../../helper/function";
 import Avatar from "../common/Avatar";
 import styles from "../../assets/styles/ChattedUserItem.module.scss";
+import { getRemainingTime } from "../../../helper";
 
 export interface IChattedUserItemProps {
   user: IUser;

@@ -1,7 +1,7 @@
 import { io, Socket as SocketIO } from "socket.io-client";
 import { IMessageSocket, ISocket } from "../../dataSource";
 import { IMessage } from "../../domains";
-import { SOCKET_CONSTANTS } from "../../helper/constants";
+import { SOCKET_CONSTANTS } from "../../helper";
 
 export class Socket implements IMessageSocket, ISocket {
   private static instance: Socket;

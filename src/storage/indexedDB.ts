@@ -10,7 +10,7 @@ export class IndexedDB
   implements IConversationDatabase, IMessageStorage, IDatabase, IFriendDatabase
 {
   private static instace: IndexedDB;
-  private db: IDBDatabase;
+  private db: IDBDatabase | undefined;
 
   public static getInstance() {
     if (!this.instace) this.instace = new IndexedDB();
@@ -83,6 +83,14 @@ export class IndexedDB
         resolve();
       }
     });
+  }
+
+  async disconnect(): Promise<void> {
+    if (this.db) {
+      this.db.close();
+
+      this.db = undefined;
+    }
   }
 
   public getConversations(): Promise<IConversation[]> {
@@ -176,24 +184,27 @@ export class IndexedDB
   }
 
   public addMessage(message: IMessage): void {
-    this.db
-      .transaction("message", "readwrite")
-      .objectStore("message")
-      .add(message);
+    if (this.db)
+      this.db
+        .transaction("message", "readwrite")
+        .objectStore("message")
+        .add(message);
   }
 
   addConversation(conversation: IConversation): void {
-    this.db
-      .transaction("conversation", "readwrite")
-      .objectStore("conversation")
-      .add(conversation);
+    if (this.db)
+      this.db
+        .transaction("conversation", "readwrite")
+        .objectStore("conversation")
+        .add(conversation);
   }
 
   updateConversation(conversation: IConversation): void {
-    this.db
-      .transaction("conversation", "readwrite")
-      .objectStore("conversation")
-      .put(conversation);
+    if (this.db)
+      this.db
+        .transaction("conversation", "readwrite")
+        .objectStore("conversation")
+        .put(conversation);
   }
 
   getAllFriend(): Promise<IUser[]> {
@@ -216,17 +227,19 @@ export class IndexedDB
   }
 
   addFriend(friend: IUser): void {
-    this.db
-      .transaction("friend", "readwrite")
-      .objectStore("friend")
-      .add(friend);
+    if (this.db)
+      this.db
+        .transaction("friend", "readwrite")
+        .objectStore("friend")
+        .add(friend);
   }
 
   updateMessage(message: IMessage): void {
-    this.db
-      .transaction("message", "readwrite")
-      .objectStore("message")
-      .put(message);
+    if (this.db)
+      this.db
+        .transaction("message", "readwrite")
+        .objectStore("message")
+        .put(message);
   }
 
   getConversationById(id: string): Promise<IConversation | null> {
@@ -251,9 +264,10 @@ export class IndexedDB
   }
 
   deleteMessage(message: IMessage): void {
-    this.db
-      .transaction("message", "readwrite")
-      .objectStore("message")
-      .delete([message.fromId, message.toId, message.clientId]);
+    if (this.db)
+      this.db
+        .transaction("message", "readwrite")
+        .objectStore("message")
+        .delete([message.fromId, message.toId, message.clientId]);
   }
 }

@@ -50,22 +50,16 @@ const authSlice = createSlice({
       state.isLoggingOut = action.payload;
     },
 
-    logout() {
-      return {
-        auth: {
-          user: {
-            _id: "",
-            fullName: "",
-            phone: "",
-            avatar: "",
-            // lastOnlineTime: "",
-          },
-          accessToken: "",
+    logout(state) {
+      state.auth = {
+        user: {
+          _id: "",
+          fullName: "",
+          phone: "",
+          avatar: "",
+          // lastOnlineTime: "",
         },
-        error: "",
-        isLoggingIn: false,
-        isLoadingAuth: false,
-        isLoggingOut: false,
+        accessToken: "",
       };
     },
 

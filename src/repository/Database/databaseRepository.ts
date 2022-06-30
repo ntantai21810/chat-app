@@ -1,9 +1,12 @@
-import { IConnectDatabaseRepo } from "../../useCases/Database";
+import { IConnectDatabaseRepo, IDisconnectDatabaseRepo } from "../../useCases";
 
 export interface IDatabaseDataSource {
   connect(name: string, userId: string): Promise<void>;
+  disconnect(): Promise<void>;
 }
-export class DatabaseRepository implements IConnectDatabaseRepo {
+export class DatabaseRepository
+  implements IConnectDatabaseRepo, IDisconnectDatabaseRepo
+{
   private dataSource: IDatabaseDataSource;
 
   constructor(dataSource: IDatabaseDataSource) {
@@ -12,5 +15,9 @@ export class DatabaseRepository implements IConnectDatabaseRepo {
 
   connect(name: string, userId: string): Promise<void> {
     return this.dataSource.connect(name, userId);
+  }
+
+  disconnect(): Promise<void> {
+    return this.dataSource.disconnect();
   }
 }

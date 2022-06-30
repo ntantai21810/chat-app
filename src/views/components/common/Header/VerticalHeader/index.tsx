@@ -2,7 +2,11 @@ import classNames from "classnames";
 import { AiFillSetting } from "react-icons/ai";
 import { Link, useLocation } from "react-router-dom";
 import { getDispatch } from "../../../../../adapter/frameworkAdapter";
-import { authController, socketController } from "../../../../../bootstrap";
+import {
+  authController,
+  databaseController,
+  socketController,
+} from "../../../../../bootstrap";
 import { resetCommon } from "../../../../../framework/redux/common";
 import { removeAllConversation } from "../../../../../framework/redux/conversation";
 import { removeAllFriend } from "../../../../../framework/redux/friend";
@@ -25,6 +29,7 @@ export default function VerticalHeader(props: IVerticalHeaderProps) {
   const handleLogoutClick = () => {
     authController.logout();
     socketController.disconnect();
+    databaseController.disconnect();
 
     dispatch(removeAllMessage());
     dispatch(removeAllConversation());

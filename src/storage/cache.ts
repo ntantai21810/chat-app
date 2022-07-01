@@ -1,5 +1,6 @@
+import { IFile } from "./../domains/common/helper";
 import { IMessageCache } from "../dataSource";
-import { IMessage } from "../domains";
+import { IMessage, MessageType } from "../domains";
 
 interface IMemCache {
   [conversationId: string]: IMessage[];
@@ -55,5 +56,28 @@ export class CacheStorage implements IMessageCache {
         message.conversationId
       ].filter((item) => item.id !== message.id);
     }
+  }
+
+  searchMessage(text: string): Promise<IMessage[]> {
+    return new Promise((resolve) => {
+      const messages: IMessage[] = [];
+
+      for (let key in memCache) {
+        for (let message of memCache[key]) {
+          if (
+            message.type === MessageType.TEXT &&
+            (message.content as string).includes(text)
+          ) {
+            messages.push(message);
+          } else if (message.type === MessageType.FILE) {
+            for (let file of message.content as IFile[]) {
+              if (file.name.includes(text)) messages.push(message);
+            }
+          }
+        }
+      }
+
+      resolve(messages);
+    });
   }
 }

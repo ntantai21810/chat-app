@@ -11,7 +11,7 @@ export function tokenizer(text: string): string[] {
       const _ngram = [];
 
       if (item.length >= 2) {
-        for (var index = 0; index <= item.length - 2 + 1; index++) {
+        for (let index = 0; index <= item.length - 2 + 1; index++) {
           _ngram.push(item[index]);
           _ngram.push(item.slice(index, index + 2));
         }

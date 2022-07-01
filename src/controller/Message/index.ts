@@ -10,6 +10,7 @@ import {
   MessageModel,
   MessageType,
   modelMessageData,
+  normalizeMessageData,
 } from "../../domains";
 import { API } from "../../network";
 import { IMessagePresenter } from "../../presenter";
@@ -20,6 +21,7 @@ import {
   GetMessageByConversationUseCase,
   ReceiveMessageUseCase,
   RetryMessageUseCase,
+  SearchMessageUseCase,
   SendMessageUseCase,
   SyncMessageUseCase,
   UpdateMessageUseCase,
@@ -226,6 +228,31 @@ export class MessageController {
       retryMessageUseCase.execute(messageModel);
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  async searchMessage(text: string): Promise<IMessage[]> {
+    try {
+      const searchMessageUseCase = new SearchMessageUseCase(
+        new MessageStorageRepository(
+          new MessageStorageDataSource(IndexedDB.getInstance())
+        )
+      );
+
+      const res = await searchMessageUseCase.execute(text);
+
+      const messages: IMessage[] = [];
+
+      for (let messageModel of res) {
+        const message = normalizeMessageData(messageModel);
+
+        messages.push(message);
+      }
+
+      return messages;
+    } catch (e) {
+      console.log(e);
+      return [];
     }
   }
 }

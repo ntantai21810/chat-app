@@ -9,6 +9,7 @@ import {
   IAddMessageRepo,
   IDeleteMessageRepo,
   IGetMessageRepo,
+  ISearchMessageRepo,
   IUpdateMessageRepo,
 } from "../../useCases";
 
@@ -20,6 +21,7 @@ export interface IMessageStorageDataSouce {
   addMessage(message: IMessage): void;
   updateMessage(message: IMessage): void;
   deleteMessage(message: IMessage): void;
+  searchMessage(text: string): Promise<IMessage[]>;
 }
 
 export class MessageStorageRepository
@@ -27,7 +29,8 @@ export class MessageStorageRepository
     IGetMessageRepo,
     IAddMessageRepo,
     IUpdateMessageRepo,
-    IDeleteMessageRepo
+    IDeleteMessageRepo,
+    ISearchMessageRepo
 {
   private dataSource: IMessageStorageDataSouce;
 
@@ -69,5 +72,17 @@ export class MessageStorageRepository
     const message = normalizeMessageData(messageModel);
 
     this.dataSource.deleteMessage(message);
+  }
+
+  async searchMessage(text: string): Promise<MessageModel[]> {
+    const res = await this.dataSource.searchMessage(text);
+
+    const messageModels: MessageModel[] = [];
+
+    for (let message of res) {
+      messageModels.push(modelMessageData(message));
+    }
+
+    return messageModels;
   }
 }

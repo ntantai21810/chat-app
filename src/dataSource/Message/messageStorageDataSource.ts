@@ -9,6 +9,7 @@ export interface IMessageStorage {
   addMessage: (message: IMessage) => void;
   updateMessage: (message: IMessage) => void;
   deleteMessage: (message: IMessage) => void;
+  searchMessage(text: string): Promise<IMessage[]>;
 }
 
 export class MessageStorageDataSource implements IMessageStorageDataSouce {
@@ -35,5 +36,9 @@ export class MessageStorageDataSource implements IMessageStorageDataSouce {
 
   deleteMessage(message: IMessage): void {
     this.database.deleteMessage(message);
+  }
+
+  searchMessage(text: string): Promise<IMessage[]> {
+    return this.database.searchMessage(text);
   }
 }

@@ -27,6 +27,8 @@ import {
   setSocketConnect,
 } from "../../../framework/redux/common";
 import { removeAllMessage } from "../../../framework/redux/message";
+import { SOCKET_CONSTANTS } from "../../../helper";
+import styles from "../../assets/styles/ChatPage.module.scss";
 import ChattedUserList from "../../components/ChattedUserList";
 import Banner from "../../components/common/Banner";
 import Image from "../../components/common/Image";
@@ -37,8 +39,6 @@ import ConversationAction from "../../components/ConversationAction";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import SearchUserList from "../../components/SearchUserList";
-import styles from "../../assets/styles/ChatPage.module.scss";
-import { SOCKET_CONSTANTS } from "../../../helper";
 
 export interface IChatPageProps {}
 
@@ -71,7 +71,8 @@ export default function ChatPage(props: IChatPageProps) {
     percent: 0,
   });
 
-  const typingRef = React.useRef<NodeJS.Timeout | undefined>();
+  const typingRef = React.useRef<NodeJS.Timeout>();
+  const searchRef = React.useRef<NodeJS.Timeout>();
 
   //Handler
   const handleChangeMessage = (e: React.ChangeEvent<any>) => {
@@ -97,15 +98,30 @@ export default function ChatPage(props: IChatPageProps) {
   const handleChangeSearch = (e: React.ChangeEvent<any>) => {
     setSearch(e.target.value);
 
-    if (!e.target.value) {
-      setSearchUsers([]);
+    if (searchRef.current) {
+      clearTimeout(searchRef.current);
     }
+
+    searchRef.current = setTimeout(async () => {
+      const startTime = new Date().getTime();
+
+      const result = await messageController.searchMessage(e.target.value);
+
+      const endTime = new Date().getTime();
+
+      console.log({ result });
+      console.log(
+        `Call to doSomething took ${endTime - startTime} milliseconds`
+      );
+    }, 500);
   };
 
   const handleSubmitSearch = async () => {
-    const res = await userController.getUserByPhone(search);
+    if (search) {
+      const res = await userController.getUserByPhone(search);
 
-    setSearchUsers(res);
+      setSearchUsers(res);
+    }
   };
 
   const handleSubmitMessage = () => {

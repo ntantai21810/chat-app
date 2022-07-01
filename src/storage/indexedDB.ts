@@ -214,7 +214,9 @@ export class IndexedDB
         for (let keyword of tokens) {
           this.db.transaction("search", "readwrite").objectStore("search").add({
             keyword,
-            message,
+            fromId: message.fromId,
+            toId: message.toId,
+            clientId: message.clientId,
           });
         }
       }
@@ -227,7 +229,9 @@ export class IndexedDB
         for (let keyword of tokens) {
           this.db.transaction("search", "readwrite").objectStore("search").add({
             keyword,
-            message,
+            fromId: message.fromId,
+            toId: message.toId,
+            clientId: message.clientId,
           });
         }
       }
@@ -312,5 +316,148 @@ export class IndexedDB
         .transaction("message", "readwrite")
         .objectStore("message")
         .delete([message.fromId, message.toId, message.clientId]);
+  }
+
+  async searchMessage(text: string): Promise<IMessage[]> {
+    interface ISearchDB {
+      fromId: string;
+      toId: string;
+      clientId: string;
+      keyword: string;
+    }
+
+    interface IMsgKey {
+      fromId: string;
+      toId: string;
+      clientId: string;
+    }
+
+    const tokens = tokenizer(text);
+
+    console.log(text);
+
+    const searchPromises: Promise<IMsgKey[]>[] = [];
+
+    for (let token of tokens) {
+      // searchPromises.push(
+      //   new Promise((resolve, reject) => {
+      //     if (this.db) {
+      //       const request = this.db
+      //         .transaction("search")
+      //         .objectStore("search")
+      //         .index("keyword")
+      //         .getAll(token);
+
+      //       request.onsuccess = (event) => {
+      //         const result: ISearchDB[] = (event.target as IDBRequest).result;
+
+      //         resolve(
+      //           result.map((item) => ({
+      //             fromId: item.fromId,
+      //             toId: item.toId,
+      //             clientId: item.clientId,
+      //           }))
+      //         );
+      //       };
+
+      //       request.onerror = (event) => {
+      //         reject(event);
+      //       };
+      //     } else {
+      //       resolve([]);
+      //     }
+      //   })
+      // );
+      await new Promise((resolve, reject) => {
+        if (this.db) {
+          const request = this.db
+            .transaction("search")
+            .objectStore("search")
+            .index("keyword")
+            .getAll(token);
+
+          console.log({ token });
+
+          request.onsuccess = (event) => {
+            const result: ISearchDB[] = (event.target as IDBRequest).result;
+
+            console.log(
+              result.map((item) => ({
+                fromId: item.fromId,
+                toId: item.toId,
+                clientId: item.clientId,
+              }))
+            );
+
+            resolve(
+              result.map((item) => ({
+                fromId: item.fromId,
+                toId: item.toId,
+                clientId: item.clientId,
+              }))
+            );
+          };
+
+          request.onerror = (event) => {
+            console.log({ event });
+            reject(event);
+          };
+        } else {
+          resolve([]);
+        }
+      });
+    }
+
+    const tokenResultkeys: IMsgKey[][] = await Promise.all(searchPromises);
+
+    let msgKeys: IMsgKey[] = [];
+
+    if (tokenResultkeys.length > 1) {
+      msgKeys = Object.values(tokenResultkeys).reduce((a, b) =>
+        a.filter((i) =>
+          b.find(
+            (item) =>
+              item.clientId === i.clientId &&
+              item.fromId === i.fromId &&
+              item.toId === i.toId
+          )
+        )
+      );
+    } else {
+      msgKeys = tokenResultkeys.length === 1 ? [...tokenResultkeys[0]] : [];
+    }
+
+    const messagePromises: Promise<IMessage | null>[] = [];
+
+    for (let key of msgKeys) {
+      messagePromises.push(
+        new Promise((resolve, reject) => {
+          if (this.db) {
+            const request = this.db
+              .transaction("message")
+              .objectStore("message")
+              .get([key.fromId, key.toId, key.clientId]);
+
+            request.onsuccess = (event) => {
+              const result: IMessage = (event.target as IDBRequest).result;
+
+              resolve(result);
+            };
+
+            request.onerror = (event) => {
+              reject(event);
+            };
+          } else {
+            resolve(null);
+          }
+        })
+      );
+    }
+
+    const messages = (await Promise.all(messagePromises)).filter(
+      (item) => item !== null
+    ) as IMessage[];
+
+    return messages;
   }
 }

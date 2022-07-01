@@ -6,6 +6,7 @@ export interface IMessageCache {
   addMessage: (message: IMessage) => void;
   updateMessage: (message: IMessage) => void;
   deleteMessage: (message: IMessage) => void;
+  searchMessage: (text: string) => Promise<IMessage[]>;
 }
 
 export class MessageCacheDataSource implements IMessageStorageDataSouce {
@@ -29,5 +30,9 @@ export class MessageCacheDataSource implements IMessageStorageDataSouce {
 
   deleteMessage(message: IMessage): void {
     this.cache.deleteMessage(message);
+  }
+
+  searchMessage(text: string): Promise<IMessage[]> {
+    return this.cache.searchMessage(text);
   }
 }

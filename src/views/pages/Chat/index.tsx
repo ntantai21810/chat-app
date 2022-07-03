@@ -38,6 +38,7 @@ import TypingIcon from "../../components/common/Typing";
 import ConversationAction from "../../components/ConversationAction";
 import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
+import SearchMessageList from "../../components/SearchMessageList";
 import SearchUserList from "../../components/SearchUserList";
 
 export interface IChatPageProps {}
@@ -59,6 +60,7 @@ export default function ChatPage(props: IChatPageProps) {
   const [message, setMessage] = React.useState("");
   const [files, setFiles] = React.useState<IFile[]>([]);
   const [searchUsers, setSearchUsers] = React.useState<IUser[]>([]);
+  const [searchMessages, setSearchMessages] = React.useState<IMessage[]>([]);
   const [activeConversation, setActiveConversation] = React.useState<{
     id: string;
     user: IUser;
@@ -95,7 +97,7 @@ export default function ChatPage(props: IChatPageProps) {
     setMessage(e.target.value);
   };
 
-  const handleChangeSearch = (e: React.ChangeEvent<any>) => {
+  const handleChangeSearch = async (e: React.ChangeEvent<any>) => {
     setSearch(e.target.value);
 
     if (searchRef.current) {
@@ -109,19 +111,19 @@ export default function ChatPage(props: IChatPageProps) {
 
       const endTime = new Date().getTime();
 
-      console.log({ result });
-      console.log(
-        `Call to doSomething took ${endTime - startTime} milliseconds`
-      );
+      console.log("Search: ", result);
+      console.log(`Search took ${endTime - startTime} milliseconds`);
+
+      setSearchMessages(result);
+
+      if (e.target.value?.length === 10 || e.target.value?.length === 11) {
+        const res = await userController.getUserByPhone(search);
+
+        setSearchUsers(res);
+      } else {
+        setSearchUsers([]);
+      }
     }, 500);
-  };
-
-  const handleSubmitSearch = async () => {
-    if (search) {
-      const res = await userController.getUserByPhone(search);
-
-      setSearchUsers(res);
-    }
   };
 
   const handleSubmitMessage = () => {
@@ -326,6 +328,10 @@ export default function ChatPage(props: IChatPageProps) {
     (window as any).electronAPI.download(url);
   }, []);
 
+  const handleSearchMessageClick = (message: IMessage) => {
+    console.log(message);
+  };
+
   //Connect datasource
   React.useEffect(() => {
     if (auth.auth.accessToken) {
@@ -471,15 +477,28 @@ export default function ChatPage(props: IChatPageProps) {
               border={false}
               value={search}
               onChange={handleChangeSearch}
-              onSubmit={handleSubmitSearch}
             />
           </div>
           {search ? (
-            <div className={styles.searchUser}>
-              <p className={styles.title}>Kết quả tìm kiếm</p>
+            <div className={styles.searchResult}>
+              <p className={styles.title}>Người dùng</p>
               <SearchUserList
                 users={searchUsers}
                 onClick={handleClickOnSearchUser}
+              />
+
+              <p className={styles.title}>Tin nhắn</p>
+
+              <SearchMessageList
+                messages={searchMessages.map((item) => ({
+                  ...item,
+                  conversation: conversations.find(
+                    (c) => c.id === item.conversationId
+                  ) as IConversation,
+                  user:
+                    friend.find((u) => u._id === item.toId) || auth.auth.user,
+                }))}
+                onClick={handleSearchMessageClick}
               />
             </div>
           ) : (

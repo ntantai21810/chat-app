@@ -339,36 +339,36 @@ export class IndexedDB
     const searchPromises: Promise<IMsgKey[]>[] = [];
 
     for (let token of tokens) {
-      // searchPromises.push(
-      //   new Promise((resolve, reject) => {
-      //     if (this.db) {
-      //       const request = this.db
-      //         .transaction("search")
-      //         .objectStore("search")
-      //         .index("keyword")
-      //         .getAll(token);
+      searchPromises.push(
+        new Promise((resolve, reject) => {
+          if (this.db) {
+            const request = this.db
+              .transaction("search")
+              .objectStore("search")
+              .index("keyword")
+              .getAll(token);
 
-      //       request.onsuccess = (event) => {
-      //         const result: ISearchDB[] = (event.target as IDBRequest).result;
+            request.onsuccess = (event) => {
+              const result: ISearchDB[] = (event.target as IDBRequest).result;
 
-      //         resolve(
-      //           result.map((item) => ({
-      //             fromId: item.fromId,
-      //             toId: item.toId,
-      //             clientId: item.clientId,
-      //           }))
-      //         );
-      //       };
+              resolve(
+                result.map((item) => ({
+                  fromId: item.fromId,
+                  toId: item.toId,
+                  clientId: item.clientId,
+                }))
+              );
+            };
 
-      //       request.onerror = (event) => {
-      //         reject(event);
-      //       };
-      //     } else {
-      //       resolve([]);
-      //     }
-      //   })
-      // );
-      await new Promise((resolve, reject) => {
+            request.onerror = (event) => {
+              reject(event);
+            };
+          } else {
+            resolve([]);
+          }
+        })
+      );
+      new Promise((resolve, reject) => {
         if (this.db) {
           const request = this.db
             .transaction("search")
@@ -376,18 +376,8 @@ export class IndexedDB
             .index("keyword")
             .getAll(token);
 
-          console.log({ token });
-
           request.onsuccess = (event) => {
             const result: ISearchDB[] = (event.target as IDBRequest).result;
-
-            console.log(
-              result.map((item) => ({
-                fromId: item.fromId,
-                toId: item.toId,
-                clientId: item.clientId,
-              }))
-            );
 
             resolve(
               result.map((item) => ({
@@ -399,7 +389,6 @@ export class IndexedDB
           };
 
           request.onerror = (event) => {
-            console.log({ event });
             reject(event);
           };
         } else {

@@ -33,12 +33,19 @@
       padding: 1.6rem 1.6rem 0 1.2rem;
     }
 
-    .searchUser {
+    .searchResult {
+      height: 100%;
+      overflow-y: auto;
+
       .title {
-        margin-left: 1.6rem;
-        font-size: 1.4rem;
+        font-size: 1.6rem;
+        font-weight: bold;
+
+        padding-bottom: 1.4rem;
+        border-bottom: 1px solid #eee;
         margin-top: 1.2rem;
-        margin-bottom: 1.2rem;
+        margin-left: 1.6rem;
+        margin-bottom: 1rem;
       }
     }
 

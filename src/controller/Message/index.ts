@@ -138,7 +138,6 @@ export class MessageController {
       }
     } catch (e) {
       this.presenter.setShowNotification(true);
-      console.log("Upload error: ", e);
       return;
     }
 

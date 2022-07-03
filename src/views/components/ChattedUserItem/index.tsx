@@ -30,8 +30,8 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZDHvxAjE2bfJbB-asv9kqio9ItBvUUwSHiA&usqp=CAU"
           }
           alt="User avatar"
-          width="5.6rem"
-          hegiht="5.6rem"
+          width="5rem"
+          hegiht="5rem"
         />
       </div>
 

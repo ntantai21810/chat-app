@@ -3,6 +3,7 @@ export function tokenizer(text: string): string[] {
 
   const transform = text
     .toLowerCase()
+    .trim()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")

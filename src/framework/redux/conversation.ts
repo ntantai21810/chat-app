@@ -1,5 +1,5 @@
 import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
-import { IConversation } from "./../../domains/Conversation/IConversation";
+import { IConversation } from "../../domains";
 import { defaultActions } from "./defaultActions";
 import { RootState } from "./store";
 

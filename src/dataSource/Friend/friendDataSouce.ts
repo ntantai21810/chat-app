@@ -1,23 +1,19 @@
 import { IUser } from "../../domains";
 import { IFriendStorageDataSource } from "../../repository";
-
-export interface IFriendDatabase {
-  getAllFriend(): Promise<IUser[]>;
-  addFriend(friend: IUser): void;
-}
+import { IDatabase } from "../../storage";
 
 export class FriendDataSource implements IFriendStorageDataSource {
-  private database: IFriendDatabase;
+  private database: IDatabase;
 
-  constructor(database: IFriendDatabase) {
+  constructor(database: IDatabase) {
     this.database = database;
   }
 
   getAllFriend(): Promise<IUser[]> {
-    return this.database.getAllFriend();
+    return this.database.get("friend", "friend");
   }
 
   addFriend(friend: IUser): void {
-    this.database.addFriend(friend);
+    this.database.add("friend", "friend", friend);
   }
 }

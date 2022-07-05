@@ -58,6 +58,12 @@
     }
 
     .filesContainer {
+      &.highlight {
+        .file {
+          background-color: rgb(255 199 0);
+        }
+      }
+
       .file {
         display: flex;
         align-items: center;

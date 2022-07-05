@@ -1,23 +1,18 @@
 import { IAuth } from "../../domains";
+import { IAPI } from "../../network";
 import { IAuthAPIDataSource } from "../../repository";
 
-export interface IAuthAPI {
-  login(phone: string, password: string): Promise<IAuth>;
-  register(phone: string, fullName: string, password: string): Promise<IAuth>;
-  setAccessTokenInterceptor(accessToken: string): void;
-}
-
 export class AuthAPIDataSource implements IAuthAPIDataSource {
-  private api: IAuthAPI;
+  private api: IAPI;
 
-  constructor(api: IAuthAPI) {
+  constructor(api: IAPI) {
     this.api = api;
   }
 
   async login(phone: string, password: string): Promise<IAuth> {
-    const res: IAuth = await this.api.login(phone, password);
+    const res: IAuth = await this.api.post("/login", { phone, password });
 
-    this.api.setAccessTokenInterceptor(res.accessToken);
+    this.api.setAccessToken(res.accessToken);
 
     return res;
   }
@@ -27,14 +22,18 @@ export class AuthAPIDataSource implements IAuthAPIDataSource {
     fullName: string,
     password: string
   ): Promise<IAuth> {
-    const res: IAuth = await this.api.register(phone, fullName, password);
+    const res: IAuth = await this.api.post("/register", {
+      phone,
+      fullName,
+      password,
+    });
 
-    this.api.setAccessTokenInterceptor(res.accessToken);
+    this.api.setAccessToken(res.accessToken);
 
     return res;
   }
 
   setAccessTokenInterceptor(accessToken: string): void {
-    this.api.setAccessTokenInterceptor(accessToken);
+    this.api.setAccessToken(accessToken);
   }
 }

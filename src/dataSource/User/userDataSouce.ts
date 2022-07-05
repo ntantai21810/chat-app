@@ -1,23 +1,19 @@
 import { IUser } from "../../domains";
+import { IAPI } from "../../network";
 import { IUserAPIDataSource } from "../../repository";
 
-export interface IUserAPI {
-  getUserById(id: string): Promise<IUser | null>;
-  getUserByPhone(phone: string): Promise<IUser[]>;
-}
-
 export class UserAPIDataSource implements IUserAPIDataSource {
-  private api: IUserAPI;
+  private api: IAPI;
 
-  constructor(api: IUserAPI) {
+  constructor(api: IAPI) {
     this.api = api;
   }
 
   getUserById(id: string): Promise<IUser | null> {
-    return this.api.getUserById(id);
+    return this.api.get(`/users/${id}`);
   }
 
   getUserByPhone(phone: string): Promise<IUser[]> {
-    return this.api.getUserByPhone(phone);
+    return this.api.get("/users", { phone });
   }
 }

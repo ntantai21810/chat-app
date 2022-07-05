@@ -1,6 +1,5 @@
 import {
   IMessage,
-  IQueryOption,
   MessageModel,
   modelMessageData,
   normalizeMessageData,
@@ -9,17 +8,22 @@ import {
   IAddMessageRepo,
   IDeleteMessageRepo,
   IGetMessageRepo,
+  ISearchMessageRepo,
   IUpdateMessageRepo,
 } from "../../useCases";
 
 export interface IMessageStorageDataSouce {
   getMessagesByConversation(
     conversationId: string,
-    options?: IQueryOption
+    fromMessage?: IMessage,
+    toMessage?: IMessage,
+    limit?: number,
+    exceptBound?: boolean
   ): Promise<IMessage[]>;
   addMessage(message: IMessage): void;
   updateMessage(message: IMessage): void;
   deleteMessage(message: IMessage): void;
+  searchMessage(text: string): Promise<IMessage[]>;
 }
 
 export class MessageStorageRepository
@@ -27,7 +31,8 @@ export class MessageStorageRepository
     IGetMessageRepo,
     IAddMessageRepo,
     IUpdateMessageRepo,
-    IDeleteMessageRepo
+    IDeleteMessageRepo,
+    ISearchMessageRepo
 {
   private dataSource: IMessageStorageDataSouce;
 
@@ -37,11 +42,24 @@ export class MessageStorageRepository
 
   async getMessagesByConversation(
     conversationId: string,
-    options?: IQueryOption
+    fromMessageModel?: MessageModel,
+    toMessageModel?: MessageModel,
+    limit?: number,
+    exceptBound?: boolean
   ): Promise<MessageModel[]> {
+    const fromMessage = fromMessageModel
+      ? normalizeMessageData(fromMessageModel)
+      : undefined;
+    const toMessage = toMessageModel
+      ? normalizeMessageData(toMessageModel)
+      : undefined;
+
     const res = await this.dataSource.getMessagesByConversation(
       conversationId,
-      options
+      fromMessage,
+      toMessage,
+      limit,
+      exceptBound
     );
 
     const messageModels: MessageModel[] = [];
@@ -69,5 +87,17 @@ export class MessageStorageRepository
     const message = normalizeMessageData(messageModel);
 
     this.dataSource.deleteMessage(message);
+  }
+
+  async searchMessage(text: string): Promise<MessageModel[]> {
+    const res = await this.dataSource.searchMessage(text);
+
+    const messageModels: MessageModel[] = [];
+
+    for (let message of res) {
+      messageModels.push(modelMessageData(message));
+    }
+
+    return messageModels;
   }
 }

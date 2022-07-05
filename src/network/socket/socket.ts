@@ -1,9 +1,15 @@
 import { io, Socket as SocketIO } from "socket.io-client";
-import { IMessageSocket, ISocket } from "../../dataSource";
-import { IMessage } from "../../domains";
-import { SOCKET_CONSTANTS } from "../../helper/constants";
+import { SOCKET_CONSTANTS } from "../../helper";
 
-export class Socket implements IMessageSocket, ISocket {
+export interface ISocket {
+  connect(userId: string, accessToken: string): void;
+  disconnect(): void;
+  listen(channel: string, callback: (data: any) => any): void;
+  send(channel: string, data: any): void;
+  removeListen(channel: string): void;
+}
+
+export class Socket implements ISocket {
   private static instance: Socket;
 
   private socket: SocketIO;
@@ -44,27 +50,11 @@ export class Socket implements IMessageSocket, ISocket {
     this.socket.emit(channel, data);
   }
 
-  sendMessage(message: IMessage): void {
-    if (!this.isConnected) {
-      throw "Socket disconnected";
-    }
-
-    this.socket.emit(SOCKET_CONSTANTS.CHAT_MESSAGE, message);
-  }
-
-  ackMessage(message: IMessage): void {
-    if (!this.isConnected) {
-      throw "Socket disconnected";
-    }
-
-    this.socket.emit(SOCKET_CONSTANTS.ACK_MESSAGE, message);
-  }
-
   disconnect(): void {
     this.socket.disconnect();
   }
 
-  removeAllListener(channel: string): void {
+  removeListen(channel: string): void {
     this.socket.off(channel);
   }
 }

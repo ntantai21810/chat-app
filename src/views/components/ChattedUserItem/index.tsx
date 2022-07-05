@@ -1,9 +1,9 @@
 import classNames from "classnames";
 import { IMessage, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
-import { getRemainingTime } from "../../../helper/function";
 import Avatar from "../common/Avatar";
 import styles from "../../assets/styles/ChattedUserItem.module.scss";
+import { getRemainingTime } from "../../../helper";
 
 export interface IChattedUserItemProps {
   user: IUser;
@@ -30,8 +30,8 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZDHvxAjE2bfJbB-asv9kqio9ItBvUUwSHiA&usqp=CAU"
           }
           alt="User avatar"
-          width="5.6rem"
-          hegiht="5.6rem"
+          width="5rem"
+          hegiht="5rem"
         />
       </div>
 

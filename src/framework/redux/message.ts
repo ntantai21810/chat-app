@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IMessage } from "../../domains/Message";
+import { IMessage } from "../../domains";
 
 const initialState: IMessage[] = [];
 

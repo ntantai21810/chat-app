@@ -6,10 +6,10 @@ import {
 import {
   IFile,
   IMessage,
-  IQueryOption,
   MessageModel,
   MessageType,
   modelMessageData,
+  normalizeMessageData,
 } from "../../domains";
 import { API } from "../../network";
 import { IMessagePresenter } from "../../presenter";
@@ -20,6 +20,7 @@ import {
   GetMessageByConversationUseCase,
   ReceiveMessageUseCase,
   RetryMessageUseCase,
+  SearchMessageUseCase,
   SendMessageUseCase,
   SyncMessageUseCase,
   UpdateMessageUseCase,
@@ -35,25 +36,45 @@ export class MessageController {
 
   async getMessagesByConversation(
     conversationId: string,
-    options?: IQueryOption
+    fromMessage?: IMessage,
+    toMessage?: IMessage,
+    limit?: number,
+    exceptBound?: boolean,
+    fromCache: boolean = true
   ) {
     let result: MessageModel[] = [];
-    try {
-      const getMessageFromCacheUseCase = new GetMessageByConversationUseCase(
-        new MessageStorageRepository(
-          new MessageCacheDataSource(CacheStorage.getInstance())
-        ),
-        this.presenter
-      );
 
-      result = await getMessageFromCacheUseCase.execute(conversationId);
-    } catch (e) {
-      console.log(e);
+    const fromMessageModel = fromMessage
+      ? modelMessageData(fromMessage)
+      : undefined;
+    const toMessageModel = toMessage ? modelMessageData(toMessage) : undefined;
+
+    if (fromCache) {
+      try {
+        const getMessageFromCacheUseCase = new GetMessageByConversationUseCase(
+          new MessageStorageRepository(
+            new MessageCacheDataSource(CacheStorage.getInstance())
+          ),
+          this.presenter
+        );
+
+        result = await getMessageFromCacheUseCase.execute(
+          conversationId,
+          fromMessageModel,
+          toMessageModel,
+          limit
+        );
+      } catch (e) {
+        console.log(e);
+        return [];
+      }
     }
 
     if (result.length < 10) {
       try {
-        this.presenter.removeAllMessage();
+        if (!fromMessage && !toMessage) {
+          this.presenter.removeAllMessage();
+        }
 
         const getMessageFromDBUseCase = new GetMessageByConversationUseCase(
           new MessageStorageRepository(
@@ -62,16 +83,32 @@ export class MessageController {
           this.presenter
         );
 
-        getMessageFromDBUseCase.execute(conversationId, options);
+        result = await getMessageFromDBUseCase.execute(
+          conversationId,
+          fromMessageModel,
+          toMessageModel,
+          limit,
+          exceptBound
+        );
       } catch (e) {
         console.log(e);
+        return [];
       }
     }
+
+    const messages: IMessage[] = [];
+
+    for (let messageModel of result) {
+      messages.push(normalizeMessageData(messageModel));
+    }
+
+    return messages;
   }
 
-  async getMessagesByConversationFromDB(
+  async loadMoreMessage(
     conversationId: string,
-    options?: IQueryOption
+    toMessage: IMessage,
+    limit: number = 15
   ) {
     try {
       const getMessageFromDBUseCase = new GetMessageByConversationUseCase(
@@ -81,9 +118,14 @@ export class MessageController {
         this.presenter
       );
 
+      const toMessageModel = modelMessageData(toMessage);
+
       const res = await getMessageFromDBUseCase.execute(
         conversationId,
-        options
+        undefined,
+        toMessageModel,
+        limit,
+        true
       );
 
       return res;
@@ -136,7 +178,6 @@ export class MessageController {
       }
     } catch (e) {
       this.presenter.setShowNotification(true);
-      console.log("Upload error: ", e);
       return;
     }
 
@@ -153,7 +194,9 @@ export class MessageController {
 
   receiveMessage(message: IMessage, addToCache: boolean) {
     try {
-      const receiveMessageUseCase = new ReceiveMessageUseCase(this.presenter);
+      const receiveMessageUseCase = new ReceiveMessageUseCase(
+        addToCache ? undefined : this.presenter
+      );
 
       const messageModel = modelMessageData(message);
 
@@ -226,6 +269,31 @@ export class MessageController {
       retryMessageUseCase.execute(messageModel);
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  async searchMessage(text: string): Promise<IMessage[]> {
+    try {
+      const searchMessageUseCase = new SearchMessageUseCase(
+        new MessageStorageRepository(
+          new MessageStorageDataSource(IndexedDB.getInstance())
+        )
+      );
+
+      const res = await searchMessageUseCase.execute(text);
+
+      const messages: IMessage[] = [];
+
+      for (let messageModel of res) {
+        const message = normalizeMessageData(messageModel);
+
+        messages.push(message);
+      }
+
+      return messages;
+    } catch (e) {
+      console.log(e);
+      return [];
     }
   }
 }

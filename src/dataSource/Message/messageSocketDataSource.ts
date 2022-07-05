@@ -1,5 +1,7 @@
 import { IMessage } from "../../domains";
+import { ISocket } from "../../network";
 import { IMessageSocketDataSouce } from "../../repository";
+import { SOCKET_CONSTANTS } from "./../../helper/constants/index";
 
 export interface IMessageSocket {
   sendMessage(message: IMessage): void;
@@ -7,17 +9,17 @@ export interface IMessageSocket {
 }
 
 export class MessageSocketDataSource implements IMessageSocketDataSouce {
-  private socket: IMessageSocket;
+  private socket: ISocket;
 
-  constructor(socket: IMessageSocket) {
+  constructor(socket: ISocket) {
     this.socket = socket;
   }
 
   sendMessage(message: IMessage): void {
-    this.socket.sendMessage(message);
+    this.socket.send(SOCKET_CONSTANTS.CHAT_MESSAGE, message);
   }
 
   ackMessage(message: IMessage): void {
-    this.socket.ackMessage(message);
+    this.socket.send(SOCKET_CONSTANTS.ACK_MESSAGE, message);
   }
 }

@@ -1,10 +1,13 @@
-import { IQueryOption, MessageModel } from "../../domains";
+import { MessageModel } from "../../domains";
 import { IMessagePresenter } from "../../presenter";
 
 export interface IGetMessageRepo {
   getMessagesByConversation(
     conversationId: string,
-    options?: IQueryOption
+    fromMessage?: MessageModel,
+    toMessage?: MessageModel,
+    limit?: number,
+    exceptBound?: boolean
   ): Promise<MessageModel[]>;
 }
 
@@ -18,11 +21,20 @@ export class GetMessageByConversationUseCase {
     this.presenter = presenter;
   }
 
-  async execute(conversationId: string, options?: IQueryOption) {
+  async execute(
+    conversationId: string,
+    fromMessage?: MessageModel,
+    toMessage?: MessageModel,
+    limit?: number,
+    exceptBound?: boolean
+  ) {
     try {
       const res = await this.repository.getMessagesByConversation(
         conversationId,
-        options
+        fromMessage,
+        toMessage,
+        limit,
+        exceptBound
       );
 
       this.presenter.addMessages(res);

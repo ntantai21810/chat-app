@@ -1,14 +1,42 @@
-import {
-  IConversationDatabase,
-  IDatabase,
-  IFriendDatabase,
-  IMessageStorage,
-} from "../dataSource";
-import { IConversation, IMessage, IQueryOption, IUser } from "../domains";
+export interface IDatabase {
+  connect(name: string, userId: string): Promise<void>;
+  disconnect(): Promise<void>;
 
-export class IndexedDB
-  implements IConversationDatabase, IMessageStorage, IDatabase, IFriendDatabase
-{
+  get<T>(
+    transaction: string | string[],
+    objectStore: string,
+    key?: IDBValidKey | IDBKeyRange | null,
+    index?: string,
+    limit?: number
+  ): Promise<T[]>;
+
+  getOne<T>(
+    transaction: string | string[],
+    objectStore: string,
+    key: IDBValidKey | IDBKeyRange,
+    index?: string
+  ): Promise<T | null>;
+
+  add<T>(
+    transaction: string | string[],
+    objectStore: string,
+    document: T
+  ): void;
+
+  update<T>(
+    transaction: string | string[],
+    objectStore: string,
+    document: T
+  ): void;
+
+  delete<T>(
+    transaction: string | string[],
+    objectStore: string,
+    key: IDBValidKey | IDBKeyRange
+  ): void;
+}
+
+export class IndexedDB implements IDatabase {
   private static instace: IndexedDB;
   private db: IDBDatabase | undefined;
 
@@ -24,53 +52,41 @@ export class IndexedDB
         console.log(
           "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
         );
-
         reject(
           "Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
         );
       }
-
       if (!this.db) {
         const request = window.indexedDB.open(
           `${userId}_${name}`,
           Number(process.env.REACT_APP_INDEXED_DB_VERSION) || 1
         );
-
         request.onerror = (event: Event) => {
           reject(event);
         };
-
         request.onsuccess = (event: Event) => {
           this.db = (event.target as IDBOpenDBRequest).result;
-
           resolve();
         };
-
         request.onupgradeneeded = (event) => {
           const db = (event.target as IDBOpenDBRequest).result;
-
           // Conversation
           const conversationObjectStore = db.createObjectStore("conversation", {
             keyPath: "id",
           });
-
           conversationObjectStore.createIndex("userId", "userId", {
             unique: true,
           });
-
           db.createObjectStore("friend", {
             keyPath: "_id",
           });
-
           // Message
           const messageObjectStore = db.createObjectStore("message", {
             keyPath: ["fromId", "toId", "clientId"],
           });
-
           messageObjectStore.createIndex("conversationId", "conversationId", {
             unique: false,
           });
-
           messageObjectStore.createIndex(
             "messageSendTime",
             ["conversationId", "sendTime"],
@@ -78,6 +94,13 @@ export class IndexedDB
               unique: true,
             }
           );
+          //Full text search
+          const searchObjectStore = db.createObjectStore("search", {
+            autoIncrement: true,
+          });
+          searchObjectStore.createIndex("keyword", "keyword", {
+            multiEntry: true,
+          });
         };
       } else {
         resolve();
@@ -93,181 +116,195 @@ export class IndexedDB
     }
   }
 
-  public getConversations(): Promise<IConversation[]> {
+  public get<T>(
+    transaction: string | string[],
+    objectStore: string,
+    key?: IDBValidKey | IDBKeyRange | null,
+    index?: string,
+    limit?: number
+  ): Promise<T[]> {
     return new Promise((resolve, reject) => {
       if (this.db) {
-        const request = this.db
-          .transaction("conversation")
-          .objectStore("conversation")
-          .getAll();
+        if (index) {
+          if (limit) {
+            let l = limit;
 
-        request.onsuccess = (event) => {
-          resolve((event.target as IDBRequest).result);
-        };
+            const result: T[] = [];
 
-        request.onerror = (event) => {
-          reject(event);
-        };
-      } else resolve([]);
-    });
-  }
+            const request = this.db
+              .transaction(transaction)
+              .objectStore(objectStore)
+              .index(index)
+              .openCursor(key, "prev");
 
-  public getConversationByUserId(
-    userId: string
-  ): Promise<IConversation | null> {
-    return new Promise((resolve, reject) => {
-      if (this.db) {
-        const request = this.db
-          .transaction("conversation")
-          .objectStore("conversation")
-          .index("userId")
-          .get(userId);
+            request.onsuccess = (event) => {
+              const cursor = (event.target as IDBRequest)
+                .result as IDBCursorWithValue;
 
-        request.onsuccess = (event) => {
-          resolve((event.target as IDBRequest).result);
-        };
+              if (cursor && l > 0) {
+                result.unshift(cursor.value);
 
-        request.onerror = (event) => {
-          reject(event);
-        };
-      } else resolve(null);
-    });
-  }
+                l--;
 
-  public getMessagesByConversation(
-    conversationId: string,
-    options: IQueryOption = { paginate: { page: 1, pageSize: 15 } }
-  ): Promise<IMessage[]> {
-    const { page, pageSize } = options.paginate;
+                cursor.continue();
+              } else {
+                resolve(result);
+              }
+            };
 
-    const result: IMessage[] = [];
-    const from = (page - 1) * pageSize;
-    const to = (page - 1) * pageSize + pageSize;
-    let index = 0;
-
-    return new Promise((resolve, reject) => {
-      if (this.db) {
-        const request = this.db
-          .transaction("message")
-          .objectStore("message")
-          .index("messageSendTime")
-          .openCursor(
-            IDBKeyRange.bound(
-              [conversationId, new Date(-8640000000000000).toISOString()],
-              [conversationId, new Date().toISOString()]
-            ),
-            "prev"
-          );
-
-        request.onsuccess = (event) => {
-          const cursor = (event.target as IDBRequest)
-            .result as IDBCursorWithValue;
-
-          if (cursor && index < to) {
-            if (index >= from) result.unshift(cursor.value);
-
-            cursor.continue();
-
-            index++;
+            request.onerror = (event) => {
+              reject(event);
+            };
           } else {
-            resolve(result);
-          }
-        };
+            const request = this.db
+              .transaction(transaction)
+              .objectStore(objectStore)
+              .index(index)
+              .getAll(key);
 
-        request.onerror = (event) => {
-          reject(event);
-        };
+            request.onsuccess = (event) => {
+              const result = (event.target as IDBRequest).result;
+
+              resolve(result);
+            };
+
+            request.onerror = (event) => {
+              reject(event);
+            };
+          }
+        } else {
+          if (limit) {
+            let l = limit;
+
+            const result: T[] = [];
+
+            const request = this.db
+              .transaction(transaction)
+              .objectStore(objectStore)
+              .openCursor(key, "prev");
+
+            request.onsuccess = (event) => {
+              const cursor = (event.target as IDBRequest)
+                .result as IDBCursorWithValue;
+
+              if (cursor && l > 0) {
+                result.unshift(cursor.value);
+
+                l--;
+
+                cursor.continue();
+              } else {
+                resolve(result);
+              }
+            };
+
+            request.onerror = (event) => {
+              reject(event);
+            };
+          } else {
+            const request = this.db
+              .transaction(transaction)
+              .objectStore(objectStore)
+              .getAll(key);
+
+            request.onsuccess = (event) => {
+              const result = (event.target as IDBRequest).result;
+
+              resolve(result);
+            };
+
+            request.onerror = (event) => {
+              reject(event);
+            };
+          }
+        }
       } else {
         resolve([]);
       }
     });
   }
 
-  public addMessage(message: IMessage): void {
-    if (this.db)
-      this.db
-        .transaction("message", "readwrite")
-        .objectStore("message")
-        .add(message);
-  }
-
-  addConversation(conversation: IConversation): void {
-    if (this.db)
-      this.db
-        .transaction("conversation", "readwrite")
-        .objectStore("conversation")
-        .add(conversation);
-  }
-
-  updateConversation(conversation: IConversation): void {
-    if (this.db)
-      this.db
-        .transaction("conversation", "readwrite")
-        .objectStore("conversation")
-        .put(conversation);
-  }
-
-  getAllFriend(): Promise<IUser[]> {
+  public getOne<T>(
+    transaction: string | string[],
+    objectStore: string,
+    key: IDBValidKey | IDBKeyRange,
+    index?: string
+  ): Promise<T | null> {
     return new Promise((resolve, reject) => {
       if (this.db) {
-        const request = this.db
-          .transaction("friend")
-          .objectStore("friend")
-          .getAll();
+        if (index) {
+          const request = this.db
+            .transaction(transaction)
+            .objectStore(objectStore)
+            .index(index)
+            .get(key);
 
-        request.onsuccess = (event) => {
-          resolve((event.target as IDBRequest).result);
-        };
+          request.onsuccess = (event) => {
+            const result = (event.target as IDBRequest).result;
 
-        request.onerror = (event) => {
-          reject(event);
-        };
-      } else resolve([]);
-    });
-  }
+            resolve(result);
+          };
 
-  addFriend(friend: IUser): void {
-    if (this.db)
-      this.db
-        .transaction("friend", "readwrite")
-        .objectStore("friend")
-        .add(friend);
-  }
+          request.onerror = (event) => {
+            reject(event);
+          };
+        } else {
+          const request = this.db
+            .transaction(transaction)
+            .objectStore(objectStore)
+            .get(key);
 
-  updateMessage(message: IMessage): void {
-    if (this.db)
-      this.db
-        .transaction("message", "readwrite")
-        .objectStore("message")
-        .put(message);
-  }
+          request.onsuccess = (event) => {
+            const result = (event.target as IDBRequest).result;
 
-  getConversationById(id: string): Promise<IConversation | null> {
-    return new Promise((resolve, reject) => {
-      if (this.db) {
-        const request = this.db
-          .transaction("conversation")
-          .objectStore("conversation")
-          .get(id);
+            resolve(result);
+          };
 
-        request.onsuccess = (event) => {
-          resolve((event.target as IDBRequest).result);
-        };
-
-        request.onerror = (event) => {
-          reject(event);
-        };
+          request.onerror = (event) => {
+            reject(event);
+          };
+        }
       } else {
-        reject();
+        resolve(null);
       }
     });
   }
 
-  deleteMessage(message: IMessage): void {
-    if (this.db)
+  public add<T>(
+    transaction: string | string[],
+    objectStore: string,
+    document: T
+  ): void {
+    if (this.db) {
       this.db
-        .transaction("message", "readwrite")
-        .objectStore("message")
-        .delete([message.fromId, message.toId, message.clientId]);
+        .transaction(transaction, "readwrite")
+        .objectStore(objectStore)
+        .add(document);
+    }
+  }
+
+  public update<T>(
+    transaction: string | string[],
+    objectStore: string,
+    document: T
+  ): void {
+    if (this.db) {
+      this.db
+        .transaction(transaction, "readwrite")
+        .objectStore(objectStore)
+        .put(document);
+    }
+  }
+  public delete<T>(
+    transaction: string | string[],
+    objectStore: string,
+    key: IDBValidKey | IDBKeyRange
+  ): void {
+    if (this.db) {
+      this.db
+        .transaction(transaction, "readwrite")
+        .objectStore(objectStore)
+        .delete(key);
+    }
   }
 }

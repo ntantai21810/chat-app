@@ -10,3 +10,4 @@ export * from "./sendMessageSocketUseCase";
 export * from "./sendMessageUseCase";
 export * from "./syncMessageUseCase";
 export * from "./updateMessageUseCase";
+export * from "./searchMessageUseCase";

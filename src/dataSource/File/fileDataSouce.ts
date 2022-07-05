@@ -1,18 +1,15 @@
 import { IFile } from "../../domains";
+import { IAPI } from "../../network";
 import { IFileDataSource } from "../../repository";
 
-export interface IFileAPI {
-  uploadFiles(images: IFile[]): Promise<string[]>;
-}
-
 export class FileDataSource implements IFileDataSource {
-  private database: IFileAPI;
+  private database: IAPI;
 
-  constructor(database: IFileAPI) {
+  constructor(database: IAPI) {
     this.database = database;
   }
 
   uploadFiles(images: IFile[]): Promise<string[]> {
-    return this.database.uploadFiles(images);
+    return this.database.post("/upload", images);
   }
 }

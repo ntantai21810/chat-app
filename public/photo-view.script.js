@@ -42,7 +42,6 @@ const render = (imgUrl) => {
 
 window.addEventListener("DOMContentLoaded", () => {
   window.photoViewAPI.onReceiveImgUrl((_event, url) => {
-    console.log(url);
     render(url);
   });
 

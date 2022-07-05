@@ -32,6 +32,10 @@ const createWindow = () => {
               "downloadProgress",
               (item.getReceivedBytes() / item.getTotalBytes()) * 100
             );
+            mainWindow.setProgressBar(
+              item.getReceivedBytes() / item.getTotalBytes()
+            );
+
             console.log(`Received bytes: ${item.getReceivedBytes()}`);
           }
         }
@@ -40,9 +44,12 @@ const createWindow = () => {
       item.once("done", (event, state) => {
         if (state === "completed") {
           mainWindow.webContents.send("downloadProgress", 0);
+          mainWindow.setProgressBar(-1);
+
           console.log("Download successfully");
         } else {
           mainWindow.webContents.send("downloadProgress", 0);
+          mainWindow.setProgressBar(-1);
           console.log(`Download failed: ${state}`);
         }
       });

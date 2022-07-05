@@ -1,5 +1,5 @@
 import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
-import { IUser } from "./../../domains/User/IUser";
+import { IUser } from "../../domains";
 import { defaultActions } from "./defaultActions";
 import { RootState } from "./store";
 

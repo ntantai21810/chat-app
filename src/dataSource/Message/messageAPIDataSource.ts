@@ -1,23 +1,19 @@
 import { IMessage } from "../../domains";
+import { IAPI } from "../../network";
 import { IMessageAPIDataSouce } from "../../repository";
 
-export interface IMessageAPI {
-  getPendingMessages: () => Promise<IMessage[]>;
-  deletePendingMessages: (ids: string[]) => void;
-}
-
 export class MessageAPIDataSource implements IMessageAPIDataSouce {
-  private api: IMessageAPI;
+  private api: IAPI;
 
-  constructor(api: IMessageAPI) {
+  constructor(api: IAPI) {
     this.api = api;
   }
 
   getPendingMessages(): Promise<IMessage[]> {
-    return this.api.getPendingMessages();
+    return this.api.get("/messages/pending");
   }
 
   deletePendingMessages(ids: string[]): void {
-    this.api.deletePendingMessages(ids);
+    this.api.put("/messages/pending/delete", ids);
   }
 }

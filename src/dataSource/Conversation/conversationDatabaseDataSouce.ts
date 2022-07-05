@@ -1,40 +1,43 @@
 import { IConversation } from "../../domains";
-import { IConversationStorageDataSource } from "../../repository";
+import { IDatabase } from "../../storage";
 
-export interface IConversationDatabase {
-  getConversations(): Promise<IConversation[]>;
-  getConversationByUserId(userId: string): Promise<IConversation | null>;
-  getConversationById(id: string): Promise<IConversation | null>;
-  addConversation(conversation: IConversation): void;
-  updateConversation(conversation: IConversation): void;
-}
+export class ConversationDatabaseDataSource {
+  private database: IDatabase;
 
-export class ConversationDatabaseDataSource
-  implements IConversationStorageDataSource
-{
-  private database: IConversationDatabase;
-
-  constructor(database: IConversationDatabase) {
+  constructor(database: IDatabase) {
     this.database = database;
   }
 
   getConversations(): Promise<IConversation[]> {
-    return this.database.getConversations();
+    return this.database.get<IConversation>("conversation", "conversation");
   }
 
   getConversationByUserId(userId: string): Promise<IConversation | null> {
-    return this.database.getConversationByUserId(userId);
+    return this.database.getOne(
+      "conversation",
+      "conversation",
+      userId,
+      "userId"
+    );
   }
 
   addConversation(conversation: IConversation): void {
-    this.database.addConversation(conversation);
+    this.database.add<IConversation>(
+      "conversation",
+      "conversation",
+      conversation
+    );
   }
 
   updateConversation(conversation: IConversation): void {
-    this.database.updateConversation(conversation);
+    this.database.update<IConversation>(
+      "conversation",
+      "conversation",
+      conversation
+    );
   }
 
   getConversationById(id: string): Promise<IConversation | null> {
-    return this.database.getConversationById(id);
+    return this.database.getOne("conversation", "conversation", id);
   }
 }

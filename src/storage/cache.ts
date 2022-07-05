@@ -1,14 +1,18 @@
-import { IFile } from "./../domains/common/helper";
-import { IMessageCache } from "../dataSource";
-import { IMessage, MessageType } from "../domains";
-
 interface IMemCache {
-  [conversationId: string]: IMessage[];
+  [key: string]: any[];
+}
+
+export interface ICache {
+  get(): Promise<any>;
+  getByKey(key: string): Promise<any>;
+  add(key: string, data: any): void;
+  update(key: string, data: any): void;
+  delete(key: string, data: any): void;
 }
 
 const memCache: IMemCache = {};
 
-export class CacheStorage implements IMessageCache {
+export class CacheStorage implements ICache {
   private static instace: CacheStorage;
 
   public static getInstance() {
@@ -17,67 +21,41 @@ export class CacheStorage implements IMessageCache {
     return this.instace;
   }
 
-  public getMessagesByConversation(
-    conversationId: string
-  ): Promise<IMessage[]> {
+  get(): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (memCache[conversationId]) {
-        resolve(memCache[conversationId]);
+      resolve(memCache);
+    });
+  }
+
+  getByKey(key: string) {
+    return new Promise((resolve, reject) => {
+      if (memCache[key]) {
+        resolve(memCache[key]);
       } else {
         resolve([]);
       }
     });
   }
 
-  public addMessage(message: IMessage): void {
-    if (memCache[message.conversationId]) {
-      memCache[message.conversationId].push(message);
+  add(key: string, data: any): void {
+    if (memCache[key]) {
+      memCache[key].push(data);
 
-      memCache[message.conversationId] =
-        memCache[message.conversationId].slice(-10);
+      memCache[key] = memCache[key].slice(-20);
     } else {
-      memCache[message.conversationId] = [message];
+      memCache[key] = [data];
     }
   }
 
-  updateMessage(message: IMessage): void {
-    if (memCache[message.conversationId]) {
-      memCache[message.conversationId] = memCache[message.conversationId].map(
-        (m) => (m.id !== message.id ? m : message)
-      );
-    } else {
-      memCache[message.conversationId] = [message];
+  update(key: string, data: any): void {
+    if (memCache[key]) {
+      memCache[key] = memCache[key].map((m) => (m.id !== data.id ? m : data));
     }
   }
 
-  deleteMessage(message: IMessage): void {
-    if (memCache[message.conversationId]) {
-      memCache[message.conversationId] = memCache[
-        message.conversationId
-      ].filter((item) => item.id !== message.id);
+  delete(key: string, data: any): void {
+    if (memCache[key]) {
+      memCache[key] = memCache[key].filter((item) => item.id !== data.id);
     }
-  }
-
-  searchMessage(text: string): Promise<IMessage[]> {
-    return new Promise((resolve) => {
-      const messages: IMessage[] = [];
-
-      for (let key in memCache) {
-        for (let message of memCache[key]) {
-          if (
-            message.type === MessageType.TEXT &&
-            (message.content as string).includes(text)
-          ) {
-            messages.push(message);
-          } else if (message.type === MessageType.FILE) {
-            for (let file of message.content as IFile[]) {
-              if (file.name.includes(text)) messages.push(message);
-            }
-          }
-        }
-      }
-
-      resolve(messages);
-    });
   }
 }

@@ -54,12 +54,14 @@ export default function ChatPage(props: IChatPageProps) {
   const dispatch = getDispatch();
 
   const [isTyping, setIsTyping] = React.useState(false);
-  const [page, setPage] = React.useState(1);
   const [isFullMessage, setIsFullMessage] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [files, setFiles] = React.useState<IFile[]>([]);
   const [searchUsers, setSearchUsers] = React.useState<IUser[]>([]);
+  const [searchConversations, setSearchConversations] = React.useState<
+    IConversation[]
+  >([]);
   const [searchMessages, setSearchMessages] = React.useState<IMessage[]>([]);
   const [activeConversation, setActiveConversation] = React.useState<{
     id: string;
@@ -72,6 +74,8 @@ export default function ChatPage(props: IChatPageProps) {
     url: "",
     percent: 0,
   });
+  const [scrollToTargetMessage, setScrollTargetTopMessage] = React.useState("");
+  const [highlightMessage, setHighlightMessage] = React.useState("");
 
   const typingRef = React.useRef<NodeJS.Timeout>();
   const searchRef = React.useRef<NodeJS.Timeout>();
@@ -111,13 +115,21 @@ export default function ChatPage(props: IChatPageProps) {
 
       const endTime = new Date().getTime();
 
-      console.log("Search: ", result);
       console.log(`Search took ${endTime - startTime} milliseconds`);
 
       setSearchMessages(result);
+      setSearchConversations(
+        conversations.filter((item) =>
+          friend
+            .find((f) => f._id === item.userId)
+            ?.fullName.toLowerCase()
+            .trim()
+            .includes(e.target.value.toLowerCase().trim())
+        )
+      );
 
       if (e.target.value?.length === 10 || e.target.value?.length === 11) {
-        const res = await userController.getUserByPhone(search);
+        const res = await userController.getUserByPhone(e.target.value);
 
         setSearchUsers(res);
       } else {
@@ -279,8 +291,9 @@ export default function ChatPage(props: IChatPageProps) {
         id: conversation.id,
         user: friend.find((item) => item._id === conversation.userId)!,
       });
-
-      messageController.addMessageToCache(messages.slice(-10));
+      setScrollTargetTopMessage("");
+      setHighlightMessage("");
+      messageController.addMessageToCache(messages.slice(-20));
     }
   };
 
@@ -291,11 +304,19 @@ export default function ChatPage(props: IChatPageProps) {
   };
 
   const handleClickOnSearchUser = async (user: IUser) => {
+    setScrollTargetTopMessage("");
+    setHighlightMessage("");
+
+    let conversationId = "";
+
     const userFriend = friend.find((item) => item._id === user._id);
 
-    if (userFriend && userFriend._id !== activeConversation?.user._id) {
+    if (userFriend) {
+      conversationId = conversations.find(
+        (item) => item.userId === user._id
+      )!.id;
       setActiveConversation({
-        id: conversations.find((item) => item.userId === user._id)!.id,
+        id: conversationId,
         user: userFriend,
       });
     } else if (!userFriend) {
@@ -307,13 +328,37 @@ export default function ChatPage(props: IChatPageProps) {
       });
     }
 
-    messageController.addMessageToCache(messages.slice(-10));
+    messageController.addMessageToCache(messages.slice(-20));
+
+    if (messages.length > 0) {
+      dispatch(removeAllMessage());
+    }
+
+    messageController.getMessagesByConversation(
+      conversationId,
+      undefined,
+      undefined,
+      PAGE_SIZE
+    );
   };
 
-  const handleScrollToTop = React.useCallback(
-    () => setPage((state) => state + 1),
-    []
-  );
+  const handleScrollToTop = React.useCallback(async () => {
+    if (messages[0] && activeConversation && !isFullMessage) {
+      const res = await messageController.loadMoreMessage(
+        activeConversation.id,
+        messages[0],
+        PAGE_SIZE
+      );
+      if (res.length <= 1) {
+        setIsFullMessage(true);
+      }
+      setScrollTargetTopMessage(
+        `message-${
+          messages[0].fromId + messages[0].toId + messages[0].clientId
+        }`
+      );
+    }
+  }, [messages, activeConversation, isFullMessage]);
 
   const handleRetry = React.useCallback((message: IMessage) => {
     messageController.retryMessage(message);
@@ -328,8 +373,45 @@ export default function ChatPage(props: IChatPageProps) {
     (window as any).electronAPI.download(url);
   }, []);
 
-  const handleSearchMessageClick = (message: IMessage) => {
-    console.log(message);
+  const handleClickOnSearchMessage = async (message: IMessage) => {
+    dispatch(removeAllMessage());
+
+    const res = await messageController.getMessagesByConversation(
+      message.conversationId,
+      message,
+      undefined,
+      undefined,
+      undefined,
+      false
+    );
+
+    setScrollTargetTopMessage(
+      `message-${message.fromId + message.toId + message.clientId}`
+    );
+
+    setHighlightMessage(
+      `message-${message.fromId + message.toId + message.clientId}`
+    );
+
+    if (res.length <= 15) {
+      messageController.getMessagesByConversation(
+        message.conversationId,
+        undefined,
+        message,
+        10,
+        true,
+        false
+      );
+    }
+
+    setActiveConversation({
+      id: message.conversationId,
+      user: friend.find(
+        (item) =>
+          item._id ===
+          (message.toId === auth.auth.user._id ? message.fromId : message.toId)
+      )!,
+    });
   };
 
   //Connect datasource
@@ -426,44 +508,26 @@ export default function ChatPage(props: IChatPageProps) {
 
   //Change conversation database
   React.useEffect(() => {
-    if (activeConversation && common.isDatabaseConnected) {
-      //Get message
+    setIsFullMessage(false);
+    setIsTyping(false);
 
-      setPage(1);
-      setIsFullMessage(false);
+    if (activeConversation && common.isDatabaseConnected && !search) {
+      //Get message
+      setScrollTargetTopMessage("");
+      setHighlightMessage("");
 
       if (messages.length > 0) {
         dispatch(removeAllMessage());
       }
 
-      messageController.getMessagesByConversation(activeConversation.id, {
-        paginate: {
-          page: 1,
-          pageSize: PAGE_SIZE,
-        },
-      });
+      messageController.getMessagesByConversation(
+        activeConversation.id,
+        undefined,
+        undefined,
+        PAGE_SIZE
+      );
     }
   }, [activeConversation, common.isDatabaseConnected, dispatch]);
-
-  // Load more
-  React.useEffect(() => {
-    const loadMore = async () => {
-      if (page !== 1 && activeConversation && !isFullMessage) {
-        const res = await messageController.getMessagesByConversationFromDB(
-          activeConversation.id,
-          {
-            paginate: { page: page, pageSize: PAGE_SIZE },
-          }
-        );
-
-        if (res.length === 0) {
-          setIsFullMessage(true);
-        }
-      }
-    };
-
-    loadMore();
-  }, [page, isFullMessage]);
 
   return (
     <>
@@ -487,6 +551,13 @@ export default function ChatPage(props: IChatPageProps) {
                 onClick={handleClickOnSearchUser}
               />
 
+              <SearchUserList
+                users={searchConversations.map(
+                  (item) => friend.find((f) => f._id === item.userId)!
+                )}
+                onClick={handleClickOnSearchUser}
+              />
+
               <p className={styles.title}>Tin nhắn</p>
 
               <SearchMessageList
@@ -496,9 +567,9 @@ export default function ChatPage(props: IChatPageProps) {
                     (c) => c.id === item.conversationId
                   ) as IConversation,
                   user:
-                    friend.find((u) => u._id === item.toId) || auth.auth.user,
+                    friend.find((u) => u._id === item.fromId) || auth.auth.user,
                 }))}
-                onClick={handleSearchMessageClick}
+                onClick={handleClickOnSearchMessage}
               />
             </div>
           ) : (
@@ -534,6 +605,8 @@ export default function ChatPage(props: IChatPageProps) {
                 onDownloadFile={handleDownloadFile}
                 onImageClick={handleImageClick}
                 percentFileDownloading={percentFileDownloading}
+                scrollToElement={scrollToTargetMessage}
+                highlightElement={highlightMessage}
               />
 
               {isTyping && (

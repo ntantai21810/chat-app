@@ -7,6 +7,7 @@ import Avatar from "../common/Avatar";
 import Image from "../common/Image";
 import MessageItem from "../Message";
 import styles from "../../assets/styles/ChatMessage.module.scss";
+import { memo } from "react";
 
 export interface IChatMessageProps {
   reverse?: boolean;
@@ -14,17 +15,19 @@ export interface IChatMessageProps {
   message: IMessage;
   showAvatar: boolean;
   percentFileDownloading?: { url: string; percent: number };
+  highlight?: boolean;
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
   onImageClick?: (message: IFile) => any;
 }
 
-export default function ChatMessage(props: IChatMessageProps) {
+function ChatMessage(props: IChatMessageProps) {
   const {
     reverse = false,
     avatar,
     message,
     showAvatar,
+    highlight,
     onRetry,
     onDownloadFile,
     onImageClick,
@@ -59,6 +62,7 @@ export default function ChatMessage(props: IChatMessageProps) {
             message={message}
             showStatus={reverse}
             onRetry={onRetry}
+            highlight={highlight}
           />
         )}
         {message.type === MessageType.IMAGE && (
@@ -84,7 +88,12 @@ export default function ChatMessage(props: IChatMessageProps) {
         )}
 
         {message.type === MessageType.FILE && (
-          <div className={styles.filesContainer}>
+          <div
+            className={classNames({
+              [styles.filesContainer]: true,
+              [styles.highlight]: highlight,
+            })}
+          >
             {(message.content as IFile[]).map((item, index) => (
               <div className={styles.file} key={index}>
                 <div className={styles.icon}>
@@ -138,3 +147,5 @@ export default function ChatMessage(props: IChatMessageProps) {
     </div>
   );
 }
+
+export default memo(ChatMessage);

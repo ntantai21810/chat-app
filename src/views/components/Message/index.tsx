@@ -6,18 +6,19 @@ export interface IMessageProps {
   bgColor?: string;
   message: IMessage;
   showStatus: boolean;
+  highlight?: boolean;
   onRetry?: (message: IMessage) => any;
 }
 
 export default function Message(props: IMessageProps) {
-  const { bgColor = "#fff", message, showStatus, onRetry } = props;
+  const { bgColor = "#fff", message, showStatus, onRetry, highlight } = props;
 
   return (
     <div
       className={classNames({
         [styles.container]: true,
       })}
-      style={{ backgroundColor: bgColor }}
+      style={{ backgroundColor: highlight ? "rgb(255 199 0)" : bgColor }}
     >
       {message.content as string}
 

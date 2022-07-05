@@ -1,12 +1,5 @@
+import { ISocket } from "../../network";
 import { ISocketDataSource } from "../../repository";
-
-export interface ISocket {
-  connect(userId: string, accessToken: string): void;
-  disconnect(): void;
-  listen(channel: string, callback: Function): void;
-  send(channel: string, data: any): void;
-  removeAllListener(channel: string): void;
-}
 
 export class SocketDataSource implements ISocketDataSource {
   private socket: ISocket;
@@ -27,11 +20,11 @@ export class SocketDataSource implements ISocketDataSource {
     this.socket.send(channel, data);
   }
 
-  listen(channel: string, callback: Function): void {
+  listen(channel: string, callback: (data: any) => any): void {
     this.socket.listen(channel, callback);
   }
 
   removeAllListener(channel: string): void {
-    this.socket.removeAllListener(channel);
+    this.socket.removeListen(channel);
   }
 }

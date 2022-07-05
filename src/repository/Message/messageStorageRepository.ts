@@ -1,6 +1,5 @@
 import {
   IMessage,
-  IQueryOption,
   MessageModel,
   modelMessageData,
   normalizeMessageData,
@@ -16,7 +15,10 @@ import {
 export interface IMessageStorageDataSouce {
   getMessagesByConversation(
     conversationId: string,
-    options?: IQueryOption
+    fromMessage?: IMessage,
+    toMessage?: IMessage,
+    limit?: number,
+    exceptBound?: boolean
   ): Promise<IMessage[]>;
   addMessage(message: IMessage): void;
   updateMessage(message: IMessage): void;
@@ -40,11 +42,24 @@ export class MessageStorageRepository
 
   async getMessagesByConversation(
     conversationId: string,
-    options?: IQueryOption
+    fromMessageModel?: MessageModel,
+    toMessageModel?: MessageModel,
+    limit?: number,
+    exceptBound?: boolean
   ): Promise<MessageModel[]> {
+    const fromMessage = fromMessageModel
+      ? normalizeMessageData(fromMessageModel)
+      : undefined;
+    const toMessage = toMessageModel
+      ? normalizeMessageData(toMessageModel)
+      : undefined;
+
     const res = await this.dataSource.getMessagesByConversation(
       conversationId,
-      options
+      fromMessage,
+      toMessage,
+      limit,
+      exceptBound
     );
 
     const messageModels: MessageModel[] = [];

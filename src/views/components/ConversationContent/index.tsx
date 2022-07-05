@@ -1,8 +1,9 @@
+import classNames from "classnames";
 import React, { useEffect, useRef } from "react";
 import { IFile } from "../../../domains/common/helper";
 import { IMessage } from "../../../domains/Message";
-import ChatMessage from "../ChatMessage";
 import styles from "../../assets/styles/ConversationContent.module.scss";
+import ChatMessage from "../ChatMessage";
 
 export interface IConversationContentProps {
   messages: IMessage[];
@@ -10,6 +11,8 @@ export interface IConversationContentProps {
   currentUserAvatar: string;
   chattingUserAvatar: string;
   percentFileDownloading?: { url: string; percent: number };
+  scrollToElement?: string;
+  highlightElement?: string;
   onScrollToTop?: () => any;
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
@@ -27,69 +30,52 @@ function ConversationContent(props: IConversationContentProps) {
     onDownloadFile,
     onImageClick,
     percentFileDownloading,
+    scrollToElement,
+    highlightElement,
   } = props;
 
   const ref = useRef<HTMLDivElement | null>(null);
   const lastConversationId = useRef("");
-  const lastConversationSendTime = useRef("");
-  const lastMessageLength = useRef(0);
-  const scrollFromBottom = useRef(0);
+  const wheel = useRef(false);
 
   const handleScroll = () => {
     if (
       ref.current?.scrollTop === 0 &&
       onScrollToTop &&
       lastConversationId.current &&
-      lastConversationId.current === messages[0].conversationId
+      lastConversationId.current === messages[0].conversationId &&
+      wheel.current
     ) {
       onScrollToTop();
     }
-
-    if (ref.current) {
-      scrollFromBottom.current =
-        ref.current.scrollHeight - ref.current.scrollTop;
-    }
   };
 
-  //Handle scroll
   useEffect(() => {
+    wheel.current = false;
+
     if (ref.current) {
-      //First render
-      if (!lastConversationId.current || !lastConversationSendTime.current)
+      if (scrollToElement) {
+        const ele = document.getElementById(scrollToElement);
+
+        if (ele) {
+          ref.current.scrollTop = ele.offsetTop;
+        }
+      } else {
         ref.current.scrollTop = ref.current.scrollHeight;
-      else if (messages.length > 0) {
-        if (lastConversationId.current === messages[0].conversationId) {
-          // New message
-          if (
-            messages[messages.length - 1].sendTime !==
-            lastConversationSendTime.current
-          ) {
-            ref.current.scrollTop = ref.current.scrollHeight;
-          }
-          //Load more
-          else if (lastMessageLength.current < messages.length) {
-            ref.current.scrollTop =
-              ref.current.scrollHeight - scrollFromBottom.current;
-          }
-        }
-        //Change conversation
-        else {
-          ref.current.scrollTop = ref.current.scrollHeight;
-        }
       }
+
+      lastConversationId.current =
+        messages.length > 0 ? messages[0].conversationId : "";
     }
-
-    lastConversationId.current =
-      messages.length > 0 ? messages[0].conversationId : "";
-
-    lastConversationSendTime.current =
-      messages.length > 0 ? messages[messages.length - 1].sendTime : "";
-
-    lastMessageLength.current = messages.length;
   });
 
   return (
-    <div className={styles.container} ref={ref} onScroll={handleScroll}>
+    <div
+      className={styles.container}
+      ref={ref}
+      onScroll={handleScroll}
+      onWheel={() => (wheel.current = true)}
+    >
       {messages.map((item, index) => {
         let showAvatar = false;
         let avatar = "";
@@ -102,7 +88,13 @@ function ConversationContent(props: IConversationContentProps) {
         }
 
         return (
-          <div className={styles.chatMessage} key={index}>
+          <div
+            className={classNames({
+              [styles.chatMessage]: true,
+            })}
+            key={index}
+            id={`message-${item.fromId + item.toId + item.clientId}`}
+          >
             <ChatMessage
               message={item}
               reverse={currentUserId === item.fromId}
@@ -112,6 +104,10 @@ function ConversationContent(props: IConversationContentProps) {
               onDownloadFile={onDownloadFile}
               onImageClick={onImageClick}
               percentFileDownloading={percentFileDownloading}
+              highlight={
+                `message-${item.fromId + item.toId + item.clientId}` ===
+                highlightElement
+              }
             />
           </div>
         );

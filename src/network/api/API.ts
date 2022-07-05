@@ -1,9 +1,15 @@
 import axios, { AxiosInstance } from "axios";
-import { IAuthAPI, IFileAPI, IMessageAPI, IUserAPI } from "../../dataSource";
-import { IAuth, IFile, IMessage, IUser } from "../../domains";
 import { CONSTANTS } from "../../helper";
 
-export class API implements IAuthAPI, IUserAPI, IFileAPI, IMessageAPI {
+export interface IAPI {
+  get(url: string, params?: any): Promise<any>;
+  post(url: string, data?: any): Promise<any>;
+  put(url: string, data?: any): Promise<any>;
+  delete(url: string, params?: any): Promise<any>;
+  setAccessToken(accessToken: string): void;
+}
+
+export class API implements IAPI {
   private static instance: API;
 
   private axios: AxiosInstance;
@@ -42,63 +48,47 @@ export class API implements IAuthAPI, IUserAPI, IFileAPI, IMessageAPI {
     );
   }
 
-  async login(phone: string, password: string): Promise<IAuth> {
+  async get(url: string, params?: any): Promise<any> {
     try {
-      return await this.axios.post("/login", { phone, password });
+      return await this.axios.get(url, { params });
     } catch (e) {
       throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
     }
   }
 
-  async register(
-    phone: string,
-    fullName: string,
-    password: string
-  ): Promise<IAuth> {
+  async post(url: string, data?: any): Promise<any> {
     try {
-      return await this.axios.post("/register", { phone, fullName, password });
+      return await this.axios.post(url, data);
     } catch (e) {
       throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
     }
   }
 
-  async getUserById(id: string): Promise<IUser | null> {
+  async put(url: string, data?: any): Promise<any> {
     try {
-      return await this.axios.get(`/users/${id}`);
+      return await this.axios.put(url, data);
+    } catch (e) {
+      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
+    }
+  }
+  async delete(url: string, params?: any): Promise<any> {
+    try {
+      return await this.axios.delete(url, { params });
     } catch (e) {
       throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
     }
   }
 
-  async getUserByPhone(phone: string): Promise<IUser[]> {
-    try {
-      return await this.axios.get(`/users`, { params: { phone } });
-    } catch (e) {
-      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
-    }
-  }
+  setAccessToken(accessToken: string): void {
+    this.axios.interceptors.request.use(
+      (config) => {
+        if (config.headers) {
+          config.headers.Authorization = `Bearer ${accessToken}`;
+        }
 
-  async uploadFiles(images: IFile[]): Promise<string[]> {
-    try {
-      return await this.axios.post(`/upload`, images);
-    } catch (e) {
-      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
-    }
-  }
-
-  async getPendingMessages(): Promise<IMessage[]> {
-    try {
-      return await this.axios.get(`/messages/pending`);
-    } catch (e) {
-      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
-    }
-  }
-
-  async deletePendingMessages(ids: string[]) {
-    try {
-      await this.axios.put(`/messages/pending/delete`, ids);
-    } catch (e) {
-      throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
-    }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
   }
 }

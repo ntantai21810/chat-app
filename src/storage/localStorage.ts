@@ -1,9 +1,10 @@
-import CryptoJS from "crypto-js";
-import jwtDecode from "jwt-decode";
-import { IAuthStorage } from "../dataSource";
-import { IAuth } from "../domains";
+export interface IStorage {
+  get(key: string): any;
+  set(key: string, data: any): void;
+  remove(key: string): void;
+}
 
-export class LocalStorage implements IAuthStorage {
+export class LocalStorage implements IStorage {
   private static instance: LocalStorage;
 
   public static getInstance() {
@@ -14,41 +15,15 @@ export class LocalStorage implements IAuthStorage {
     return this.instance;
   }
 
-  getAuth(): IAuth | null {
-    const ciphertext = localStorage.getItem("auth");
-
-    if (!ciphertext) return null;
-
-    try {
-      const bytes = CryptoJS.AES.decrypt(ciphertext, "secret key 123");
-      const originalText = bytes.toString(CryptoJS.enc.Utf8);
-
-      const auth: IAuth = JSON.parse(originalText);
-
-      if (jwtDecode<any>(auth.accessToken).exp < Date.now() / 1000) {
-        localStorage.removeItem("auth");
-        return null;
-      }
-
-      return auth;
-    } catch (e) {
-      localStorage.removeItem("auth");
-      return null;
-    }
+  get(key: string) {
+    return localStorage.getItem(key);
   }
 
-  setAuth(auth: IAuth): void {
-    try {
-      const ciphertext = CryptoJS.AES.encrypt(
-        JSON.stringify(auth),
-        "secret key 123"
-      ).toString();
-
-      localStorage.setItem("auth", ciphertext);
-    } catch (e) {}
+  set(key: string, data: any): void {
+    localStorage.setItem(key, data);
   }
 
-  clearAuth(): void {
-    localStorage.removeItem("auth");
+  remove(key: string): void {
+    localStorage.removeItem(key);
   }
 }

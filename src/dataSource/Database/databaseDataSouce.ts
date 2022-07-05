@@ -1,9 +1,5 @@
 import { IDatabaseDataSource } from "../../repository";
-
-export interface IDatabase {
-  connect(name: string, userId: string): Promise<void>;
-  disconnect(): Promise<void>;
-}
+import { IDatabase } from "../../storage";
 
 export class DatabaseDataSource implements IDatabaseDataSource {
   private database: IDatabase;

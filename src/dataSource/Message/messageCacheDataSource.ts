@@ -1,5 +1,6 @@
-import { IMessage } from "../../domains";
+import { IFile, IMessage, MessageType } from "../../domains";
 import { IMessageStorageDataSouce } from "../../repository";
+import { ICache } from "../../storage";
 
 export interface IMessageCache {
   getMessagesByConversation: (conversationId: string) => Promise<IMessage[]>;
@@ -10,29 +11,48 @@ export interface IMessageCache {
 }
 
 export class MessageCacheDataSource implements IMessageStorageDataSouce {
-  private cache: IMessageCache;
+  private cache: ICache;
 
-  constructor(storage: IMessageCache) {
+  constructor(storage: ICache) {
     this.cache = storage;
   }
 
   getMessagesByConversation(conversationId: string): Promise<IMessage[]> {
-    return this.cache.getMessagesByConversation(conversationId);
+    return this.cache.getByKey(conversationId);
   }
 
   addMessage(message: IMessage): void {
-    this.cache.addMessage(message);
+    this.cache.add(message.conversationId, message);
   }
 
   updateMessage(message: IMessage): void {
-    this.cache.updateMessage(message);
+    this.cache.update(message.conversationId, message);
   }
 
   deleteMessage(message: IMessage): void {
-    this.cache.deleteMessage(message);
+    this.cache.delete(message.conversationId, message);
   }
 
-  searchMessage(text: string): Promise<IMessage[]> {
-    return this.cache.searchMessage(text);
+  async searchMessage(text: string): Promise<IMessage[]> {
+    const memCache = await this.cache.get();
+
+    const messages: IMessage[] = [];
+
+    for (let key in memCache) {
+      for (let message of memCache[key]) {
+        if (
+          message.type === MessageType.TEXT &&
+          (message.content as string).includes(text)
+        ) {
+          messages.push(message);
+        } else if (message.type === MessageType.FILE) {
+          for (let file of message.content as IFile[]) {
+            if (file.name.includes(text)) messages.push(message);
+          }
+        }
+      }
+    }
+
+    return messages;
   }
 }

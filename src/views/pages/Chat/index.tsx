@@ -43,6 +43,10 @@ import SearchUserList from "../../components/SearchUserList";
 
 export interface IChatPageProps {}
 
+const worker = new Worker(
+  new URL("../../assets/js/spell.worker.js", import.meta.url)
+);
+
 const PAGE_SIZE = 20;
 
 export default function ChatPage(props: IChatPageProps) {
@@ -99,6 +103,11 @@ export default function ChatPage(props: IChatPageProps) {
     }, 2000);
 
     setMessage(e.target.value);
+
+    worker.postMessage({
+      type: "check",
+      data: e.target.value,
+    });
   };
 
   const handleChangeSearch = async (e: React.ChangeEvent<any>) => {
@@ -445,15 +454,22 @@ export default function ChatPage(props: IChatPageProps) {
   }, [common.isDatabaseConnected]);
 
   React.useEffect(() => {
+    socketController.removeAllListener("connect");
+    socketController.removeAllListener("disconnect");
+
     socketController.listen("connect", () => dispatch(setSocketConnect(true)));
     socketController.listen("disconnect", () =>
       dispatch(setSocketConnect(false))
     );
 
-    (window as any).electronAPI.removeDownloadFileListener();
+    (window as any).electronAPI?.removeDownloadFileListener();
 
-    (window as any).electronAPI.onDownloadFileProgress((percent: number) => {
+    (window as any).electronAPI?.onDownloadFileProgress((percent: number) => {
       setPercentFileDownloading((state) => ({ ...state, percent }));
+    });
+
+    worker.addEventListener("message", (ev) => {
+      console.log(ev.data.text);
     });
   }, []);
 

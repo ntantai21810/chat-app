@@ -152,6 +152,17 @@
           }
         }
       }
+
+      :global {
+        span {
+          margin: 0.4rem 0;
+        }
+
+        .misspelled {
+          color: red;
+          border-bottom: 2px solid red;
+        }
+      }
     }
   }
 

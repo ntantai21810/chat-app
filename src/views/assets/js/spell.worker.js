@@ -1,37 +1,46 @@
+/* eslint-disable */
 function spellCheck(lang, text) {
   const words = text.split(/\s/);
+
+  //Check space lien tiep
+  console.log(words);
+
   const result = words
     .map((word) => {
-      const correct = lang.check(word);
-      const title = correct
-        ? "Correct spelling"
-        : `Did you mean ${lang.suggest(word, 5).join(", ")}?`;
-      return `<span title="${title}" class="${
-        correct ? "correct" : "misspelled"
-      }">${word}</span>`;
+      if (word === "") {
+        return `<span>${word}</span>`;
+      } else {
+        const correct = lang.check(word);
+
+        if (correct) {
+          return `<span>${word}</span>`;
+        } else {
+          return `<span title="Did you mean ${lang
+            .suggest(word, 5)
+            .join(", ")}?" class="misspelled">${word}</span>`;
+        }
+      }
     })
-    .join(" ");
+    .join("");
 
   return result;
 }
+if ("function" === typeof self.importScripts) {
+  self.importScripts(new URL("../js/BJSpell.js", import.meta.url));
+  self.importScripts(new URL("../js/en_US.js", import.meta.url));
 
-if ("function" === typeof importScripts) {
-  console.log("Run worker");
+  const dictionary = "en_US";
 
-  importScripts(new URL("../js/BJSpell.js", import.meta.url));
-  importScripts(new URL("../js/en_US.js", import.meta.url));
+  const lang = self.BJSpell(dictionary);
 
-  const dictionary =
-    "https://rawcdn.githack.com/maheshmurag/bjspell/master/dictionary.js/en_US.js";
-
-  const lang = new BJSpell(dictionary);
-
-  addEventListener("message", (event) => {
+  self.addEventListener("message", (event) => {
     switch (event.data.type) {
       case "check":
+        console.log("Worker: ", event.data.text);
+
         postMessage({
-          type: "check-result",
-          text: spellCheck(lang, event.data.data),
+          type: "spellcheck-result",
+          text: spellCheck(lang, event.data.text),
         });
         break;
     }

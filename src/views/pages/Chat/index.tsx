@@ -30,6 +30,7 @@ import { removeAllMessage } from "../../../framework/redux/message";
 import { SOCKET_CONSTANTS } from "../../../helper";
 import styles from "../../assets/styles/ChatPage.module.scss";
 import ChattedUserList from "../../components/ChattedUserList";
+import AutoResizeInput from "../../components/common/AutoResizeInput";
 import Banner from "../../components/common/Banner";
 import Image from "../../components/common/Image";
 import Input from "../../components/common/Input";
@@ -60,7 +61,7 @@ export default function ChatPage(props: IChatPageProps) {
   const [isTyping, setIsTyping] = React.useState(false);
   const [isFullMessage, setIsFullMessage] = React.useState(false);
   const [search, setSearch] = React.useState("");
-  const [message, setMessage] = React.useState("");
+  const [message, setMessage] = React.useState({ message: "", checked: "" });
   const [files, setFiles] = React.useState<IFile[]>([]);
   const [searchUsers, setSearchUsers] = React.useState<IUser[]>([]);
   const [searchConversations, setSearchConversations] = React.useState<
@@ -85,7 +86,7 @@ export default function ChatPage(props: IChatPageProps) {
   const searchRef = React.useRef<NodeJS.Timeout>();
 
   //Handler
-  const handleChangeMessage = (e: React.ChangeEvent<any>) => {
+  const handleChangeMessage = (value: string) => {
     if (!typingRef.current) {
       socketController.send(SOCKET_CONSTANTS.TYPING, {
         isTyping: true,
@@ -102,12 +103,18 @@ export default function ChatPage(props: IChatPageProps) {
       typingRef.current = undefined;
     }, 2000);
 
-    setMessage(e.target.value);
+    console.log("Handle change: ", value + 1);
 
-    worker.postMessage({
-      type: "check",
-      data: e.target.value,
-    });
+    setMessage((state) => ({
+      ...state,
+      message: value,
+    }));
+
+    if (value)
+      worker.postMessage({
+        type: "check",
+        text: value,
+      });
   };
 
   const handleChangeSearch = async (e: React.ChangeEvent<any>) => {
@@ -149,12 +156,21 @@ export default function ChatPage(props: IChatPageProps) {
 
   const handleSubmitMessage = () => {
     if (activeConversation) {
-      if (message) {
+      if (message.message || files.length > 0) {
+        setScrollTargetTopMessage("");
+        setHighlightMessage("");
+      }
+
+      if (
+        message.message &&
+        message.message.trim() !== "" &&
+        message.message.trim().charCodeAt(0) !== 10
+      ) {
         messageController.sendMessage({
           fromId: auth.auth.user._id,
           toId: activeConversation.user._id,
           type: MessageType.TEXT,
-          content: message,
+          content: message.message,
           conversationId: "",
           sendTime: new Date().toISOString(),
           clientId: uuidv4(),
@@ -173,11 +189,17 @@ export default function ChatPage(props: IChatPageProps) {
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
         });
+
+        setScrollTargetTopMessage("");
+        setHighlightMessage("");
       }
     }
 
     setFiles([]);
-    setMessage("");
+    setMessage({
+      message: "",
+      checked: "",
+    });
   };
 
   const handleImageClick = React.useCallback((image: IFile) => {
@@ -186,6 +208,9 @@ export default function ChatPage(props: IChatPageProps) {
 
   const handleSubmitFiles = (files: IFile[]) => {
     if (activeConversation && files.length > 0) {
+      setScrollTargetTopMessage("");
+      setHighlightMessage("");
+
       if (files[0].type.startsWith("image/")) {
         messageController.sendMessage({
           fromId: auth.auth.user._id,
@@ -212,8 +237,10 @@ export default function ChatPage(props: IChatPageProps) {
     }
   };
 
-  const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (e) => {
+  const handlePaste: React.ClipboardEventHandler<HTMLSpanElement> = (e) => {
     const file = e.clipboardData.files[0];
+
+    if (file) e.preventDefault();
 
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
@@ -469,7 +496,9 @@ export default function ChatPage(props: IChatPageProps) {
     });
 
     worker.addEventListener("message", (ev) => {
-      console.log(ev.data.text);
+      console.log("Main: ", ev.data.text);
+
+      setMessage((state) => ({ ...state, checked: ev.data.text }));
     });
   }, []);
 
@@ -642,11 +671,20 @@ export default function ChatPage(props: IChatPageProps) {
             </div>
 
             <div className={styles.conversationInput}>
-              <Input
+              {/* <Input
                 border={false}
                 endIcon={<AiOutlineSend />}
                 placeholder="Nhập tin nhắn ..."
                 value={message}
+                onSubmit={handleSubmitMessage}
+                onChange={handleChangeMessage}
+                onPaste={handlePaste}
+                onDrop={handleDrop}
+              /> */}
+
+              <AutoResizeInput
+                endIcon={<AiOutlineSend />}
+                value={message.checked}
                 onSubmit={handleSubmitMessage}
                 onChange={handleChangeMessage}
                 onPaste={handlePaste}

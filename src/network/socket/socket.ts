@@ -34,6 +34,8 @@ export class Socket implements ISocket {
 
     this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
 
+    this.isConnected = true;
+
     this.socket.on("connect", () => (this.isConnected = true));
     this.socket.on("disconnect", () => (this.isConnected = false));
   }

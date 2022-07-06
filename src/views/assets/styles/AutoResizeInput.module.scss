@@ -1,0 +1,45 @@
+.container {
+  position: relative;
+
+  .textarea {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    min-height: 40px;
+    max-height: 150px;
+    padding: 1.4rem;
+
+    font-size: 1.8rem;
+
+    overflow-y: scroll;
+    resize: both;
+    border: none;
+    outline: none;
+    transition: all linear 0.25s;
+
+    &[contenteditable]:empty::before {
+      content: "Nhập tin nhắn ...";
+      color: gray;
+    }
+  }
+
+  .icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 0.8rem;
+    border-radius: 5px;
+
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+
+    cursor: pointer;
+
+    &:hover {
+      background-color: #e5e5e5;
+    }
+  }
+}

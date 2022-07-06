@@ -1,4 +1,4 @@
-import { IMessage } from "../../domains";
+import { IFile, IMessage, MessageType } from "../../domains";
 import { tokenizer } from "../../helper";
 import { IDatabase } from "../../storage";
 
@@ -35,6 +35,35 @@ export class MessageStorageDataSource {
 
   addMessage(message: IMessage): void {
     this.database.add<IMessage>("message", "message", message);
+
+    //Add to search DB
+    if (message.type === MessageType.TEXT) {
+      const tokens = tokenizer(message.content as string);
+
+      for (let keyword of tokens) {
+        this.database.add("search", "search", {
+          keyword,
+          fromId: message.fromId,
+          toId: message.toId,
+          clientId: message.clientId,
+        });
+      }
+    }
+
+    if (message.type === MessageType.FILE) {
+      const tokens = tokenizer(
+        (message.content as IFile[]).map((file) => file.name).join(" ")
+      );
+
+      for (let keyword of tokens) {
+        this.database.add("search", "search", {
+          keyword,
+          fromId: message.fromId,
+          toId: message.toId,
+          clientId: message.clientId,
+        });
+      }
+    }
   }
 
   updateMessage(message: IMessage): void {

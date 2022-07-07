@@ -1,29 +1,20 @@
 /* eslint-disable */
 function spellCheck(lang, text) {
+  let str = "";
+
   const words = text.split(/\s/);
 
-  //Check space lien tiep
-  console.log(words);
+  for (let word of words) {
+    if (word !== "" && !lang.check(word)) {
+      str += `<span title="Did you mean ${lang
+        .suggest(word, 1)
+        .join(", ")}" class="misspelled">${word}</span>&nbsp;`;
+    } else {
+      str += `<span>${word}</span>&nbsp;`;
+    }
+  }
 
-  const result = words
-    .map((word) => {
-      if (word === "") {
-        return `<span>${word}</span>`;
-      } else {
-        const correct = lang.check(word);
-
-        if (correct) {
-          return `<span>${word}</span>`;
-        } else {
-          return `<span title="Did you mean ${lang
-            .suggest(word, 5)
-            .join(", ")}?" class="misspelled">${word}</span>`;
-        }
-      }
-    })
-    .join("");
-
-  return result;
+  return str.slice(0, -6);
 }
 if ("function" === typeof self.importScripts) {
   self.importScripts(new URL("../js/BJSpell.js", import.meta.url));
@@ -36,8 +27,6 @@ if ("function" === typeof self.importScripts) {
   self.addEventListener("message", (event) => {
     switch (event.data.type) {
       case "check":
-        console.log("Worker: ", event.data.text);
-
         postMessage({
           type: "spellcheck-result",
           text: spellCheck(lang, event.data.text),

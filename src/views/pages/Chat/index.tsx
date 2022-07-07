@@ -103,17 +103,15 @@ export default function ChatPage(props: IChatPageProps) {
       typingRef.current = undefined;
     }, 2000);
 
-    console.log("Handle change: ", value + 1);
-
     setMessage((state) => ({
       ...state,
-      message: value,
+      message: value.replaceAll("\n", ""),
     }));
 
-    if (value)
+    if (value.replaceAll("\n", ""))
       worker.postMessage({
         type: "check",
-        text: value,
+        text: value.replaceAll("\n", ""),
       });
   };
 
@@ -481,11 +479,11 @@ export default function ChatPage(props: IChatPageProps) {
   }, [common.isDatabaseConnected]);
 
   React.useEffect(() => {
-    socketController.removeAllListener("connect");
-    socketController.removeAllListener("disconnect");
-
     socketController.listen("connect", () => dispatch(setSocketConnect(true)));
     socketController.listen("disconnect", () =>
+      dispatch(setSocketConnect(false))
+    );
+    socketController.listen("connect_error", () =>
       dispatch(setSocketConnect(false))
     );
 
@@ -512,9 +510,9 @@ export default function ChatPage(props: IChatPageProps) {
   //Change conversation socket
   React.useEffect(() => {
     if (common.isSocketConnected) {
-      socketController.removeAllListener(SOCKET_CONSTANTS.CHAT_MESSAGE);
-      socketController.removeAllListener(SOCKET_CONSTANTS.UPDATE_MESSAGE);
-      socketController.removeAllListener(SOCKET_CONSTANTS.TYPING);
+      socketController.removeListener(SOCKET_CONSTANTS.CHAT_MESSAGE);
+      socketController.removeListener(SOCKET_CONSTANTS.UPDATE_MESSAGE);
+      socketController.removeListener(SOCKET_CONSTANTS.TYPING);
 
       socketController.listen(
         SOCKET_CONSTANTS.CHAT_MESSAGE,

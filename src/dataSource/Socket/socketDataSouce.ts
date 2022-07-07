@@ -24,7 +24,10 @@ export class SocketDataSource implements ISocketDataSource {
     this.socket.listen(channel, callback);
   }
 
-  removeAllListener(channel: string): void {
-    this.socket.removeListen(channel);
+  removeListener(
+    channel: string,
+    listener?: (...args: any[]) => void | undefined
+  ): void {
+    this.socket.removeListen(channel, listener);
   }
 }

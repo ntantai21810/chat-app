@@ -17,6 +17,10 @@ export default function AutoResizeInput(props: IAutoResizeInputProps) {
 
   const handleInput: React.FormEventHandler<HTMLSpanElement> = (e) => {
     if (onChange) {
+      if (ref.current) {
+        ref.current.scrollTop = ref.current.scrollHeight;
+      }
+
       //Prevent call onChange after submit
       if (
         typeof (e.target as any).innerText === "string" &&

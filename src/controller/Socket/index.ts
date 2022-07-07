@@ -6,7 +6,7 @@ import {
   ConnectSocketUseCase,
   DisconnectSocketUseCase,
   ListenSocketUseCase,
-  RemoveAllListenerSocketUseCase,
+  RemoveListenerSocketUseCase,
   SendSocketUseCase,
 } from "../../useCases";
 
@@ -55,13 +55,16 @@ export class SocketController {
     }
   }
 
-  removeAllListener(channel: string) {
+  removeListener(
+    channel: string,
+    listener?: (...args: any[]) => void | undefined
+  ) {
     try {
-      const removeAllListenerUseCase = new RemoveAllListenerSocketUseCase(
+      const removeListenerUseCase = new RemoveListenerSocketUseCase(
         new SocketRepository(new SocketDataSource(Socket.getIntance()))
       );
 
-      removeAllListenerUseCase.execute(channel);
+      removeListenerUseCase.execute(channel, listener);
     } catch (e) {
       console.log(e);
     }

@@ -53,7 +53,6 @@ function AutoResizeInput(
   }));
 
   React.useEffect(() => {
-    console.log(value);
     if (innerRef.current && value !== undefined) {
       innerRef.current.innerHTML = value;
 

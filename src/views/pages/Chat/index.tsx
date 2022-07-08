@@ -26,7 +26,10 @@ import {
   setShowNotification,
   setSocketConnect,
 } from "../../../framework/redux/common";
-import { removeAllMessage } from "../../../framework/redux/message";
+import {
+  removeAllMessage,
+  updateManyMessage,
+} from "../../../framework/redux/message";
 import { SOCKET_CONSTANTS } from "../../../helper";
 import styles from "../../assets/styles/ChatPage.module.scss";
 import ChattedUserList from "../../components/ChattedUserList";
@@ -47,8 +50,8 @@ import UserCard from "../../components/UserCard";
 
 export interface IChatPageProps {}
 
-const worker = new Worker(
-  new URL("../../assets/js/spell.worker.js", import.meta.url)
+export const parserWorker = new Worker(
+  new URL("../../assets/js/parser.worker.js", import.meta.url)
 );
 
 const PAGE_SIZE = 20;
@@ -94,6 +97,7 @@ export default function ChatPage(props: IChatPageProps) {
   const searchRef = React.useRef<NodeJS.Timeout>();
   const conversationInputRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLSpanElement | null>(null);
+  const conversationContentRef = React.useRef<HTMLDivElement | null>(null);
 
   //Handler
   const handleChangeMessage = (value: string) => {
@@ -119,7 +123,7 @@ export default function ChatPage(props: IChatPageProps) {
     }));
 
     if (value.replaceAll("\n", ""))
-      worker.postMessage({
+      parserWorker.postMessage({
         type: "check",
         text: value.replaceAll("\n", ""),
       });
@@ -178,7 +182,7 @@ export default function ChatPage(props: IChatPageProps) {
           fromId: auth.auth.user._id,
           toId: activeConversation.user._id,
           type: MessageType.TEXT,
-          content: message.message,
+          content: message.message.replace(/\u00a0/g, " "),
           conversationId: "",
           sendTime: new Date().toISOString(),
           clientId: uuidv4(),
@@ -504,8 +508,17 @@ export default function ChatPage(props: IChatPageProps) {
       setPercentFileDownloading((state) => ({ ...state, percent }));
     });
 
-    worker.addEventListener("message", (ev) => {
-      setMessage((state) => ({ ...state, checked: ev.data.text }));
+    parserWorker.addEventListener("message", (ev) => {
+      switch (ev.data.type) {
+        case "spellcheck-result": {
+          setMessage((state) => ({ ...state, checked: ev.data.text }));
+          break;
+        }
+        case "phone-detect-result": {
+          dispatch(updateManyMessage(ev.data.messages));
+          break;
+        }
+      }
     });
   }, []);
 
@@ -602,6 +615,45 @@ export default function ChatPage(props: IChatPageProps) {
     };
   }, [message.checked]);
 
+  // Add listener event for phone detect
+  React.useEffect(() => {
+    let messages: NodeListOf<Element>;
+
+    if (conversationContentRef.current) {
+      messages = conversationContentRef.current.querySelectorAll(
+        ".phone-number-message"
+      );
+
+      console.log(messages);
+
+      messages.forEach((message) =>
+        message.addEventListener("click", async () => {
+          const phone = (message as any).dataset?.phone;
+
+          const user = await userController.getOneUserByPhone(phone);
+
+          if (user) {
+            setUserModal(user);
+          } else {
+            dispatch(setShowNotification(true));
+            setNotification({
+              type: "error",
+              message: "Không tìm thấy người dùng với số điện thoại này",
+            });
+          }
+        })
+      );
+    }
+
+    return () => {
+      if (conversationContentRef.current && messages) {
+        messages.forEach((message) =>
+          message.replaceWith(message.cloneNode(true))
+        );
+      }
+    };
+  }, [messages]);
+
   //Change conversation database
   React.useEffect(() => {
     setIsFullMessage(false);
@@ -691,7 +743,10 @@ export default function ChatPage(props: IChatPageProps) {
               />
             </div>
 
-            <div className={styles.conversationContent}>
+            <div
+              className={styles.conversationContent}
+              ref={conversationContentRef}
+            >
               <ConversationContent
                 messages={messages}
                 currentUserId={auth.auth.user._id}

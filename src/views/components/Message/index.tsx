@@ -1,4 +1,5 @@
 import classNames from "classnames";
+import { useEffect, useRef } from "react";
 import { IMessage, MessageStatus } from "../../../domains/Message";
 import styles from "../../assets/styles/Message.module.scss";
 
@@ -13,6 +14,17 @@ export interface IMessageProps {
 export default function Message(props: IMessageProps) {
   const { bgColor = "#fff", message, showStatus, onRetry, highlight } = props;
 
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.innerHTML = (message.content as string).replace(
+        /\u00a0/g,
+        " "
+      );
+    }
+  }, [message]);
+
   return (
     <div
       className={classNames({
@@ -20,7 +32,7 @@ export default function Message(props: IMessageProps) {
       })}
       style={{ backgroundColor: highlight ? "rgb(255 199 0)" : bgColor }}
     >
-      {message.content as string}
+      <div ref={ref}></div>
 
       {showStatus && (
         <div

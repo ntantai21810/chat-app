@@ -11,6 +11,7 @@ import {
   ISearchMessageRepo,
   IUpdateMessageRepo,
 } from "../../useCases";
+import { parserWorker } from "../../views/pages/Chat";
 
 export interface IMessageStorageDataSouce {
   getMessagesByConversation(
@@ -62,6 +63,11 @@ export class MessageStorageRepository
       exceptBound
     );
 
+    parserWorker.postMessage({
+      type: "phone-detect",
+      messages: res,
+    });
+
     const messageModels: MessageModel[] = [];
 
     for (let message of res) {
@@ -75,12 +81,22 @@ export class MessageStorageRepository
     const message = normalizeMessageData(messageModel);
 
     this.dataSource.addMessage(message);
+
+    parserWorker.postMessage({
+      type: "phone-detect",
+      messages: [message],
+    });
   }
 
   updateMessage(messageModel: MessageModel): void {
     const message = normalizeMessageData(messageModel);
 
     this.dataSource.updateMessage(message);
+
+    parserWorker.postMessage({
+      type: "phone-detect",
+      messages: [message],
+    });
   }
 
   deleteMessage(messageModel: MessageModel): void {

@@ -33,21 +33,26 @@ export class Socket implements ISocket {
   }
 
   connect(userId: string, accessToken: string): void {
-    this.socket = io(this.url);
+    if (!this.socket) {
+      this.socket = io(this.url);
 
-    this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+      this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
 
-    this.isConnected = true;
+      if (this.socket.connected) {
+        this.isConnected = true;
+      }
 
-    this.socket.on("connect", () => {
-      if (this.socket.connected) this.isConnected = true;
-    });
-    this.socket.on("disconnect", () => {
-      this.isConnected = false;
-    });
-    this.socket.on("connect_error", () => {
-      this.isConnected = false;
-    });
+      this.socket.on("connect", () => {
+        this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+        this.isConnected = true;
+      });
+      this.socket.on("disconnect", () => {
+        this.isConnected = false;
+      });
+      this.socket.on("connect_error", () => {
+        this.isConnected = false;
+      });
+    } else if (!this.socket.connected) throw "Socket connect fail";
   }
 
   listen(channel: string, callback: (data: any) => any): void {

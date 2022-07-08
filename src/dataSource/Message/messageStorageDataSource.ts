@@ -100,26 +100,6 @@ export class MessageStorageDataSource {
     for (let i = 0; i < keywords.length; i++) {
       const searchPromises: Promise<ISearchDB[]>[] = [];
 
-      console.log(
-        i === keywords.length - 1
-          ? keywords[i].slice(0, -1) +
-              String.fromCharCode(
-                keywords[i].charCodeAt(keywords[i].length - 1) - 1
-              )
-          : keywords[i]
-      );
-
-      console.log(
-        i === keywords.length - 1
-          ? keywords[i].slice(0, -1) +
-              String.fromCharCode(
-                keywords[i].charCodeAt(keywords[i].length - 1) + 1
-              )
-          : keywords[i]
-      );
-
-      console.log(i === keywords.length - 1);
-
       const matchKeywords = await this.database.get(
         "keyword",
         "keyword",

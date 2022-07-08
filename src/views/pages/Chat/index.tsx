@@ -32,8 +32,10 @@ import styles from "../../assets/styles/ChatPage.module.scss";
 import ChattedUserList from "../../components/ChattedUserList";
 import AutoResizeInput from "../../components/common/AutoResizeInput";
 import Banner from "../../components/common/Banner";
+import Button from "../../components/common/Button";
 import Image from "../../components/common/Image";
 import Input from "../../components/common/Input";
+import Modal from "../../components/common/Modal";
 import Notification from "../../components/common/Notification";
 import TypingIcon from "../../components/common/Typing";
 import ConversationAction from "../../components/ConversationAction";
@@ -41,6 +43,7 @@ import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import SearchMessageList from "../../components/SearchMessageList";
 import SearchUserList from "../../components/SearchUserList";
+import UserCard from "../../components/UserCard";
 
 export interface IChatPageProps {}
 
@@ -81,6 +84,11 @@ export default function ChatPage(props: IChatPageProps) {
   });
   const [scrollToTargetMessage, setScrollTargetTopMessage] = React.useState("");
   const [highlightMessage, setHighlightMessage] = React.useState("");
+  const [userModal, setUserModal] = React.useState<IUser>();
+  const [notification, setNotification] = React.useState<{
+    type: "error" | "success";
+    message: string;
+  }>();
 
   const typingRef = React.useRef<NodeJS.Timeout>();
   const searchRef = React.useRef<NodeJS.Timeout>();
@@ -145,7 +153,7 @@ export default function ChatPage(props: IChatPageProps) {
       );
 
       if (e.target.value?.length === 10 || e.target.value?.length === 11) {
-        const res = await userController.getUserByPhone(e.target.value);
+        const res = await userController.getUsersByPhone(e.target.value);
 
         setSearchUsers(res);
       } else {
@@ -468,6 +476,7 @@ export default function ChatPage(props: IChatPageProps) {
     if (common.showNotification) {
       setTimeout(() => {
         dispatch(setShowNotification(false));
+        setNotification(undefined);
       }, 2000);
     }
   }, [common.showNotification]);
@@ -557,7 +566,7 @@ export default function ChatPage(props: IChatPageProps) {
       words = conversationInputRef.current.querySelectorAll(".spell-check");
 
       words.forEach((word) =>
-        word.addEventListener("click", () => {
+        word.addEventListener("click", async () => {
           const correct = (word as any).dataset?.spell;
 
           // Wrong word
@@ -568,7 +577,19 @@ export default function ChatPage(props: IChatPageProps) {
           }
           // Phone
           else {
-            console.log((word as any).innerText);
+            const user = await userController.getOneUserByPhone(
+              (word as any).innerText
+            );
+
+            if (user) {
+              setUserModal(user);
+            } else {
+              dispatch(setShowNotification(true));
+              setNotification({
+                type: "error",
+                message: "Không tìm thấy người dùng với số điện thoại này",
+              });
+            }
           }
         })
       );
@@ -590,6 +611,7 @@ export default function ChatPage(props: IChatPageProps) {
       //Get message
       setScrollTargetTopMessage("");
       setHighlightMessage("");
+      setMessage({ message: "", checked: "" });
 
       if (messages.length > 0) {
         dispatch(removeAllMessage());
@@ -756,8 +778,38 @@ export default function ChatPage(props: IChatPageProps) {
       </div>
 
       {common.showNotification && (
-        <Notification type="error" message="Tải ảnh lên thất bại" />
+        <Notification
+          type={notification ? notification.type : "error"}
+          message={notification ? notification.message : "Tải ảnh lên thất bại"}
+        />
       )}
+
+      <Modal
+        show={!!userModal}
+        className={styles.userModal}
+        height="auto"
+        onClose={() => setUserModal(undefined)}
+      >
+        {userModal && (
+          <div className={styles.card}>
+            <UserCard user={userModal} />
+          </div>
+        )}
+
+        {userModal && userModal._id !== auth.auth.user._id && (
+          <div className={styles.action}>
+            <Button
+              onClick={() => {
+                handleClickOnSearchUser(userModal);
+                setMessage({ message: "", checked: "" });
+                setUserModal(undefined);
+              }}
+            >
+              Nhắn tin
+            </Button>
+          </div>
+        )}
+      </Modal>
     </>
   );
 }

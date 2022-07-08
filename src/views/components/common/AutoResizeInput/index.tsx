@@ -53,7 +53,8 @@ function AutoResizeInput(
   }));
 
   React.useEffect(() => {
-    if (innerRef.current && value) {
+    console.log(value);
+    if (innerRef.current && value !== undefined) {
       innerRef.current.innerHTML = value;
 
       placeCaretAtEnd(innerRef.current);

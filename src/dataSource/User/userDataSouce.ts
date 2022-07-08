@@ -16,4 +16,8 @@ export class UserAPIDataSource implements IUserAPIDataSource {
   getUserByPhone(phone: string): Promise<IUser[]> {
     return this.api.get("/users", { phone });
   }
+
+  getOneUserByPhone(phone: string): Promise<IUser | null> {
+    return this.api.get(`/user`, { phone });
+  }
 }

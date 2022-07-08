@@ -10,46 +10,53 @@ export interface IAutoResizeInputProps {
   onDrop?: React.DragEventHandler<HTMLInputElement>;
 }
 
-export default function AutoResizeInput(props: IAutoResizeInputProps) {
+function AutoResizeInput(
+  props: IAutoResizeInputProps,
+  ref: React.MutableRefObject<Partial<HTMLSpanElement>>
+) {
   const { endIcon, onChange, onSubmit, onPaste, value, onDrop } = props;
 
-  const ref = React.useRef<HTMLSpanElement | null>(null);
+  const innerRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const handleInput: React.FormEventHandler<HTMLSpanElement> = (e) => {
+  const handleInput: React.FormEventHandler<HTMLSpanElement> = () => {
     if (onChange) {
-      if (ref.current) {
-        ref.current.scrollTop = ref.current.scrollHeight;
+      if (innerRef.current) {
+        innerRef.current.scrollTop = innerRef.current.scrollHeight;
       }
 
       //Prevent call onChange after submit
       if (
-        typeof (e.target as any).innerText === "string" &&
-        (e.target as any).innerText.charCodeAt([
-          (e.target as any).innerText.length - 1,
+        typeof (innerRef.current as any).innerText === "string" &&
+        (innerRef.current as any).innerText.charCodeAt([
+          (innerRef.current as any).innerText.length - 1,
         ]) !== 10
       ) {
-        onChange((e.target as any).innerText);
+        onChange((innerRef.current as any).innerText);
       }
 
       //Clear input after enter
       if (
-        (e.target as any).innerText.charCodeAt([
-          (e.target as any).innerText.length - 1,
+        (innerRef.current as any).innerText.charCodeAt([
+          (innerRef.current as any).innerText.length - 1,
         ]) === 10 &&
-        ref.current
+        innerRef.current
       ) {
-        ref.current.innerText = "";
+        innerRef.current.innerText = "";
 
         onChange("");
       }
     }
   };
 
-  React.useEffect(() => {
-    if (ref.current && value) {
-      ref.current.innerHTML = value;
+  React.useImperativeHandle(ref, () => ({
+    oninput: () => (handleInput as any)(),
+  }));
 
-      placeCaretAtEnd(ref.current);
+  React.useEffect(() => {
+    if (innerRef.current && value) {
+      innerRef.current.innerHTML = value;
+
+      placeCaretAtEnd(innerRef.current);
     }
   }, [value]);
 
@@ -59,7 +66,7 @@ export default function AutoResizeInput(props: IAutoResizeInputProps) {
         className={styles.textarea}
         style={{ paddingRight: !!endIcon ? "5rem" : "" }}
         role="textbox"
-        ref={ref}
+        ref={innerRef}
         contentEditable
         onInput={handleInput}
         onPaste={onPaste}
@@ -106,3 +113,5 @@ function placeCaretAtEnd(el: HTMLElement) {
     textRange.select();
   }
 }
+
+export default React.forwardRef(AutoResizeInput);

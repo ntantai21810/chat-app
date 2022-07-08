@@ -160,7 +160,14 @@
 
         .misspelled {
           color: red;
-          border-bottom: 2px solid red;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        .phone {
+          color: $primary;
+          text-decoration: underline;
+          cursor: pointer;
         }
       }
     }

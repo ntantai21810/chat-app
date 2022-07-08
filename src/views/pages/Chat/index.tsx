@@ -84,6 +84,8 @@ export default function ChatPage(props: IChatPageProps) {
 
   const typingRef = React.useRef<NodeJS.Timeout>();
   const searchRef = React.useRef<NodeJS.Timeout>();
+  const conversationInputRef = React.useRef<HTMLDivElement | null>(null);
+  const inputRef = React.useRef<HTMLSpanElement | null>(null);
 
   //Handler
   const handleChangeMessage = (value: string) => {
@@ -494,8 +496,6 @@ export default function ChatPage(props: IChatPageProps) {
     });
 
     worker.addEventListener("message", (ev) => {
-      console.log("Main: ", ev.data.text);
-
       setMessage((state) => ({ ...state, checked: ev.data.text }));
     });
   }, []);
@@ -548,6 +548,38 @@ export default function ChatPage(props: IChatPageProps) {
       );
     }
   }, [activeConversation, common.isSocketConnected]);
+
+  // Add listener event for spell check
+  React.useEffect(() => {
+    let words: NodeListOf<Element>;
+
+    if (conversationInputRef.current) {
+      words = conversationInputRef.current.querySelectorAll(".spell-check");
+
+      words.forEach((word) =>
+        word.addEventListener("click", () => {
+          const correct = (word as any).dataset?.spell;
+
+          // Wrong word
+          if (correct && inputRef.current) {
+            (word as any).innerText = correct;
+
+            (inputRef.current as any).oninput();
+          }
+          // Phone
+          else {
+            console.log((word as any).innerText);
+          }
+        })
+      );
+    }
+
+    return () => {
+      if (conversationInputRef.current && words) {
+        words.forEach((word) => word.replaceWith(word.cloneNode(true)));
+      }
+    };
+  }, [message.checked]);
 
   //Change conversation database
   React.useEffect(() => {
@@ -668,7 +700,10 @@ export default function ChatPage(props: IChatPageProps) {
               <ConversationAction onFileChange={handleSubmitFiles} />
             </div>
 
-            <div className={styles.conversationInput}>
+            <div
+              className={styles.conversationInput}
+              ref={conversationInputRef}
+            >
               {/* <Input
                 border={false}
                 endIcon={<AiOutlineSend />}
@@ -687,6 +722,7 @@ export default function ChatPage(props: IChatPageProps) {
                 onChange={handleChangeMessage}
                 onPaste={handlePaste}
                 onDrop={handleDrop}
+                ref={inputRef}
               />
 
               {files.length > 0 && (

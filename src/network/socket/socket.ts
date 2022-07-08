@@ -26,7 +26,9 @@ export class Socket implements ISocket {
 
   public static getIntance() {
     if (!this.instance) {
-      this.instance = new Socket("http://localhost:8000");
+      this.instance = new Socket(
+        process.env.REACT_APP_BASE_URL || "http://localhost:8000"
+      );
     }
 
     return this.instance;

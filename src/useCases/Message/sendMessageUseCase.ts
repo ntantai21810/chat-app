@@ -26,7 +26,7 @@ import {
   UpdateConversationUseCase,
 } from "../Conversation";
 import { AddFriendUseCase } from "../Friend";
-import { GetUseByIdUseCase } from "../User";
+import { GetUserByIdUseCase } from "../User";
 import { AddMessageDatabaseUseCase } from "./addMessageDatabaseUseCase";
 import { SendMessageSocketUseCase } from "./sendMessageSocketUseCase";
 
@@ -99,7 +99,7 @@ export class SendMessageUseCase {
 
         addConversationUseCase.execute(newConversationModel);
 
-        const getUserByIdUseCase = new GetUseByIdUseCase(
+        const getUserByIdUseCase = new GetUserByIdUseCase(
           new UserAPIRepository(new UserAPIDataSource(API.getIntance()))
         );
 

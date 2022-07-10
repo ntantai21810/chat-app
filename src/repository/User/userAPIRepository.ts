@@ -1,13 +1,18 @@
 import { IUser, modelUserData, UserModel } from "../../domains";
-import { IGetUserByIdRepo, IGetUserByPhoneRepo } from "../../useCases";
+import {
+  IGetOneUserByPhoneRepo,
+  IGetUserByIdRepo,
+  IGetUserByPhoneRepo,
+} from "../../useCases";
 
 export interface IUserAPIDataSource {
   getUserById(id: string): Promise<IUser | null>;
   getUserByPhone(phone: string): Promise<IUser[]>;
+  getOneUserByPhone(phone: string): Promise<IUser | null>;
 }
 
 export class UserAPIRepository
-  implements IGetUserByIdRepo, IGetUserByPhoneRepo
+  implements IGetUserByIdRepo, IGetUserByPhoneRepo, IGetOneUserByPhoneRepo
 {
   private dataSource: IUserAPIDataSource;
 
@@ -37,5 +42,16 @@ export class UserAPIRepository
     }
 
     return userModels;
+  }
+
+  async getOneUserByPhone(phone: string): Promise<UserModel | null> {
+    const res = await this.dataSource.getOneUserByPhone(phone);
+
+    if (res) {
+      const userModel = modelUserData(res);
+      return userModel;
+    }
+
+    return null;
   }
 }

@@ -26,13 +26,20 @@ import {
   setShowNotification,
   setSocketConnect,
 } from "../../../framework/redux/common";
-import { removeAllMessage } from "../../../framework/redux/message";
+import {
+  removeAllMessage,
+  updateManyMessage,
+} from "../../../framework/redux/message";
 import { SOCKET_CONSTANTS } from "../../../helper";
 import styles from "../../assets/styles/ChatPage.module.scss";
 import ChattedUserList from "../../components/ChattedUserList";
+import AutoResizeInput from "../../components/common/AutoResizeInput";
 import Banner from "../../components/common/Banner";
+import Button from "../../components/common/Button";
 import Image from "../../components/common/Image";
 import Input from "../../components/common/Input";
+import LoadingIcon from "../../components/common/LoadingIcon";
+import Modal from "../../components/common/Modal";
 import Notification from "../../components/common/Notification";
 import TypingIcon from "../../components/common/Typing";
 import ConversationAction from "../../components/ConversationAction";
@@ -40,8 +47,13 @@ import ConversationContent from "../../components/ConversationContent";
 import ConversationTitle from "../../components/ConversationTitle";
 import SearchMessageList from "../../components/SearchMessageList";
 import SearchUserList from "../../components/SearchUserList";
+import UserCard from "../../components/UserCard";
 
 export interface IChatPageProps {}
+
+export const parserWorker = new Worker(
+  new URL("../../assets/js/parser.worker.js", import.meta.url)
+);
 
 const PAGE_SIZE = 20;
 
@@ -56,7 +68,7 @@ export default function ChatPage(props: IChatPageProps) {
   const [isTyping, setIsTyping] = React.useState(false);
   const [isFullMessage, setIsFullMessage] = React.useState(false);
   const [search, setSearch] = React.useState("");
-  const [message, setMessage] = React.useState("");
+  const [message, setMessage] = React.useState({ message: "", checked: "" });
   const [files, setFiles] = React.useState<IFile[]>([]);
   const [searchUsers, setSearchUsers] = React.useState<IUser[]>([]);
   const [searchConversations, setSearchConversations] = React.useState<
@@ -76,12 +88,21 @@ export default function ChatPage(props: IChatPageProps) {
   });
   const [scrollToTargetMessage, setScrollTargetTopMessage] = React.useState("");
   const [highlightMessage, setHighlightMessage] = React.useState("");
+  const [userModal, setUserModal] = React.useState<IUser>();
+  const [notification, setNotification] = React.useState<{
+    type: "error" | "success";
+    message: string;
+  }>();
+  const [isLoadingUserModal, setIsLoadingUserModal] = React.useState(false);
 
   const typingRef = React.useRef<NodeJS.Timeout>();
   const searchRef = React.useRef<NodeJS.Timeout>();
+  const conversationInputRef = React.useRef<HTMLDivElement | null>(null);
+  const inputRef = React.useRef<HTMLSpanElement | null>(null);
+  const conversationContentRef = React.useRef<HTMLDivElement | null>(null);
 
   //Handler
-  const handleChangeMessage = (e: React.ChangeEvent<any>) => {
+  const handleChangeMessage = (value: string) => {
     if (!typingRef.current) {
       socketController.send(SOCKET_CONSTANTS.TYPING, {
         isTyping: true,
@@ -98,7 +119,16 @@ export default function ChatPage(props: IChatPageProps) {
       typingRef.current = undefined;
     }, 2000);
 
-    setMessage(e.target.value);
+    setMessage((state) => ({
+      ...state,
+      message: value.replaceAll("\n", ""),
+    }));
+
+    if (value.replaceAll("\n", ""))
+      parserWorker.postMessage({
+        type: "check",
+        text: value.replaceAll("\n", ""),
+      });
   };
 
   const handleChangeSearch = async (e: React.ChangeEvent<any>) => {
@@ -129,7 +159,7 @@ export default function ChatPage(props: IChatPageProps) {
       );
 
       if (e.target.value?.length === 10 || e.target.value?.length === 11) {
-        const res = await userController.getUserByPhone(e.target.value);
+        const res = await userController.getUsersByPhone(e.target.value);
 
         setSearchUsers(res);
       } else {
@@ -140,12 +170,21 @@ export default function ChatPage(props: IChatPageProps) {
 
   const handleSubmitMessage = () => {
     if (activeConversation) {
-      if (message) {
+      if (message.message || files.length > 0) {
+        setScrollTargetTopMessage("");
+        setHighlightMessage("");
+      }
+
+      if (
+        message.message &&
+        message.message.trim() !== "" &&
+        message.message.trim().charCodeAt(0) !== 10
+      ) {
         messageController.sendMessage({
           fromId: auth.auth.user._id,
           toId: activeConversation.user._id,
           type: MessageType.TEXT,
-          content: message,
+          content: message.message.replace(/\u00a0/g, " "),
           conversationId: "",
           sendTime: new Date().toISOString(),
           clientId: uuidv4(),
@@ -164,11 +203,17 @@ export default function ChatPage(props: IChatPageProps) {
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
         });
+
+        setScrollTargetTopMessage("");
+        setHighlightMessage("");
       }
     }
 
     setFiles([]);
-    setMessage("");
+    setMessage({
+      message: "",
+      checked: "",
+    });
   };
 
   const handleImageClick = React.useCallback((image: IFile) => {
@@ -177,6 +222,9 @@ export default function ChatPage(props: IChatPageProps) {
 
   const handleSubmitFiles = (files: IFile[]) => {
     if (activeConversation && files.length > 0) {
+      setScrollTargetTopMessage("");
+      setHighlightMessage("");
+
       if (files[0].type.startsWith("image/")) {
         messageController.sendMessage({
           fromId: auth.auth.user._id,
@@ -203,8 +251,10 @@ export default function ChatPage(props: IChatPageProps) {
     }
   };
 
-  const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (e) => {
+  const handlePaste: React.ClipboardEventHandler<HTMLSpanElement> = (e) => {
     const file = e.clipboardData.files[0];
+
+    if (file) e.preventDefault();
 
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
@@ -293,7 +343,18 @@ export default function ChatPage(props: IChatPageProps) {
       });
       setScrollTargetTopMessage("");
       setHighlightMessage("");
-      messageController.addMessageToCache(messages.slice(-20));
+
+      //add message to cache
+      const transformMessages = messages.slice(-20).map((item) =>
+        item.type === MessageType.TEXT
+          ? {
+              ...item,
+              content: (item.content as string).replace(/(<([^>]+)>)/gi, ""),
+            }
+          : item
+      );
+
+      messageController.addMessageToCache(transformMessages);
     }
   };
 
@@ -328,18 +389,28 @@ export default function ChatPage(props: IChatPageProps) {
       });
     }
 
-    messageController.addMessageToCache(messages.slice(-20));
+    //add message to cache
+    const transformMessages = messages.slice(-20).map((item) =>
+      item.type === MessageType.TEXT
+        ? {
+            ...item,
+            content: (item.content as string).replace(/(<([^>]+)>)/gi, ""),
+          }
+        : item
+    );
+
+    messageController.addMessageToCache(transformMessages);
 
     if (messages.length > 0) {
       dispatch(removeAllMessage());
     }
 
-    messageController.getMessagesByConversation(
-      conversationId,
-      undefined,
-      undefined,
-      PAGE_SIZE
-    );
+    // messageController.getMessagesByConversation(
+    //   conversationId,
+    //   undefined,
+    //   undefined,
+    //   PAGE_SIZE
+    // );
   };
 
   const handleScrollToTop = React.useCallback(async () => {
@@ -432,6 +503,7 @@ export default function ChatPage(props: IChatPageProps) {
     if (common.showNotification) {
       setTimeout(() => {
         dispatch(setShowNotification(false));
+        setNotification(undefined);
       }, 2000);
     }
   }, [common.showNotification]);
@@ -449,11 +521,27 @@ export default function ChatPage(props: IChatPageProps) {
     socketController.listen("disconnect", () =>
       dispatch(setSocketConnect(false))
     );
+    socketController.listen("connect_error", () =>
+      dispatch(setSocketConnect(false))
+    );
 
-    (window as any).electronAPI.removeDownloadFileListener();
+    (window as any).electronAPI?.removeDownloadFileListener();
 
-    (window as any).electronAPI.onDownloadFileProgress((percent: number) => {
+    (window as any).electronAPI?.onDownloadFileProgress((percent: number) => {
       setPercentFileDownloading((state) => ({ ...state, percent }));
+    });
+
+    parserWorker.addEventListener("message", (ev) => {
+      switch (ev.data.type) {
+        case "spellcheck-result": {
+          setMessage((state) => ({ ...state, checked: ev.data.text }));
+          break;
+        }
+        case "phone-detect-result": {
+          dispatch(updateManyMessage(ev.data.messages));
+          break;
+        }
+      }
     });
   }, []);
 
@@ -467,9 +555,9 @@ export default function ChatPage(props: IChatPageProps) {
   //Change conversation socket
   React.useEffect(() => {
     if (common.isSocketConnected) {
-      socketController.removeAllListener(SOCKET_CONSTANTS.CHAT_MESSAGE);
-      socketController.removeAllListener(SOCKET_CONSTANTS.UPDATE_MESSAGE);
-      socketController.removeAllListener(SOCKET_CONSTANTS.TYPING);
+      socketController.removeListener(SOCKET_CONSTANTS.CHAT_MESSAGE);
+      socketController.removeListener(SOCKET_CONSTANTS.UPDATE_MESSAGE);
+      socketController.removeListener(SOCKET_CONSTANTS.TYPING);
 
       socketController.listen(
         SOCKET_CONSTANTS.CHAT_MESSAGE,
@@ -506,15 +594,103 @@ export default function ChatPage(props: IChatPageProps) {
     }
   }, [activeConversation, common.isSocketConnected]);
 
+  // Add listener event for spell check
+  React.useEffect(() => {
+    let words: NodeListOf<Element>;
+
+    if (conversationInputRef.current) {
+      words = conversationInputRef.current.querySelectorAll(".spell-check");
+
+      words.forEach((word) =>
+        word.addEventListener("click", async () => {
+          const correct = (word as any).dataset?.spell;
+
+          // Wrong word
+          if (correct && inputRef.current) {
+            (word as any).innerText = correct;
+
+            (inputRef.current as any).oninput();
+          }
+          // Phone
+          else {
+            setIsLoadingUserModal(true);
+            const user = await userController.getOneUserByPhone(
+              (word as any).innerText
+            );
+            setIsLoadingUserModal(false);
+
+            if (user) {
+              setUserModal(user);
+            } else {
+              dispatch(setShowNotification(true));
+              setNotification({
+                type: "error",
+                message: "Không tìm thấy người dùng với số điện thoại này",
+              });
+            }
+          }
+        })
+      );
+    }
+
+    return () => {
+      if (conversationInputRef.current && words) {
+        words.forEach((word) => word.replaceWith(word.cloneNode(true)));
+      }
+    };
+  }, [message.checked]);
+
+  // Add listener event for phone detect
+  React.useEffect(() => {
+    let messages: NodeListOf<Element>;
+
+    if (conversationContentRef.current) {
+      messages = conversationContentRef.current.querySelectorAll(
+        ".phone-number-message"
+      );
+
+      messages.forEach((message) =>
+        message.addEventListener("click", async () => {
+          setIsLoadingUserModal(true);
+          const phone = (message as any).dataset?.phone;
+
+          const user = await userController.getOneUserByPhone(phone);
+          setIsLoadingUserModal(false);
+
+          if (user) {
+            setUserModal(user);
+          } else {
+            dispatch(setShowNotification(true));
+            setNotification({
+              type: "error",
+              message: "Không tìm thấy người dùng với số điện thoại này",
+            });
+          }
+        })
+      );
+    }
+
+    return () => {
+      if (conversationContentRef.current && messages) {
+        messages.forEach((message) =>
+          message.replaceWith(message.cloneNode(true))
+        );
+      }
+    };
+  }, [messages]);
+
   //Change conversation database
   React.useEffect(() => {
     setIsFullMessage(false);
     setIsTyping(false);
 
     if (activeConversation && common.isDatabaseConnected && !search) {
+      console.log("Run effect");
+
       //Get message
       setScrollTargetTopMessage("");
       setHighlightMessage("");
+      setMessage({ message: "", checked: "" });
 
       if (messages.length > 0) {
         dispatch(removeAllMessage());
@@ -594,7 +770,10 @@ export default function ChatPage(props: IChatPageProps) {
               />
             </div>
 
-            <div className={styles.conversationContent}>
+            <div
+              className={styles.conversationContent}
+              ref={conversationContentRef}
+            >
               <ConversationContent
                 messages={messages}
                 currentUserId={auth.auth.user._id}
@@ -625,8 +804,11 @@ export default function ChatPage(props: IChatPageProps) {
               <ConversationAction onFileChange={handleSubmitFiles} />
             </div>
 
-            <div className={styles.conversationInput}>
-              <Input
+            <div
+              className={styles.conversationInput}
+              ref={conversationInputRef}
+            >
+              {/* <Input
                 border={false}
                 endIcon={<AiOutlineSend />}
                 placeholder="Nhập tin nhắn ..."
@@ -635,6 +817,16 @@ export default function ChatPage(props: IChatPageProps) {
                 onChange={handleChangeMessage}
                 onPaste={handlePaste}
                 onDrop={handleDrop}
+              /> */}
+
+              <AutoResizeInput
+                endIcon={<AiOutlineSend />}
+                value={message.checked}
+                onSubmit={handleSubmitMessage}
+                onChange={handleChangeMessage}
+                onPaste={handlePaste}
+                onDrop={handleDrop}
+                ref={inputRef}
               />
 
               {files.length > 0 && (
@@ -668,8 +860,46 @@ export default function ChatPage(props: IChatPageProps) {
       </div>
 
       {common.showNotification && (
-        <Notification type="error" message="Tải ảnh lên thất bại" />
+        <Notification
+          type={notification ? notification.type : "error"}
+          message={notification ? notification.message : "Tải ảnh lên thất bại"}
+        />
       )}
+
+      <Modal
+        show={!!userModal || isLoadingUserModal}
+        className={styles.userModal}
+        height="auto"
+        onClose={() => setUserModal(undefined)}
+      >
+        {isLoadingUserModal ? (
+          <div className={styles.loading}>
+            <LoadingIcon />
+          </div>
+        ) : (
+          <div className={styles.userInfo}>
+            {userModal && (
+              <div className={styles.card}>
+                <UserCard user={userModal} />
+              </div>
+            )}
+
+            {userModal && userModal._id !== auth.auth.user._id && (
+              <div className={styles.action}>
+                <Button
+                  onClick={() => {
+                    handleClickOnSearchUser(userModal);
+                    setMessage({ message: "", checked: "" });
+                    setUserModal(undefined);
+                  }}
+                >
+                  Nhắn tin
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </>
   );
 }

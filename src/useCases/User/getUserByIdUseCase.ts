@@ -4,7 +4,7 @@ export interface IGetUserByIdRepo {
   getUserById(id: string): Promise<UserModel | null>;
 }
 
-export class GetUseByIdUseCase {
+export class GetUserByIdUseCase {
   private repository: IGetUserByIdRepo;
 
   constructor(repository: IGetUserByIdRepo) {

@@ -29,7 +29,9 @@ export class API implements IAPI {
 
   public static getIntance() {
     if (!this.instance) {
-      this.instance = new API("http://localhost:8000/api");
+      this.instance = new API(
+        (process.env.REACT_APP_BASE_URL || "http://localhost:8000") + "/api"
+      );
     }
 
     return this.instance;

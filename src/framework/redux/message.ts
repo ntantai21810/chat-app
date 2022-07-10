@@ -17,15 +17,29 @@ const messageSlice = createSlice({
           new Date(m1.sendTime).getTime() - new Date(m2.sendTime).getTime()
       );
     },
+
     addOne(state, action: PayloadAction<IMessage>) {
       return [...state, action.payload].sort(
         (m1, m2) =>
           new Date(m1.sendTime).getTime() - new Date(m2.sendTime).getTime()
       );
     },
+
     updateOne(state, action: PayloadAction<IMessage>) {
       return state.map((item) =>
         item.clientId === action.payload.clientId ? action.payload : item
+      );
+    },
+
+    updateMany(state, action: PayloadAction<IMessage[]>) {
+      return state.map(
+        (item) =>
+          action.payload.find(
+            (m) =>
+              m.clientId === item.clientId &&
+              m.fromId === item.fromId &&
+              m.toId === item.toId
+          ) ?? item
       );
     },
 
@@ -42,6 +56,7 @@ export const {
   addMany: addManyMessage,
   addOne: addOneMessage,
   updateOne: updateOneMessage,
+  updateMany: updateManyMessage,
   removeOne: removeOneMessage,
 } = messageSlice.actions;
 

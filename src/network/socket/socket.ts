@@ -6,7 +6,10 @@ export interface ISocket {
   disconnect(): void;
   listen(channel: string, callback: (data: any) => any): void;
   send(channel: string, data: any): void;
-  removeListen(channel: string): void;
+  removeListen(
+    channel: string,
+    listener?: (...args: any[]) => void | undefined
+  ): void;
 }
 
 export class Socket implements ISocket {
@@ -23,23 +26,39 @@ export class Socket implements ISocket {
 
   public static getIntance() {
     if (!this.instance) {
-      this.instance = new Socket("http://localhost:8000");
+      this.instance = new Socket(
+        process.env.REACT_APP_BASE_URL || "http://localhost:8000"
+      );
     }
 
     return this.instance;
   }
 
   connect(userId: string, accessToken: string): void {
-    this.socket = io(this.url);
+    if (!this.socket) {
+      this.socket = io(this.url);
 
-    this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+      this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
 
-    this.socket.on("connect", () => (this.isConnected = true));
-    this.socket.on("disconnect", () => (this.isConnected = false));
+      if (this.socket.connected) {
+        this.isConnected = true;
+      }
+
+      this.socket.on("connect", () => {
+        this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+        this.isConnected = true;
+      });
+      this.socket.on("disconnect", () => {
+        this.isConnected = false;
+      });
+      this.socket.on("connect_error", () => {
+        this.isConnected = false;
+      });
+    } else if (!this.socket.connected) throw "Socket connect fail";
   }
 
   listen(channel: string, callback: (data: any) => any): void {
-    this.socket.on(channel, callback);
+    if (this.socket) this.socket.on(channel, callback);
   }
 
   send(channel: string, data: any): void {
@@ -47,14 +66,17 @@ export class Socket implements ISocket {
       throw "Socket disconnected";
     }
 
-    this.socket.emit(channel, data);
+    if (this.socket) this.socket.emit(channel, data);
   }
 
   disconnect(): void {
-    this.socket.disconnect();
+    if (this.socket) this.socket.disconnect();
   }
 
-  removeListen(channel: string): void {
-    this.socket.off(channel);
+  removeListen(
+    channel: string,
+    listener?: (...args: any[]) => void | undefined
+  ): void {
+    if (this.socket) this.socket.off(channel, listener);
   }
 }

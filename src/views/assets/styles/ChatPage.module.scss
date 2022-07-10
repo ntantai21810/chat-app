@@ -76,6 +76,14 @@
       overflow: hidden;
       position: relative;
 
+      :global {
+        .phone-number-message {
+          color: $primary;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+      }
+
       .typing {
         position: absolute;
         bottom: 0;
@@ -152,6 +160,24 @@
           }
         }
       }
+
+      :global {
+        span {
+          margin: 0.4rem 0;
+        }
+
+        .misspelled {
+          color: red;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        .phone {
+          color: $primary;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+      }
     }
   }
 
@@ -170,5 +196,30 @@
 
     display: flex;
     flex-direction: column;
+  }
+}
+
+.userModal {
+  padding: 0 !important;
+
+  .loading {
+    padding: 2rem 0;
+    text-align: center;
+  }
+
+  .userInfo {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 4rem;
+
+    .card {
+      width: 100%;
+    }
+
+    .action {
+      margin-top: 3rem;
+    }
   }
 }

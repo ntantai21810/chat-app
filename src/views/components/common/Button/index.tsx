@@ -8,10 +8,11 @@ export interface IButtonProps {
   type?: "button" | "submit" | "reset";
   icon?: React.ReactNode;
   disabled?: boolean;
+  onClick?: () => any;
 }
 
 export default function Button(props: IButtonProps) {
-  const { children, fullWidth, type, disabled, icon } = props;
+  const { children, fullWidth, type, disabled, icon, onClick } = props;
 
   return (
     <button
@@ -22,6 +23,7 @@ export default function Button(props: IButtonProps) {
         [styles.disabled]: !!disabled,
       })}
       type={type}
+      onClick={onClick}
     >
       {icon && <div className={styles.icon}>{icon}</div>}
       {children}

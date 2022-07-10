@@ -2,7 +2,7 @@ import {
   IConnectSocketRepo,
   IDisconnectSocketRepo,
   IListenSocketRepo,
-  IRemoveAllListenerSocketRepo,
+  IRemoveListenerSocketRepo,
   ISendSocketRepo,
 } from "../../useCases";
 
@@ -11,7 +11,10 @@ export interface ISocketDataSource {
   disconnect(): void;
   listen(channel: string, callback: Function): void;
   send(channel: string, data: any): void;
-  removeAllListener(channel: string): void;
+  removeListener(
+    channel: string,
+    listener?: (...args: any[]) => void | undefined
+  ): void;
 }
 export class SocketRepository
   implements
@@ -19,7 +22,7 @@ export class SocketRepository
     IDisconnectSocketRepo,
     IListenSocketRepo,
     ISendSocketRepo,
-    IRemoveAllListenerSocketRepo
+    IRemoveListenerSocketRepo
 {
   private dataSource: ISocketDataSource;
 
@@ -43,7 +46,10 @@ export class SocketRepository
     this.dataSource.send(channel, data);
   }
 
-  removeAllListener(channel: string): void {
-    this.dataSource.removeAllListener(channel);
+  removeListener(
+    channel: string,
+    listener?: (...args: any[]) => void | undefined
+  ): void {
+    this.dataSource.removeListener(channel, listener);
   }
 }

@@ -34,6 +34,12 @@ export interface IDatabase {
     objectStore: string,
     key: IDBValidKey | IDBKeyRange
   ): void;
+
+  count<T>(
+    transaction: string | string[],
+    objectStore: string,
+    key?: IDBKeyRange
+  ): Promise<number>;
 }
 
 export class IndexedDB implements IDatabase {
@@ -94,13 +100,18 @@ export class IndexedDB implements IDatabase {
               unique: true,
             }
           );
+
           //Full text search
-          const searchObjectStore = db.createObjectStore("search", {
+          const keywordObjectStore = db.createObjectStore("keyword", {
             autoIncrement: true,
           });
-          searchObjectStore.createIndex("keyword", "keyword", {
-            multiEntry: true,
+          keywordObjectStore.createIndex("keywordId", "keyword");
+
+          const keywordIdxObjectStore = db.createObjectStore("keywordIdx", {
+            autoIncrement: true,
           });
+
+          keywordIdxObjectStore.createIndex("search", ["keywordId", "freq"]);
         };
       } else {
         resolve();
@@ -295,6 +306,7 @@ export class IndexedDB implements IDatabase {
         .put(document);
     }
   }
+
   public delete<T>(
     transaction: string | string[],
     objectStore: string,
@@ -306,5 +318,26 @@ export class IndexedDB implements IDatabase {
         .objectStore(objectStore)
         .delete(key);
     }
+  }
+
+  public count<T>(
+    transaction: string | string[],
+    objectStore: string,
+    key?: IDBKeyRange
+  ): Promise<number> {
+    return new Promise((resolve, reject) => {
+      if (this.db) {
+        const request = this.db
+          .transaction(transaction)
+          .objectStore(objectStore)
+          .count(key);
+
+        request.onsuccess = function () {
+          resolve(request.result);
+        };
+      } else {
+        resolve(0);
+      }
+    });
   }
 }

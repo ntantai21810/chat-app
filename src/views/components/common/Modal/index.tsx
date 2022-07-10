@@ -10,12 +10,21 @@ export interface IModalProps {
   show: boolean;
   onClose?: Function;
   overlay?: boolean;
+  className?: string;
 }
 
 const ModalRoot = document.getElementById("modal-root");
 
 export default function Modal(props: IModalProps) {
-  const { children, width, height, show, onClose, overlay = true } = props;
+  const {
+    children,
+    width,
+    height,
+    show,
+    onClose,
+    overlay = true,
+    className,
+  } = props;
 
   const ref = React.createRef<any>();
 
@@ -33,7 +42,7 @@ export default function Modal(props: IModalProps) {
       {overlay && <div className={styles.overlay}></div>}
       <div
         ref={ref}
-        className={styles.main}
+        className={`${styles.main} ${className ?? ""}`}
         style={{ width: width || "40rem", height: height || "40rem" }}
       >
         {children}

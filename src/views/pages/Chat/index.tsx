@@ -38,6 +38,7 @@ import Banner from "../../components/common/Banner";
 import Button from "../../components/common/Button";
 import Image from "../../components/common/Image";
 import Input from "../../components/common/Input";
+import LoadingIcon from "../../components/common/LoadingIcon";
 import Modal from "../../components/common/Modal";
 import Notification from "../../components/common/Notification";
 import TypingIcon from "../../components/common/Typing";
@@ -92,6 +93,7 @@ export default function ChatPage(props: IChatPageProps) {
     type: "error" | "success";
     message: string;
   }>();
+  const [isLoadingUserModal, setIsLoadingUserModal] = React.useState(false);
 
   const typingRef = React.useRef<NodeJS.Timeout>();
   const searchRef = React.useRef<NodeJS.Timeout>();
@@ -341,7 +343,18 @@ export default function ChatPage(props: IChatPageProps) {
       });
       setScrollTargetTopMessage("");
       setHighlightMessage("");
-      messageController.addMessageToCache(messages.slice(-20));
+
+      //add message to cache
+      const transformMessages = messages.slice(-20).map((item) =>
+        item.type === MessageType.TEXT
+          ? {
+              ...item,
+              content: (item.content as string).replace(/(<([^>]+)>)/gi, ""),
+            }
+          : item
+      );
+
+      messageController.addMessageToCache(transformMessages);
     }
   };
 
@@ -376,18 +389,28 @@ export default function ChatPage(props: IChatPageProps) {
       });
     }
 
-    messageController.addMessageToCache(messages.slice(-20));
+    //add message to cache
+    const transformMessages = messages.slice(-20).map((item) =>
+      item.type === MessageType.TEXT
+        ? {
+            ...item,
+            content: (item.content as string).replace(/(<([^>]+)>)/gi, ""),
+          }
+        : item
+    );
+
+    messageController.addMessageToCache(transformMessages);
 
     if (messages.length > 0) {
       dispatch(removeAllMessage());
     }
 
-    messageController.getMessagesByConversation(
-      conversationId,
-      undefined,
-      undefined,
-      PAGE_SIZE
-    );
+    // messageController.getMessagesByConversation(
+    //   conversationId,
+    //   undefined,
+    //   undefined,
+    //   PAGE_SIZE
+    // );
   };
 
   const handleScrollToTop = React.useCallback(async () => {
@@ -590,9 +613,11 @@ export default function ChatPage(props: IChatPageProps) {
           }
           // Phone
           else {
+            setIsLoadingUserModal(true);
             const user = await userController.getOneUserByPhone(
               (word as any).innerText
             );
+            setIsLoadingUserModal(false);
 
             if (user) {
               setUserModal(user);
@@ -624,13 +649,13 @@ export default function ChatPage(props: IChatPageProps) {
         ".phone-number-message"
       );
 
-      console.log(messages);
-
       messages.forEach((message) =>
         message.addEventListener("click", async () => {
+          setIsLoadingUserModal(true);
           const phone = (message as any).dataset?.phone;
 
           const user = await userController.getOneUserByPhone(phone);
+          setIsLoadingUserModal(false);
 
           if (user) {
             setUserModal(user);
@@ -660,6 +685,8 @@ export default function ChatPage(props: IChatPageProps) {
     setIsTyping(false);
 
     if (activeConversation && common.isDatabaseConnected && !search) {
+      console.log("Run effect");
+
       //Get message
       setScrollTargetTopMessage("");
       setHighlightMessage("");
@@ -840,28 +867,36 @@ export default function ChatPage(props: IChatPageProps) {
       )}
 
       <Modal
-        show={!!userModal}
+        show={!!userModal || isLoadingUserModal}
         className={styles.userModal}
         height="auto"
         onClose={() => setUserModal(undefined)}
       >
-        {userModal && (
-          <div className={styles.card}>
-            <UserCard user={userModal} />
+        {isLoadingUserModal ? (
+          <div className={styles.loading}>
+            <LoadingIcon />
           </div>
-        )}
+        ) : (
+          <div className={styles.userInfo}>
+            {userModal && (
+              <div className={styles.card}>
+                <UserCard user={userModal} />
+              </div>
+            )}
 
-        {userModal && userModal._id !== auth.auth.user._id && (
-          <div className={styles.action}>
-            <Button
-              onClick={() => {
-                handleClickOnSearchUser(userModal);
-                setMessage({ message: "", checked: "" });
-                setUserModal(undefined);
-              }}
-            >
-              Nhắn tin
-            </Button>
+            {userModal && userModal._id !== auth.auth.user._id && (
+              <div className={styles.action}>
+                <Button
+                  onClick={() => {
+                    handleClickOnSearchUser(userModal);
+                    setMessage({ message: "", checked: "" });
+                    setUserModal(undefined);
+                  }}
+                >
+                  Nhắn tin
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </Modal>

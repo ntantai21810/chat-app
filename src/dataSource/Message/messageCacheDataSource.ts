@@ -1,6 +1,7 @@
 import { IFile, IMessage, MessageType } from "../../domains";
 import { IMessageStorageDataSouce } from "../../repository";
 import { ICache } from "../../storage";
+import { parserWorker } from "../../views/pages/Chat";
 
 export interface IMessageCache {
   getMessagesByConversation: (conversationId: string) => Promise<IMessage[]>;
@@ -17,8 +18,14 @@ export class MessageCacheDataSource implements IMessageStorageDataSouce {
     this.cache = storage;
   }
 
-  getMessagesByConversation(conversationId: string): Promise<IMessage[]> {
-    return this.cache.getByKey(conversationId);
+  async getMessagesByConversation(conversationId: string): Promise<IMessage[]> {
+    const res = await this.cache.getByKey(conversationId);
+
+    parserWorker.postMessage({
+      type: "phone-detect",
+      messages: res,
+    });
+    return res;
   }
 
   addMessage(message: IMessage): void {

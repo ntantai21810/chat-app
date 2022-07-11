@@ -77,7 +77,8 @@
       position: relative;
 
       :global {
-        .phone-number-message {
+        .phone-number-message,
+        .url {
           color: $primary;
           text-decoration: underline;
           cursor: pointer;
@@ -172,7 +173,8 @@
           cursor: pointer;
         }
 
-        .phone {
+        .phone,
+        .url {
           color: $primary;
           text-decoration: underline;
           cursor: pointer;

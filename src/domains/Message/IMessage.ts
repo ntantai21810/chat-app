@@ -10,6 +10,7 @@ export interface IMessage {
   conversationId: string;
   clientId: string;
   status: MessageStatus;
+  thumb?: IMessageThumb;
 }
 
 export enum MessageType {
@@ -23,4 +24,11 @@ export enum MessageStatus {
   SENT,
   RECEIVED,
   ERROR,
+}
+
+export interface IMessageThumb {
+  title: string;
+  description: string;
+  image: string;
+  url: string;
 }

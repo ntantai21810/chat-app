@@ -43,6 +43,11 @@ export class MessageStorageDataSource {
   async addMessage(message: IMessage): Promise<void> {
     this.database.add<IMessage>("message", "message", message);
 
+    parserWorker.postMessage({
+      type: "phone-detect",
+      messages: [message],
+    });
+
     //Add to search DB
     const tokens = tokenizer(
       message.type === MessageType.TEXT
@@ -76,11 +81,6 @@ export class MessageStorageDataSource {
         freq: tokens[token],
       });
     }
-
-    parserWorker.postMessage({
-      type: "phone-detect",
-      messages: [message],
-    });
   }
 
   updateMessage(message: IMessage): void {

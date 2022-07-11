@@ -1,5 +1,5 @@
 import { IFile } from "../common/helper";
-import { MessageStatus, MessageType } from "./IMessage";
+import { IMessageThumb, MessageStatus, MessageType } from "./IMessage";
 
 export class MessageModel {
   private id: string;
@@ -11,6 +11,7 @@ export class MessageModel {
   private content: string | IFile[];
   private sendTime: string;
   private status: MessageStatus;
+  private thumb: IMessageThumb;
 
   constructor(
     fromId: string,
@@ -21,7 +22,8 @@ export class MessageModel {
     clientId: string,
     sendTime: string,
     status: MessageStatus = MessageStatus.PENDING,
-    id?: string
+    id?: string,
+    thumb?: IMessageThumb
   ) {
     this.fromId = fromId;
     this.toId = toId;
@@ -33,6 +35,7 @@ export class MessageModel {
     this.status = status;
 
     if (id) this.id = id;
+    if (thumb) this.thumb = thumb;
   }
 
   getId() {
@@ -71,6 +74,10 @@ export class MessageModel {
     return this.status;
   }
 
+  getThumb() {
+    return this.thumb;
+  }
+
   setId(id: string) {
     this.id = id;
   }
@@ -105,5 +112,9 @@ export class MessageModel {
 
   setStatus(status: MessageStatus) {
     this.status = status;
+  }
+
+  setThumb(thumb: IMessageThumb) {
+    this.thumb = thumb;
   }
 }

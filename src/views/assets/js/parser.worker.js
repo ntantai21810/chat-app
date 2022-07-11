@@ -42,8 +42,8 @@ function spellCheck(lang, text) {
   const words = text.split(/\s/);
 
   for (let word of words) {
-    if (/(84|0[3|5|7|8|9])+([0-9]{8})\b/.test(word)) {
-      str += `${phoneDetect(
+    if (/(84|0[3|5|7|8|9])+([0-9]{8})/.test(word) || urlDetect(word)) {
+      str += `${processMessage(
         normalizeHTMLTag(word),
         "phone spell-check"
       )}&nbsp;`;
@@ -62,7 +62,7 @@ function spellCheck(lang, text) {
   return str.slice(0, -6);
 }
 
-function phoneDetect(text, className) {
+function processMessage(text, className) {
   let result = "";
 
   for (let i = 0; i < text.length; i++) {
@@ -74,13 +74,32 @@ function phoneDetect(text, className) {
         i,
         i + 10
       )}">${text.slice(i, i + 10)}</span>`;
+
       i += 9;
-    } else {
-      result += normalizeHTMLTag(text[i]);
+
+      continue;
     }
+
+    const url = urlDetect(text.slice(i));
+
+    if (url && url[0] === text.slice(i, i + url[0].length)) {
+      result += `<span class="url" data-url="${url[0]}">${url[0]}</span>`;
+
+      i += url[0].length - 1;
+
+      continue;
+    }
+
+    result += normalizeHTMLTag(text[i]);
   }
 
   return result;
+}
+
+function urlDetect(text) {
+  const regex = /\bhttps?:\/\/\S+/i;
+
+  return text.match(regex);
 }
 
 function transformMessages(messages) {
@@ -88,7 +107,7 @@ function transformMessages(messages) {
     message.type === MessageType.TEXT
       ? {
           ...message,
-          content: phoneDetect(message.content, "phone-number-message"),
+          content: processMessage(message.content, "phone-number-message"),
         }
       : message
   );

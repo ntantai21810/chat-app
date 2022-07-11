@@ -1,46 +1,54 @@
 .container {
-  position: relative;
-
-  .textarea {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    min-height: 40px;
-    max-height: 150px;
-    padding: 1.4rem;
-
-    font-size: 1.8rem;
-
-    overflow-y: scroll;
-    resize: both;
-    border: none;
-    outline: none;
-    transition: all linear 0.25s;
-
-    &[contenteditable]:empty::before {
-      content: "Nhập tin nhắn ...";
-      color: gray;
-    }
+  .previewLink {
+    background-color: #f4f5f7;
+    margin: 0 2.4rem 0 1.2rem;
+    border-radius: 8px;
   }
 
-  .icon {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
+  .input {
+    position: relative;
 
-    padding: 0.8rem;
-    border-radius: 5px;
+    .textarea {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      min-height: 40px;
+      max-height: 150px;
+      padding: 1.4rem;
 
-    position: absolute;
-    top: 50%;
-    right: 1rem;
-    transform: translateY(-50%);
+      font-size: 1.8rem;
 
-    cursor: pointer;
+      overflow-y: scroll;
+      resize: both;
+      border: none;
+      outline: none;
+      transition: all linear 0.25s;
 
-    &:hover {
-      background-color: #e5e5e5;
+      &[contenteditable]:empty::before {
+        content: "Nhập tin nhắn ...";
+        color: gray;
+      }
+    }
+
+    .icon {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+
+      padding: 0.8rem;
+      border-radius: 5px;
+
+      position: absolute;
+      top: 50%;
+      right: 1rem;
+      transform: translateY(-50%);
+
+      cursor: pointer;
+
+      &:hover {
+        background-color: #e5e5e5;
+      }
     }
   }
 }

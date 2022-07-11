@@ -11,6 +11,7 @@ export function modelMessageData(message: IMessage): MessageModel {
     conversationId,
     clientId,
     status,
+    thumb,
   } = message;
 
   return new MessageModel(
@@ -22,7 +23,8 @@ export function modelMessageData(message: IMessage): MessageModel {
     clientId,
     sendTime,
     status,
-    id
+    id,
+    thumb
   );
 }
 
@@ -37,5 +39,6 @@ export function normalizeMessageData(messageModel: MessageModel): IMessage {
     sendTime: messageModel.getSendTime(),
     clientId: messageModel.getClientId(),
     status: messageModel.getStatus(),
+    thumb: messageModel.getThumb(),
   };
 }

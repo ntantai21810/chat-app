@@ -20,7 +20,12 @@ import {
 } from "../../../bootstrap";
 import { IFile } from "../../../domains/common/helper";
 import { IConversation } from "../../../domains/Conversation";
-import { IMessage, MessageStatus, MessageType } from "../../../domains/Message";
+import {
+  IMessage,
+  IMessageThumb,
+  MessageStatus,
+  MessageType,
+} from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
 import {
   setShowNotification,
@@ -31,6 +36,7 @@ import {
   updateManyMessage,
 } from "../../../framework/redux/message";
 import { SOCKET_CONSTANTS } from "../../../helper";
+import { API } from "../../../network";
 import styles from "../../assets/styles/ChatPage.module.scss";
 import ChattedUserList from "../../components/ChattedUserList";
 import AutoResizeInput from "../../components/common/AutoResizeInput";
@@ -168,7 +174,7 @@ export default function ChatPage(props: IChatPageProps) {
     }, 500);
   };
 
-  const handleSubmitMessage = () => {
+  const handleSubmitMessage = async () => {
     if (activeConversation) {
       if (message.message || files.length > 0) {
         setScrollTargetTopMessage("");
@@ -180,6 +186,24 @@ export default function ChatPage(props: IChatPageProps) {
         message.message.trim() !== "" &&
         message.message.trim().charCodeAt(0) !== 10
       ) {
+        let thumb: IMessageThumb | undefined = undefined;
+
+        const regex = /\bhttps?:\/\/\S+/i;
+
+        const url = message.message.replace(/\u00a0/g, " ").match(regex);
+
+        if (url) {
+          try {
+            const metadata = await API.getIntance().get("/preview-link", {
+              url: url[0],
+            });
+
+            thumb = metadata;
+          } catch (e) {
+            console.log(e);
+          }
+        }
+
         messageController.sendMessage({
           fromId: auth.auth.user._id,
           toId: activeConversation.user._id,
@@ -189,6 +213,7 @@ export default function ChatPage(props: IChatPageProps) {
           sendTime: new Date().toISOString(),
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
+          thumb: thumb,
         });
       }
 
@@ -432,6 +457,8 @@ export default function ChatPage(props: IChatPageProps) {
   }, [messages, activeConversation, isFullMessage]);
 
   const handleRetry = React.useCallback((message: IMessage) => {
+    setScrollTargetTopMessage("");
+    setHighlightMessage("");
     messageController.retryMessage(message);
   }, []);
 
@@ -642,14 +669,17 @@ export default function ChatPage(props: IChatPageProps) {
 
   // Add listener event for phone detect
   React.useEffect(() => {
-    let messages: NodeListOf<Element>;
+    let phoneMessages: NodeListOf<Element>;
+    let urlMessages: NodeListOf<Element>;
 
     if (conversationContentRef.current) {
-      messages = conversationContentRef.current.querySelectorAll(
+      phoneMessages = conversationContentRef.current.querySelectorAll(
         ".phone-number-message"
       );
 
-      messages.forEach((message) =>
+      urlMessages = conversationContentRef.current.querySelectorAll(".url");
+
+      phoneMessages.forEach((message) =>
         message.addEventListener("click", async () => {
           setIsLoadingUserModal(true);
           const phone = (message as any).dataset?.phone;
@@ -668,11 +698,25 @@ export default function ChatPage(props: IChatPageProps) {
           }
         })
       );
+
+      urlMessages.forEach((message) =>
+        message.addEventListener("click", async () => {
+          const url = (message as any).dataset?.url;
+
+          (window as any).electronAPI.openLink(url);
+        })
+      );
     }
 
     return () => {
-      if (conversationContentRef.current && messages) {
-        messages.forEach((message) =>
+      if (conversationContentRef.current && phoneMessages) {
+        phoneMessages.forEach((message) =>
+          message.replaceWith(message.cloneNode(true))
+        );
+      }
+
+      if (conversationContentRef.current && urlMessages) {
+        urlMessages.forEach((message) =>
           message.replaceWith(message.cloneNode(true))
         );
       }
@@ -685,8 +729,6 @@ export default function ChatPage(props: IChatPageProps) {
     setIsTyping(false);
 
     if (activeConversation && common.isDatabaseConnected && !search) {
-      console.log("Run effect");
-
       //Get message
       setScrollTargetTopMessage("");
       setHighlightMessage("");

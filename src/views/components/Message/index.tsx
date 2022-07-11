@@ -1,7 +1,9 @@
 import classNames from "classnames";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IMessage, MessageStatus } from "../../../domains/Message";
+import { API } from "../../../network";
 import styles from "../../assets/styles/Message.module.scss";
+import PreviewLink from "../common/PreviewLink";
 
 export interface IMessageProps {
   bgColor?: string;
@@ -16,13 +18,21 @@ export default function Message(props: IMessageProps) {
 
   const ref = useRef<HTMLDivElement | null>(null);
 
+  const handleClickUrl = (url: string) => {
+    (window as any).electronAPI.openLink(url);
+  };
+
   useEffect(() => {
-    if (ref.current) {
-      ref.current.innerHTML = (message.content as string).replace(
-        /\u00a0/g,
-        " "
-      );
-    }
+    const handleValueChange = async () => {
+      if (ref.current) {
+        ref.current.innerHTML = (message.content as string).replace(
+          /\u00a0/g,
+          " "
+        );
+      }
+    };
+
+    handleValueChange();
   }, [message]);
 
   return (
@@ -33,6 +43,18 @@ export default function Message(props: IMessageProps) {
       style={{ backgroundColor: highlight ? "rgb(255 199 0)" : bgColor }}
     >
       <div ref={ref}></div>
+
+      {message.thumb && (
+        <div className={styles.previewLink}>
+          <PreviewLink
+            title={message.thumb.title}
+            description={message.thumb.description}
+            image={message.thumb.image}
+            url={message.thumb.url}
+            onClick={handleClickUrl}
+          />
+        </div>
+      )}
 
       {showStatus && (
         <div

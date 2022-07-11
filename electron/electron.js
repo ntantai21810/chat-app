@@ -1,7 +1,7 @@
 // main.js
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, webContents } = require("electron");
+const { app, BrowserWindow, ipcMain, webContents, shell } = require("electron");
 const path = require("path");
 const isDev = require("electron-is-dev");
 
@@ -63,6 +63,10 @@ const createWindow = () => {
 
   ipcMain.on("download", (event, url) => {
     mainWindow.webContents.downloadURL(url);
+  });
+
+  ipcMain.on("openLink", (event, url) => {
+    shell.openExternal(url);
   });
 
   ipcMain.on("viewPhoto", (event, url) => {

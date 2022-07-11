@@ -457,6 +457,8 @@ export default function ChatPage(props: IChatPageProps) {
   }, [messages, activeConversation, isFullMessage]);
 
   const handleRetry = React.useCallback((message: IMessage) => {
+    setScrollTargetTopMessage("");
+    setHighlightMessage("");
     messageController.retryMessage(message);
   }, []);
 

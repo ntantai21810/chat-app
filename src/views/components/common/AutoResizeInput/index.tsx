@@ -35,6 +35,7 @@ function AutoResizeInput(
   }>();
 
   const innerRef = React.useRef<HTMLSpanElement | null>(null);
+  const posRef = React.useRef(0);
 
   const handleInput: React.FormEventHandler<HTMLSpanElement> = () => {
     if (onChange) {
@@ -75,7 +76,7 @@ function AutoResizeInput(
       if (innerRef.current && value !== undefined) {
         innerRef.current.innerHTML = value;
 
-        placeCaretAtEnd(innerRef.current);
+        setCaretPosition(innerRef.current, posRef.current);
 
         const urlNode = innerRef.current.querySelector(".url");
 
@@ -104,6 +105,10 @@ function AutoResizeInput(
     if (innerRef.current && innerRef.current.innerHTML === "") {
       setUrlMetadata(undefined);
     }
+  });
+
+  React.useEffect(() => {
+    posRef.current = getSelectionCharacterOffsetWithin(innerRef.current!).start;
   });
 
   return (
@@ -148,28 +153,61 @@ function AutoResizeInput(
   );
 }
 
-function placeCaretAtEnd(el: HTMLElement) {
-  el.focus();
-
-  if (
-    typeof window.getSelection != "undefined" &&
-    typeof document.createRange != "undefined"
-  ) {
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    range.collapse(false);
-
-    const sel = window.getSelection();
-    if (sel) {
-      sel.removeAllRanges();
-      sel.addRange(range);
+function getSelectionCharacterOffsetWithin(element: any) {
+  let start = 0;
+  let end = 0;
+  let doc = element.ownerDocument || element.document;
+  let win = doc.defaultView || doc.parentWindow;
+  let sel;
+  if (typeof win.getSelection != "undefined") {
+    sel = win.getSelection();
+    if (sel.rangeCount > 0) {
+      let range = win.getSelection().getRangeAt(0);
+      let preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(element);
+      preCaretRange.setEnd(range.startContainer, range.startOffset);
+      start = preCaretRange.toString().length;
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      end = preCaretRange.toString().length;
     }
-  } else if (typeof (document.body as any).createTextRange != "undefined") {
-    const textRange = (document.body as any).createTextRange();
-    textRange.moveToElementText(el);
-    textRange.collapse(false);
-    textRange.select();
+  } else if ((sel = doc.selection) && sel.type != "Control") {
+    let textRange = sel.createRange();
+    let preCaretTextRange = doc.body.createTextRange();
+    preCaretTextRange.moveToElementText(element);
+    preCaretTextRange.setEndPoint("EndToStart", textRange);
+    start = preCaretTextRange.text.length;
+    preCaretTextRange.setEndPoint("EndToEnd", textRange);
+    end = preCaretTextRange.text.length;
   }
+  return { start: start, end: end };
+}
+
+// Move caret to a specific point in a DOM element
+function setCaretPosition(el: any, pos: any) {
+  // Loop through all child nodes
+  for (var node of el.childNodes) {
+    if (node.nodeType == 3) {
+      // we have a text node
+      if (node.length >= pos) {
+        // finally add our range
+        var range = document.createRange(),
+          sel = window.getSelection();
+        range.setStart(node, pos);
+        range.collapse(true);
+        sel!.removeAllRanges();
+        sel!.addRange(range);
+        return -1; // we are done
+      } else {
+        pos -= node.length;
+      }
+    } else {
+      pos = setCaretPosition(node, pos);
+      if (pos == -1) {
+        return -1; // no need to finish the for loop
+      }
+    }
+  }
+  return pos; // needed because of recursion stuff
 }
 
 export default React.forwardRef(AutoResizeInput);

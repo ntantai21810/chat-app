@@ -401,6 +401,7 @@ export default function ChatPage(props: IChatPageProps) {
       conversationId = conversations.find(
         (item) => item.userId === user._id
       )!.id;
+
       setActiveConversation({
         id: conversationId,
         user: userFriend,
@@ -430,12 +431,12 @@ export default function ChatPage(props: IChatPageProps) {
       dispatch(removeAllMessage());
     }
 
-    // messageController.getMessagesByConversation(
-    //   conversationId,
-    //   undefined,
-    //   undefined,
-    //   PAGE_SIZE
-    // );
+    messageController.getMessagesByConversation(
+      conversationId,
+      undefined,
+      undefined,
+      PAGE_SIZE
+    );
   };
 
   const handleScrollToTop = React.useCallback(async () => {

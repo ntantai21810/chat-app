@@ -37,24 +37,25 @@ export class Socket implements ISocket {
   connect(userId: string, accessToken: string): void {
     if (!this.socket) {
       this.socket = io(this.url);
-
-      this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+      // this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
 
       if (this.socket.connected) {
         this.isConnected = true;
       }
 
       this.socket.on("connect", () => {
-        this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+        if (this.socket) this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
         this.isConnected = true;
       });
+
       this.socket.on("disconnect", () => {
         this.isConnected = false;
       });
+
       this.socket.on("connect_error", () => {
         this.isConnected = false;
       });
-    } else if (!this.socket.connected) throw "Socket connect fail";
+    }
   }
 
   listen(channel: string, callback: (data: any) => any): void {
@@ -63,7 +64,7 @@ export class Socket implements ISocket {
 
   send(channel: string, data: any): void {
     if (!this.isConnected) {
-      throw "Socket disconnected";
+      throw "Socket error";
     }
 
     if (this.socket) this.socket.emit(channel, data);

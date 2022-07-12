@@ -101,7 +101,8 @@ const createWindow = () => {
   if (!isDev) mainWindow.setMenu(null);
 
   // Open the DevTools.
-  if (isDev) mainWindow.webContents.openDevTools();
+  // if (isDev) mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished

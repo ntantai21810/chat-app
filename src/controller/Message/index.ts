@@ -1,8 +1,4 @@
-import {
-  FileDataSource,
-  MessageCacheDataSource,
-  MessageStorageDataSource,
-} from "../../dataSource";
+import { FileDataSource, MessageStorageDataSource } from "../../dataSource";
 import {
   IFile,
   IMessage,
@@ -14,9 +10,8 @@ import {
 import { API } from "../../network";
 import { IMessagePresenter } from "../../presenter";
 import { FileRepository, MessageStorageRepository } from "../../repository";
-import { CacheStorage, IndexedDB } from "../../storage";
+import { IndexedDB } from "../../storage";
 import {
-  AddMessageDatabaseUseCase,
   GetMessageByConversationUseCase,
   ReceiveMessageUseCase,
   RetryMessageUseCase,
@@ -39,8 +34,7 @@ export class MessageController {
     fromMessage?: IMessage,
     toMessage?: IMessage,
     limit?: number,
-    exceptBound?: boolean,
-    fromCache: boolean = true
+    exceptBound?: boolean
   ) {
     let result: MessageModel[] = [];
 
@@ -49,51 +43,28 @@ export class MessageController {
       : undefined;
     const toMessageModel = toMessage ? modelMessageData(toMessage) : undefined;
 
-    if (fromCache) {
-      try {
-        const getMessageFromCacheUseCase = new GetMessageByConversationUseCase(
-          new MessageStorageRepository(
-            new MessageCacheDataSource(CacheStorage.getInstance())
-          ),
-          this.presenter
-        );
-
-        result = await getMessageFromCacheUseCase.execute(
-          conversationId,
-          fromMessageModel,
-          toMessageModel,
-          limit
-        );
-      } catch (e) {
-        console.log(e);
-        return [];
+    try {
+      if (!fromMessage && !toMessage) {
+        this.presenter.removeAllMessage();
       }
-    }
 
-    if (result.length < 10) {
-      try {
-        if (!fromMessage && !toMessage) {
-          this.presenter.removeAllMessage();
-        }
+      const getMessageFromDBUseCase = new GetMessageByConversationUseCase(
+        new MessageStorageRepository(
+          new MessageStorageDataSource(IndexedDB.getInstance())
+        ),
+        this.presenter
+      );
 
-        const getMessageFromDBUseCase = new GetMessageByConversationUseCase(
-          new MessageStorageRepository(
-            new MessageStorageDataSource(IndexedDB.getInstance())
-          ),
-          this.presenter
-        );
-
-        result = await getMessageFromDBUseCase.execute(
-          conversationId,
-          fromMessageModel,
-          toMessageModel,
-          limit,
-          exceptBound
-        );
-      } catch (e) {
-        console.log(e);
-        return [];
-      }
+      result = await getMessageFromDBUseCase.execute(
+        conversationId,
+        fromMessageModel,
+        toMessageModel,
+        limit,
+        exceptBound
+      );
+    } catch (e) {
+      console.log(e);
+      return [];
     }
 
     const messages: IMessage[] = [];
@@ -135,28 +106,6 @@ export class MessageController {
     }
   }
 
-  addMessageToCache(messages: IMessage | IMessage[]) {
-    try {
-      const addMessageToCacheUseCase = new AddMessageDatabaseUseCase(
-        new MessageStorageRepository(
-          new MessageCacheDataSource(CacheStorage.getInstance())
-        )
-      );
-
-      if (Array.isArray(messages)) {
-        for (let message of messages) {
-          const messageModel = modelMessageData(message);
-          addMessageToCacheUseCase.execute(messageModel);
-        }
-      } else {
-        const messageModel = modelMessageData(messages);
-        addMessageToCacheUseCase.execute(messageModel);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
   async sendMessage(message: IMessage) {
     try {
       if (
@@ -192,31 +141,21 @@ export class MessageController {
     }
   }
 
-  receiveMessage(message: IMessage, addToCache: boolean) {
+  receiveMessage(message: IMessage, show: boolean) {
     try {
       const receiveMessageUseCase = new ReceiveMessageUseCase(
-        addToCache ? undefined : this.presenter
+        show ? undefined : this.presenter
       );
 
       const messageModel = modelMessageData(message);
 
       receiveMessageUseCase.execute(messageModel);
-
-      if (addToCache) {
-        const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
-          new MessageStorageRepository(
-            new MessageCacheDataSource(CacheStorage.getInstance())
-          )
-        );
-
-        addMessageDatabaseUseCase.execute(messageModel);
-      }
     } catch (e) {
       console.log(e);
     }
   }
 
-  updateMessage(message: IMessage, updateCache: boolean) {
+  updateMessage(message: IMessage) {
     let messageModel: MessageModel;
 
     try {
@@ -233,20 +172,6 @@ export class MessageController {
     } catch (e) {
       console.log(e);
       return;
-    }
-
-    if (updateCache) {
-      try {
-        const updateCacheMessage = new UpdateMessageUseCase(
-          new MessageStorageRepository(
-            new MessageCacheDataSource(CacheStorage.getInstance())
-          )
-        );
-
-        updateCacheMessage.execute(messageModel);
-      } catch (e) {
-        console.log(e);
-      }
     }
   }
 

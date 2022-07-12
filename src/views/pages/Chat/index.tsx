@@ -362,6 +362,8 @@ export default function ChatPage(props: IChatPageProps) {
 
   const handleClickOnConversation = (conversation: IConversation) => {
     if (conversation.userId !== activeConversation?.user._id) {
+      setIsFullMessage(false);
+      setIsTyping(false);
       setActiveConversation({
         id: conversation.id,
         user: friend.find((item) => item._id === conversation.userId)!,
@@ -369,17 +371,18 @@ export default function ChatPage(props: IChatPageProps) {
       setScrollTargetTopMessage("");
       setHighlightMessage("");
 
-      //add message to cache
-      const transformMessages = messages.slice(-20).map((item) =>
-        item.type === MessageType.TEXT
-          ? {
-              ...item,
-              content: (item.content as string).replace(/(<([^>]+)>)/gi, ""),
-            }
-          : item
-      );
+      setMessage({ message: "", checked: "" });
 
-      messageController.addMessageToCache(transformMessages);
+      if (messages.length > 0) {
+        dispatch(removeAllMessage());
+      }
+
+      messageController.getMessagesByConversation(
+        conversation.id,
+        undefined,
+        undefined,
+        PAGE_SIZE
+      );
     }
   };
 
@@ -392,6 +395,8 @@ export default function ChatPage(props: IChatPageProps) {
   const handleClickOnSearchUser = async (user: IUser) => {
     setScrollTargetTopMessage("");
     setHighlightMessage("");
+    setIsFullMessage(false);
+    setIsTyping(false);
 
     let conversationId = "";
 
@@ -414,18 +419,6 @@ export default function ChatPage(props: IChatPageProps) {
         user: res!,
       });
     }
-
-    //add message to cache
-    const transformMessages = messages.slice(-20).map((item) =>
-      item.type === MessageType.TEXT
-        ? {
-            ...item,
-            content: (item.content as string).replace(/(<([^>]+)>)/gi, ""),
-          }
-        : item
-    );
-
-    messageController.addMessageToCache(transformMessages);
 
     if (messages.length > 0) {
       dispatch(removeAllMessage());
@@ -480,8 +473,7 @@ export default function ChatPage(props: IChatPageProps) {
       message,
       undefined,
       undefined,
-      undefined,
-      false
+      undefined
     );
 
     setScrollTargetTopMessage(
@@ -498,8 +490,7 @@ export default function ChatPage(props: IChatPageProps) {
         undefined,
         message,
         10,
-        true,
-        false
+        true
       );
     }
 
@@ -605,10 +596,7 @@ export default function ChatPage(props: IChatPageProps) {
       socketController.listen(
         SOCKET_CONSTANTS.UPDATE_MESSAGE,
         (message: IMessage) => {
-          messageController.updateMessage(
-            message,
-            !activeConversation || activeConversation.user._id !== message.toId
-          );
+          messageController.updateMessage(message);
         }
       );
 
@@ -723,30 +711,6 @@ export default function ChatPage(props: IChatPageProps) {
       }
     };
   }, [messages]);
-
-  //Change conversation database
-  React.useEffect(() => {
-    setIsFullMessage(false);
-    setIsTyping(false);
-
-    if (activeConversation && common.isDatabaseConnected && !search) {
-      //Get message
-      setScrollTargetTopMessage("");
-      setHighlightMessage("");
-      setMessage({ message: "", checked: "" });
-
-      if (messages.length > 0) {
-        dispatch(removeAllMessage());
-      }
-
-      messageController.getMessagesByConversation(
-        activeConversation.id,
-        undefined,
-        undefined,
-        PAGE_SIZE
-      );
-    }
-  }, [activeConversation, common.isDatabaseConnected, dispatch]);
 
   return (
     <>

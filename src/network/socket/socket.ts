@@ -15,7 +15,7 @@ export interface ISocket {
 export class Socket implements ISocket {
   private static instance: Socket;
 
-  private socket: SocketIO;
+  private socket: SocketIO | undefined;
   private url: string;
   private isConnected: boolean;
 
@@ -37,14 +37,15 @@ export class Socket implements ISocket {
   connect(userId: string, accessToken: string): void {
     if (!this.socket) {
       this.socket = io(this.url);
-      // this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
 
-      if (this.socket.connected) {
-        this.isConnected = true;
-      }
+      this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+
+      this.isConnected = true;
 
       this.socket.on("connect", () => {
-        if (this.socket) this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+        if (this.socket && !this.isConnected) {
+          this.socket.emit(SOCKET_CONSTANTS.JOIN, userId);
+        }
         this.isConnected = true;
       });
 
@@ -63,7 +64,7 @@ export class Socket implements ISocket {
   }
 
   send(channel: string, data: any): void {
-    if (!this.isConnected) {
+    if (!this.isConnected || !this.socket) {
       throw "Socket error";
     }
 
@@ -71,7 +72,11 @@ export class Socket implements ISocket {
   }
 
   disconnect(): void {
-    if (this.socket) this.socket.disconnect();
+    if (this.socket) {
+      this.socket.disconnect();
+      this.isConnected = false;
+      this.socket = undefined;
+    }
   }
 
   removeListen(

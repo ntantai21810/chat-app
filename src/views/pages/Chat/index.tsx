@@ -104,6 +104,7 @@ export default function ChatPage(props: IChatPageProps) {
   const [render, forceRender] = React.useState({});
 
   const typingRef = React.useRef<NodeJS.Timeout>();
+  const showTypingRef = React.useRef<NodeJS.Timeout>();
   const searchRef = React.useRef<NodeJS.Timeout>();
   const conversationInputRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLSpanElement | null>(null);
@@ -646,6 +647,17 @@ export default function ChatPage(props: IChatPageProps) {
       socketController.listen(
         SOCKET_CONSTANTS.TYPING,
         (data: { isTyping: boolean; fromUserId: string }) => {
+          console.log(isTyping);
+          if (data.isTyping === true) {
+            showTypingRef.current = setTimeout(() => {
+              setIsTyping(false);
+            }, 3000);
+          }
+
+          if (data.isTyping === false) {
+            clearTimeout(showTypingRef.current);
+          }
+
           if (activeConversation?.user._id === data.fromUserId)
             setIsTyping(data.isTyping);
         }

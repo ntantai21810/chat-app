@@ -21,7 +21,12 @@ const createWindow = () => {
     "will-download",
     (event, item, webContents) => {
       item.on("updated", (event, state) => {
-        item.setSavePath(app.getPath("downloads") + "/" + item.getFilename());
+        item.setSavePath(
+          app.getPath("downloads") +
+            "/" +
+            item.getFilename() +
+            new Date().getTime()
+        );
 
         if (state === "interrupted") {
           console.log("Download is interrupted but can be resumed");
@@ -45,13 +50,12 @@ const createWindow = () => {
       item.once("done", (event, state) => {
         if (state === "completed") {
           mainWindow.webContents.send("downloadProgress", 0);
+          mainWindow.webContents.send("downloadDone", 0);
           mainWindow.setProgressBar(-1);
-
-          console.log("Download successfully");
         } else {
           mainWindow.webContents.send("downloadProgress", 0);
+          mainWindow.webContents.send("downloadError", 0);
           mainWindow.setProgressBar(-1);
-          console.log(`Download failed: ${state}`);
         }
       });
     }

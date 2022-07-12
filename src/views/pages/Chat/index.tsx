@@ -550,6 +550,22 @@ export default function ChatPage(props: IChatPageProps) {
       setPercentFileDownloading((state) => ({ ...state, percent }));
     });
 
+    (window as any).electronAPI?.onDownloadFileDone(() => {
+      dispatch(setShowNotification(true));
+      setNotification({
+        type: "success",
+        message: "Tải xuống thành công",
+      });
+    });
+
+    (window as any).electronAPI?.onDownloadFileError((percent: number) => {
+      dispatch(setShowNotification(true));
+      setNotification({
+        type: "error",
+        message: "Tải xuống thất bại",
+      });
+    });
+
     parserWorker.addEventListener("message", (ev) => {
       switch (ev.data.type) {
         case "spellcheck-result": {

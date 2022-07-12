@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React, { useEffect, useRef } from "react";
+import React, { UIEventHandler, useEffect, useRef } from "react";
 import { IFile } from "../../../domains/common/helper";
 import { IMessage } from "../../../domains/Message";
 import styles from "../../assets/styles/ConversationContent.module.scss";
@@ -14,6 +14,7 @@ export interface IConversationContentProps {
   scrollToElement?: string;
   highlightElement?: string;
   onScrollToTop?: () => any;
+  onScroll?: UIEventHandler;
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
   onImageClick?: (image: IFile) => any;
@@ -29,6 +30,7 @@ function ConversationContent(props: IConversationContentProps) {
     onRetry,
     onDownloadFile,
     onImageClick,
+    onScroll,
     percentFileDownloading,
     scrollToElement,
     highlightElement,
@@ -38,7 +40,7 @@ function ConversationContent(props: IConversationContentProps) {
   const lastConversationId = useRef("");
   const wheel = useRef(false);
 
-  const handleScroll = () => {
+  const handleScroll: UIEventHandler = (e) => {
     if (
       ref.current?.scrollTop === 0 &&
       onScrollToTop &&
@@ -48,6 +50,8 @@ function ConversationContent(props: IConversationContentProps) {
     ) {
       onScrollToTop();
     }
+
+    if (onScroll) onScroll(e);
   };
 
   useEffect(() => {

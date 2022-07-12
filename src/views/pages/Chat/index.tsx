@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AiOutlineSend } from "react-icons/ai";
+import { AiOutlineArrowDown, AiOutlineSend } from "react-icons/ai";
 import { BsSearch } from "react-icons/bs";
 import { v4 as uuidv4 } from "uuid";
 import { getDispatch } from "../../../adapter/frameworkAdapter";
@@ -100,12 +100,15 @@ export default function ChatPage(props: IChatPageProps) {
     message: string;
   }>();
   const [isLoadingUserModal, setIsLoadingUserModal] = React.useState(false);
+  const [showScrollBtn, setShowScrollBtn] = React.useState(false);
+  const [render, forceRender] = React.useState({});
 
   const typingRef = React.useRef<NodeJS.Timeout>();
   const searchRef = React.useRef<NodeJS.Timeout>();
   const conversationInputRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLSpanElement | null>(null);
   const conversationContentRef = React.useRef<HTMLDivElement | null>(null);
+  const showScrollBtnRef = React.useRef(false);
 
   //Handler
   const handleChangeMessage = (value: string) => {
@@ -449,6 +452,30 @@ export default function ChatPage(props: IChatPageProps) {
       );
     }
   }, [messages, activeConversation, isFullMessage]);
+
+  const handleConversationContentScroll: React.UIEventHandler =
+    React.useCallback(
+      (e) => {
+        const el = e.target as HTMLDivElement;
+
+        if (
+          el.scrollTop + el.offsetHeight < el.scrollHeight - 200 &&
+          !showScrollBtnRef.current
+        ) {
+          showScrollBtnRef.current = true;
+          setShowScrollBtn(true);
+        }
+
+        if (
+          el.scrollTop + el.offsetHeight >= el.scrollHeight - 50 &&
+          showScrollBtnRef.current
+        ) {
+          setShowScrollBtn(false);
+          showScrollBtnRef.current = false;
+        }
+      },
+      [render]
+    );
 
   const handleRetry = React.useCallback((message: IMessage) => {
     setScrollTargetTopMessage("");
@@ -809,6 +836,7 @@ export default function ChatPage(props: IChatPageProps) {
                 percentFileDownloading={percentFileDownloading}
                 scrollToElement={scrollToTargetMessage}
                 highlightElement={highlightMessage}
+                onScroll={handleConversationContentScroll}
               />
 
               {isTyping && (
@@ -819,6 +847,18 @@ export default function ChatPage(props: IChatPageProps) {
                   <div>
                     <TypingIcon />
                   </div>
+                </div>
+              )}
+
+              {showScrollBtn && (
+                <div
+                  className={styles.scrollIcon}
+                  onClick={() => {
+                    setScrollTargetTopMessage("");
+                    forceRender({});
+                  }}
+                >
+                  <AiOutlineArrowDown fontSize={"1.8rem"} />
                 </div>
               )}
             </div>

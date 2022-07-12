@@ -107,6 +107,22 @@
           height: 100%;
         }
       }
+
+      .scrollIcon {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+
+        background-color: #fff;
+        cursor: pointer;
+        border-radius: 50%;
+        padding: 1.2rem;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     }
 
     .conversationAction {

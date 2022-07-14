@@ -20,12 +20,20 @@ export class AuthAPIDataSource implements IAuthAPIDataSource {
   async register(
     phone: string,
     fullName: string,
-    password: string
+    password: string,
+    avatar: FileList
   ): Promise<IAuth> {
-    const res: IAuth = await this.api.post("/register", {
-      phone,
-      fullName,
-      password,
+    const formData = new FormData();
+
+    formData.append("phone", phone);
+    formData.append("fullName", fullName);
+    formData.append("password", password);
+    formData.append("avatar", avatar[0]);
+
+    const res: IAuth = await this.api.post("/register", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
 
     this.api.setAccessToken(res.accessToken);

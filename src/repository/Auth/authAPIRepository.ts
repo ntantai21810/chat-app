@@ -9,7 +9,12 @@ import { ILoginRepo, IRegisterRepo, ISetAuthAPIRepo } from "../../useCases";
 
 export interface IAuthAPIDataSource {
   login(phone: string, password: string): Promise<IAuth>;
-  register(phone: string, fullName: string, password: string): Promise<IAuth>;
+  register(
+    phone: string,
+    fullName: string,
+    password: string,
+    avatar?: FileList
+  ): Promise<IAuth>;
   setAccessTokenInterceptor(accessToken: string): void;
 }
 
@@ -37,9 +42,15 @@ export class AuthAPIRepository
       phone,
       password,
       fullName = "",
+      avatar,
     } = normalizeCredentialData(credentialModel);
 
-    const auth = await this.dataSource.register(phone, fullName, password);
+    const auth = await this.dataSource.register(
+      phone,
+      fullName,
+      password,
+      avatar
+    );
 
     const authModel = modelAuthData(auth);
 

@@ -18,9 +18,85 @@
     }
   }
 
+  .inputImage {
+    position: relative;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+    border: 1px solid black;
+
+    margin: 0 auto;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .inputIcon {
+      margin: 0;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      span {
+        margin-top: 1rem;
+        font-size: 1.4rem;
+      }
+    }
+
+    .avatar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+
+      img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        border-radius: inherit;
+        object-fit: cover;
+        object-position: center;
+      }
+    }
+
+    .input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+
+      cursor: pointer;
+    }
+  }
+
+  .error {
+    margin-top: 1.2rem;
+    margin-bottom: 2rem;
+
+    font-size: 1.6rem;
+
+    transition: all linear 0.25s;
+
+    display: flex;
+    align-items: center;
+    color: $error;
+
+    .icon {
+      margin-right: 0.8rem;
+    }
+  }
+
   div {
     &:not(:last-child) {
-      margin-bottom: 2.4rem;
+      margin-bottom: 2rem;
     }
   }
 

@@ -3,7 +3,7 @@ import { CONSTANTS } from "../../helper";
 
 export interface IAPI {
   get(url: string, params?: any): Promise<any>;
-  post(url: string, data?: any): Promise<any>;
+  post(url: string, data?: any, options?: any): Promise<any>;
   put(url: string, data?: any): Promise<any>;
   delete(url: string, params?: any): Promise<any>;
   setAccessToken(accessToken: string): void;
@@ -58,9 +58,9 @@ export class API implements IAPI {
     }
   }
 
-  async post(url: string, data?: any): Promise<any> {
+  async post(url: string, data?: any, options?: any): Promise<any> {
     try {
-      return await this.axios.post(url, data);
+      return await this.axios.post(url, data, options);
     } catch (e) {
       throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
     }

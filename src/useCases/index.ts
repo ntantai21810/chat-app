@@ -6,3 +6,4 @@ export * from "./File";
 export * from "./Database";
 export * from "./Friend";
 export * from "./User";
+export * from "./common";

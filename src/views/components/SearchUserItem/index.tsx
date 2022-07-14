@@ -1,15 +1,16 @@
-import * as React from "react";
-import Avatar from "../common/Avatar";
 import styles from "../../assets/styles/SearchUserItem.module.scss";
+import Avatar from "../common/Avatar";
+import HighlightKeyword from "../common/HighlightKeyword";
 
 export interface ISearchUserItemProps {
   avatar?: string;
   name: string;
   onClick?: () => any;
+  keywords?: string;
 }
 
 export default function SearchUserItem(props: ISearchUserItemProps) {
-  const { avatar, name, onClick } = props;
+  const { avatar, name, onClick, keywords } = props;
 
   return (
     <div className={styles.container} onClick={onClick ? onClick : () => {}}>
@@ -21,7 +22,7 @@ export default function SearchUserItem(props: ISearchUserItemProps) {
         alt="Search user avatar"
       />
 
-      <p>{name}</p>
+      <HighlightKeyword text={name} keyword={keywords || ""} />
     </div>
   );
 }

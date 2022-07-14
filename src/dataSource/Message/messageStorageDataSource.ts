@@ -34,7 +34,7 @@ export class MessageStorageDataSource {
     );
 
     parserWorker.postMessage({
-      type: "phone-detect",
+      type: "phone-detect-messages",
       messages: res,
     });
     return res;
@@ -44,7 +44,7 @@ export class MessageStorageDataSource {
     this.database.add<IMessage>("message", "message", message);
 
     parserWorker.postMessage({
-      type: "phone-detect",
+      type: "phone-detect-messages",
       messages: [message],
     });
 
@@ -87,7 +87,7 @@ export class MessageStorageDataSource {
     this.database.update<IMessage>("message", "message", message);
 
     parserWorker.postMessage({
-      type: "phone-detect",
+      type: "phone-detect-messages",
       messages: [message],
     });
   }

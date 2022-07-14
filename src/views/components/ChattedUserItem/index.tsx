@@ -1,19 +1,22 @@
 import classNames from "classnames";
+import { IFile } from "../../../domains";
 import { IMessage, MessageType } from "../../../domains/Message";
 import { IUser } from "../../../domains/User";
-import Avatar from "../common/Avatar";
-import styles from "../../assets/styles/ChattedUserItem.module.scss";
 import { getRemainingTime } from "../../../helper";
+import styles from "../../assets/styles/ChattedUserItem.module.scss";
+import Avatar from "../common/Avatar";
+import HighlightKeyword from "../common/HighlightKeyword";
 
 export interface IChattedUserItemProps {
   user: IUser;
   lastMessage: IMessage;
   onClick?: Function;
   active?: boolean;
+  keywords?: string;
 }
 
 export default function ChattedUserItem(props: IChattedUserItemProps) {
-  const { user, lastMessage, onClick, active } = props;
+  const { user, lastMessage, onClick, active, keywords } = props;
 
   return (
     <div
@@ -39,14 +42,29 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
         <div className={styles.content}>
           <p className={styles.title}>{user?.fullName || ""}</p>
 
-          <p className={styles.message}>
+          <div className={styles.message}>
             {lastMessage?.type === MessageType.TEXT &&
-              ((lastMessage?.content as string) || "")}
+              (keywords ? (
+                <HighlightKeyword
+                  text={lastMessage.content as string}
+                  keyword={keywords || ""}
+                />
+              ) : (
+                (lastMessage.content as string)
+              ))}
 
             {lastMessage?.type === MessageType.IMAGE && "Đã gửi ảnh"}
 
-            {lastMessage?.type === MessageType.FILE && "Đã gửi file"}
-          </p>
+            {lastMessage?.type === MessageType.FILE &&
+              (keywords ? (
+                <HighlightKeyword
+                  text={(lastMessage.content as IFile[])[0]?.name || ""}
+                  keyword={keywords || ""}
+                />
+              ) : (
+                (lastMessage.content as IFile[])[0]?.name || ""
+              ))}
+          </div>
         </div>
         <p className={styles.time}>
           {getRemainingTime(new Date(lastMessage.sendTime).getTime())}

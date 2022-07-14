@@ -13,7 +13,6 @@ const createWindow = () => {
     minWidth: 400,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
-      spellcheck: false,
     },
   });
 
@@ -24,8 +23,8 @@ const createWindow = () => {
         item.setSavePath(
           app.getPath("downloads") +
             "/" +
-            item.getFilename() +
-            new Date().getTime()
+            new Date().getTime() +
+            item.getFilename()
         );
 
         if (state === "interrupted") {

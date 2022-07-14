@@ -35,7 +35,7 @@ import {
   removeAllMessage,
   updateManyMessage,
 } from "../../../framework/redux/message";
-import { SOCKET_CONSTANTS } from "../../../helper";
+import { SOCKET_CONSTANTS, tokenizer } from "../../../helper";
 import { API } from "../../../network";
 import styles from "../../assets/styles/ChatPage.module.scss";
 import ChattedUserList from "../../components/ChattedUserList";
@@ -74,7 +74,6 @@ export default function ChatPage(props: IChatPageProps) {
   const [isTyping, setIsTyping] = React.useState(false);
   const [isFullMessage, setIsFullMessage] = React.useState(false);
   const [search, setSearch] = React.useState("");
-  const [message, setMessage] = React.useState({ message: "", checked: "" });
   const [files, setFiles] = React.useState<IFile[]>([]);
   const [searchUsers, setSearchUsers] = React.useState<IUser[]>([]);
   const [searchConversations, setSearchConversations] = React.useState<
@@ -128,73 +127,38 @@ export default function ChatPage(props: IChatPageProps) {
 
       typingRef.current = undefined;
     }, 2000);
-
-    setMessage((state) => ({
-      ...state,
-      message: value.replaceAll("\n", ""),
-    }));
-
-    if (value.replaceAll("\n", ""))
-      parserWorker.postMessage({
-        type: "check",
-        text: value.replaceAll("\n", ""),
-      });
   };
 
   const handleChangeSearch = async (e: React.ChangeEvent<any>) => {
-    setSearch(e.target.value);
+    if (!e.target.value) {
+      setSearch("");
+      clearTimeout(searchRef.current);
+    }
 
     if (searchRef.current) {
       clearTimeout(searchRef.current);
     }
 
-    searchRef.current = setTimeout(async () => {
-      const startTime = new Date().getTime();
-
-      const result = await messageController.searchMessage(e.target.value);
-
-      const endTime = new Date().getTime();
-
-      console.log(`Search took ${endTime - startTime} milliseconds`);
-
-      setSearchMessages(result);
-      setSearchConversations(
-        conversations.filter((item) =>
-          friend
-            .find((f) => f._id === item.userId)
-            ?.fullName.toLowerCase()
-            .trim()
-            .includes(e.target.value.toLowerCase().trim())
-        )
-      );
-
-      if (e.target.value?.length === 10 || e.target.value?.length === 11) {
-        const res = await userController.getUsersByPhone(e.target.value);
-
-        setSearchUsers(res);
-      } else {
-        setSearchUsers([]);
-      }
-    }, 500);
+    searchRef.current = setTimeout(async () => setSearch(e.target.value), 200);
   };
 
-  const handleSubmitMessage = async () => {
+  const handleSubmitMessage = async (message: string) => {
     if (activeConversation) {
-      if (message.message || files.length > 0) {
+      if (message || files.length > 0) {
         setScrollTargetTopMessage("");
         setHighlightMessage("");
       }
 
       if (
-        message.message &&
-        message.message.trim() !== "" &&
-        message.message.trim().charCodeAt(0) !== 10
+        message &&
+        message.trim() !== "" &&
+        message.trim().charCodeAt(0) !== 10
       ) {
         let thumb: IMessageThumb | undefined = undefined;
 
         const regex = /\bhttps?:\/\/\S+/i;
 
-        const url = message.message.replace(/\u00a0/g, " ").match(regex);
+        const url = message.replace(/\u00a0/g, " ").match(regex);
 
         if (url) {
           try {
@@ -212,7 +176,7 @@ export default function ChatPage(props: IChatPageProps) {
           fromId: auth.auth.user._id,
           toId: activeConversation.user._id,
           type: MessageType.TEXT,
-          content: message.message.replace(/\u00a0/g, " "),
+          content: message.replace(/\u00a0/g, " "),
           conversationId: "",
           sendTime: new Date().toISOString(),
           clientId: uuidv4(),
@@ -239,10 +203,6 @@ export default function ChatPage(props: IChatPageProps) {
     }
 
     setFiles([]);
-    setMessage({
-      message: "",
-      checked: "",
-    });
   };
 
   const handleImageClick = React.useCallback((image: IFile) => {
@@ -374,8 +334,6 @@ export default function ChatPage(props: IChatPageProps) {
       });
       setScrollTargetTopMessage("");
       setHighlightMessage("");
-
-      setMessage({ message: "", checked: "" });
 
       if (messages.length > 0) {
         dispatch(removeAllMessage());
@@ -596,17 +554,58 @@ export default function ChatPage(props: IChatPageProps) {
 
     parserWorker.addEventListener("message", (ev) => {
       switch (ev.data.type) {
-        case "spellcheck-result": {
-          setMessage((state) => ({ ...state, checked: ev.data.text }));
-          break;
-        }
-        case "phone-detect-result": {
+        case "phone-detect-messages-result": {
           dispatch(updateManyMessage(ev.data.messages));
           break;
         }
       }
     });
   }, []);
+
+  React.useEffect(() => {
+    const handleSearch = async () => {
+      const startTime = new Date().getTime();
+
+      const result = await messageController.searchMessage(search);
+
+      const endTime = new Date().getTime();
+
+      console.log(`Search took ${endTime - startTime} milliseconds`);
+
+      setSearchMessages(result);
+      setSearchConversations(
+        conversations.filter((item) => {
+          const user = friend.find((f) => f._id === item.userId);
+
+          if (!user) return false;
+
+          const keywords = Object.keys(tokenizer(search));
+          const words = Object.keys(tokenizer(user.fullName));
+
+          for (let i = 0; i < keywords.length; i++) {
+            if (i !== keywords.length - 1) {
+              if (!words.find((item) => item === keywords[i])) return false;
+            } else {
+              if (!words.find((item) => item.startsWith(keywords[i])))
+                return false;
+            }
+          }
+
+          return true;
+        })
+      );
+
+      if (search?.length === 10 || search?.length === 11) {
+        const res = await userController.getUsersByPhone(search);
+
+        setSearchUsers(res);
+      } else {
+        setSearchUsers([]);
+      }
+    };
+
+    handleSearch();
+  }, [search]);
 
   //Sync message
   React.useEffect(() => {
@@ -647,7 +646,6 @@ export default function ChatPage(props: IChatPageProps) {
       socketController.listen(
         SOCKET_CONSTANTS.TYPING,
         (data: { isTyping: boolean; fromUserId: string }) => {
-          console.log(isTyping);
           if (data.isTyping === true) {
             showTypingRef.current = setTimeout(() => {
               setIsTyping(false);
@@ -664,52 +662,6 @@ export default function ChatPage(props: IChatPageProps) {
       );
     }
   }, [activeConversation, common.isSocketConnected]);
-
-  // Add listener event for spell check
-  React.useEffect(() => {
-    let words: NodeListOf<Element>;
-
-    if (conversationInputRef.current) {
-      words = conversationInputRef.current.querySelectorAll(".spell-check");
-
-      words.forEach((word) =>
-        word.addEventListener("click", async () => {
-          const correct = (word as any).dataset?.spell;
-
-          // Wrong word
-          if (correct && inputRef.current) {
-            (word as any).innerText = correct;
-
-            (inputRef.current as any).oninput();
-          }
-          // Phone
-          else {
-            setIsLoadingUserModal(true);
-            const user = await userController.getOneUserByPhone(
-              (word as any).innerText
-            );
-            setIsLoadingUserModal(false);
-
-            if (user) {
-              setUserModal(user);
-            } else {
-              dispatch(setShowNotification(true));
-              setNotification({
-                type: "error",
-                message: "Không tìm thấy người dùng với số điện thoại này",
-              });
-            }
-          }
-        })
-      );
-    }
-
-    return () => {
-      if (conversationInputRef.current && words) {
-        words.forEach((word) => word.replaceWith(word.cloneNode(true)));
-      }
-    };
-  }, [message.checked]);
 
   // Add listener event for phone detect
   React.useEffect(() => {
@@ -777,7 +729,6 @@ export default function ChatPage(props: IChatPageProps) {
               endIcon={<BsSearch />}
               className={styles.searchInput}
               border={false}
-              value={search}
               onChange={handleChangeSearch}
             />
           </div>
@@ -794,6 +745,7 @@ export default function ChatPage(props: IChatPageProps) {
                   (item) => friend.find((f) => f._id === item.userId)!
                 )}
                 onClick={handleClickOnSearchUser}
+                keywords={search}
               />
 
               <p className={styles.title}>Tin nhắn</p>
@@ -808,6 +760,7 @@ export default function ChatPage(props: IChatPageProps) {
                     friend.find((u) => u._id === item.fromId) || auth.auth.user,
                 }))}
                 onClick={handleClickOnSearchMessage}
+                keywords={search}
               />
             </div>
           ) : (
@@ -829,6 +782,7 @@ export default function ChatPage(props: IChatPageProps) {
             <div className={styles.conversationTitle}>
               <ConversationTitle
                 name={activeConversation?.user.fullName || ""}
+                avatar={activeConversation?.user.avatar || ""}
               />
             </div>
 
@@ -896,7 +850,6 @@ export default function ChatPage(props: IChatPageProps) {
 
               <AutoResizeInput
                 endIcon={<AiOutlineSend />}
-                value={message.checked}
                 onSubmit={handleSubmitMessage}
                 onChange={handleChangeMessage}
                 onPaste={handlePaste}
@@ -964,7 +917,6 @@ export default function ChatPage(props: IChatPageProps) {
                 <Button
                   onClick={() => {
                     handleClickOnSearchUser(userModal);
-                    setMessage({ message: "", checked: "" });
                     setUserModal(undefined);
                   }}
                 >

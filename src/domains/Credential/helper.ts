@@ -4,7 +4,8 @@ export function modelCredentialData(credential: ICredential): CredentialModel {
   return new CredentialModel(
     credential.phone,
     credential.password,
-    credential.fullName
+    credential.fullName,
+    credential.avatar
   );
 }
 
@@ -14,10 +15,12 @@ export function normalizeCredentialData(
   const phone = credentialModel.getPhone();
   const password = credentialModel.getPassword();
   const fullName = credentialModel.getFullName();
+  const avatar = credentialModel.getAvatar();
 
   return {
     phone,
     password,
     fullName,
+    avatar,
   };
 }

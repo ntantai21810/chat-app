@@ -6,7 +6,7 @@ import PreviewLink from "../PreviewLink";
 export interface IAutoResizeInputProps {
   endIcon?: React.ReactNode;
   onChange?: (value: string) => any;
-  onSubmit?: Function;
+  onSubmit?: (value: string) => any;
   onPaste?: React.ClipboardEventHandler<HTMLSpanElement>;
   value?: string;
   onDrop?: React.DragEventHandler<HTMLInputElement>;
@@ -134,7 +134,8 @@ function AutoResizeInput(
           onPaste={onPaste}
           onDrop={onDrop}
           onKeyDown={(e) => {
-            if (e.code === "Enter" && onSubmit) onSubmit();
+            if (e.code === "Enter" && onSubmit)
+              onSubmit((innerRef.current as any).innerText);
           }}
         ></span>
 
@@ -142,7 +143,7 @@ function AutoResizeInput(
           <div
             className={styles.icon}
             onClick={() => {
-              if (onSubmit) onSubmit();
+              if (onSubmit) onSubmit((innerRef.current as any).innerText);
             }}
           >
             {endIcon}

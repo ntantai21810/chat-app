@@ -18,7 +18,12 @@ export default function RegisterPage(props: IRegisterPageProps) {
   const dispatch = getDispatch();
 
   const handleRegister = (data: IRegisterFormData) => {
-    authController.register(data.phone, data.fullName, data.password);
+    authController.register(
+      data.phone,
+      data.fullName,
+      data.password,
+      data.avatar
+    );
   };
 
   React.useEffect(() => {

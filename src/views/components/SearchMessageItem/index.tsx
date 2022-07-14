@@ -5,10 +5,11 @@ import ChattedUserItem from "../ChattedUserItem";
 export interface ISearchMessageItemProps {
   message: IMessage & { conversation: IConversation; user: IUser };
   onClick?: (user: IMessage) => any;
+  keywords?: string;
 }
 
 export default function SearchMessageItem(props: ISearchMessageItemProps) {
-  const { message, onClick } = props;
+  const { message, onClick, keywords } = props;
 
   return (
     <div className={styles.container}>
@@ -16,6 +17,7 @@ export default function SearchMessageItem(props: ISearchMessageItemProps) {
         user={message.user}
         lastMessage={message}
         onClick={() => (onClick ? onClick(message) : "")}
+        keywords={keywords}
       />
     </div>
   );

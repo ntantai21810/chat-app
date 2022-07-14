@@ -6,10 +6,11 @@ import styles from "../../assets/styles/SearchUserList.module.scss";
 export interface ISearchUserListProps {
   users: IUser[];
   onClick?: (user: IUser) => any;
+  keywords?: string;
 }
 
 export default function SearchUserList(props: ISearchUserListProps) {
-  const { users, onClick } = props;
+  const { users, onClick, keywords } = props;
 
   return (
     <div>
@@ -19,6 +20,7 @@ export default function SearchUserList(props: ISearchUserListProps) {
             avatar={item.avatar}
             name={item.fullName}
             onClick={() => (onClick ? onClick(item) : "")}
+            keywords={keywords}
           />
         </div>
       ))}

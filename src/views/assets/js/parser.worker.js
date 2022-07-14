@@ -2,26 +2,31 @@ import { MessageType } from "../../../domains";
 
 /* eslint-disable */
 if ("function" === typeof self.importScripts) {
-  self.importScripts(new URL("../js/BJSpell.js", import.meta.url));
-  self.importScripts(new URL("../js/en_US.js", import.meta.url));
-
-  const dictionary = "en_US";
-
-  const lang = self.BJSpell(dictionary);
-
   self.addEventListener("message", (event) => {
     switch (event.data.type) {
-      case "check":
+      case "phone-detect-messages":
         postMessage({
-          type: "spellcheck-result",
-          text: spellCheck(lang, event.data.text),
+          type: "phone-detect-messages-result",
+          messages: detectPhoneMessages(event.data.messages),
         });
         break;
-
       case "phone-detect":
         postMessage({
           type: "phone-detect-result",
-          messages: transformMessages(event.data.messages),
+          text: processPhoneNumber(event.data.text),
+        });
+        break;
+
+      case "url-detect-messages":
+        postMessage({
+          type: "url-detect-messages-result",
+          messages: detectUrlMessages(event.data.messages),
+        });
+        break;
+      case "url-detect":
+        postMessage({
+          type: "url-detect-result",
+          text: processUrl(event.data.text),
         });
         break;
     }
@@ -36,33 +41,7 @@ function normalizeHTMLTag(text) {
     .replace(/"/g, "&quot;");
 }
 
-function spellCheck(lang, text) {
-  let str = "";
-
-  const words = text.split(/\s/);
-
-  for (let word of words) {
-    if (/(84|0[3|5|7|8|9])+([0-9]{8})/.test(word) || urlDetect(word)) {
-      str += `${processMessage(
-        normalizeHTMLTag(word),
-        "phone spell-check"
-      )}&nbsp;`;
-    } else if (word !== "" && !lang.check(word)) {
-      str += `<span title="Did you mean ${lang
-        .suggest(word, 1)
-        .join(", ")}" class="misspelled spell-check" data-spell="${lang.suggest(
-        word,
-        1
-      )}">${normalizeHTMLTag(word)}</span>&nbsp;`;
-    } else {
-      str += `<span>${normalizeHTMLTag(word)}</span>&nbsp;`;
-    }
-  }
-
-  return str.slice(0, -6);
-}
-
-function processMessage(text, className) {
+function processPhoneNumber(text, className) {
   let result = "";
 
   for (let i = 0; i < text.length; i++) {
@@ -76,14 +55,22 @@ function processMessage(text, className) {
       )}">${text.slice(i, i + 10)}</span>`;
 
       i += 9;
+    } else result += normalizeHTMLTag(text[i]);
+  }
 
-      continue;
-    }
+  return result;
+}
 
-    const url = urlDetect(text.slice(i));
+function processUrl(text, className) {
+  let result = "";
+
+  for (let i = 0; i < text.length; i++) {
+    const regex = /\bhttps?:\/\/\S+/i;
+
+    const url = text.slice(i).match(regex);
 
     if (url && url[0] === text.slice(i, i + url[0].length)) {
-      result += `<span class="url" data-url="${url[0]}">${url[0]}</span>`;
+      result += `<span class="${className}" data-url="${url[0]}">${url[0]}</span>`;
 
       i += url[0].length - 1;
 
@@ -96,18 +83,23 @@ function processMessage(text, className) {
   return result;
 }
 
-function urlDetect(text) {
-  const regex = /\bhttps?:\/\/\S+/i;
-
-  return text.match(regex);
-}
-
-function transformMessages(messages) {
+function detectPhoneMessages(messages) {
   return messages.map((message) =>
     message.type === MessageType.TEXT
       ? {
           ...message,
-          content: processMessage(message.content, "phone-number-message"),
+          content: processPhoneNumber(message.content, "highlight phone"),
+        }
+      : message
+  );
+}
+
+function detectUrlMessages(messages) {
+  return messages.map((message) =>
+    message.type === MessageType.TEXT
+      ? {
+          ...message,
+          content: processUrl(message.content, "highlight url"),
         }
       : message
   );

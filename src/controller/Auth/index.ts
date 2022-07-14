@@ -33,12 +33,18 @@ export class AuthController {
     }
   }
 
-  register(phone: string, fullName: string, password: string) {
+  register(
+    phone: string,
+    fullName: string,
+    password: string,
+    avatar: FileList
+  ) {
     try {
       const credentialModel = modelCredentialData({
         phone,
         password,
         fullName,
+        avatar,
       });
 
       const registerUseCase = new RegisterUseCase(

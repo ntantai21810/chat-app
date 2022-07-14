@@ -15,6 +15,7 @@ import Avatar from "../../Avatar";
 import Dropdown from "../../Dropdown";
 import routes from "../routes";
 import styles from "../../../../assets/styles/VerticalHeader.module.scss";
+import { useAuth } from "../../../../../adapter/redux";
 
 export interface IVerticalHeaderProps {}
 
@@ -23,6 +24,7 @@ export const VerticalHeaderWidth = "8rem";
 export default function VerticalHeader(props: IVerticalHeaderProps) {
   const location = useLocation();
   const dispatch = getDispatch();
+  const auth = useAuth();
 
   const pathName = location.pathname;
 
@@ -47,7 +49,10 @@ export default function VerticalHeader(props: IVerticalHeaderProps) {
         <Avatar
           width="6rem"
           hegiht="6rem"
-          src="https://images.unsplash.com/photo-1644982648791-a010e61aa845?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170"
+          src={
+            auth.auth.user.avatar ||
+            "https://images.unsplash.com/photo-1644982648791-a010e61aa845?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=80&raw_url=true&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170"
+          }
           alt="Chat app logo"
         />
       </div>

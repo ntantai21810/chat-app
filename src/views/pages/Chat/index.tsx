@@ -701,8 +701,21 @@ export default function ChatPage(props: IChatPageProps) {
         })
       );
 
-      if (search?.length === 10 || search?.length === 11) {
-        const res = await userController.getUsersByPhone(search);
+      const phonePos = await commonController.detectPhone(
+        search.replace(/[^\w]/gi, "")
+      );
+
+      const phone =
+        phonePos.length > 0
+          ? search
+              .replace(/[^\w]/gi, "")
+              .slice(phonePos[0].start, phonePos[0].start + phonePos[0].length)
+          : undefined;
+
+      const nums = search.replace(/[^0-9]/g, "");
+
+      if (phone && (nums.length === 10 || nums.length === 11)) {
+        const res = await userController.getUsersByPhone(phone);
 
         setSearchUsers(res);
       } else {

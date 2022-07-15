@@ -68,7 +68,7 @@ export class ReceiveMessageUseCase {
         );
 
         conversationId = updatedConversationModel.getId();
-        updateConversationUseCase.execute(updatedConversationModel);
+        await updateConversationUseCase.execute(updatedConversationModel);
       } else {
         //Get chatting user info
 
@@ -85,7 +85,7 @@ export class ReceiveMessageUseCase {
         );
 
         conversationId = newConversationModel.getId();
-        addConversationUseCase.execute(newConversationModel);
+        await addConversationUseCase.execute(newConversationModel);
 
         const getUserByIdUseCase = new GetUserByIdUseCase(
           new UserAPIRepository(new UserAPIDataSource(API.getIntance()))
@@ -102,7 +102,7 @@ export class ReceiveMessageUseCase {
           new FriendPresenter()
         );
 
-        if (userModel) addFriendUseCase.execute(userModel);
+        if (userModel) await addFriendUseCase.execute(userModel);
       }
 
       messageModel.setConversationId(conversationId);
@@ -117,7 +117,7 @@ export class ReceiveMessageUseCase {
         )
       );
 
-      addMessageDatabaseUseCase.execute(messageModel);
+      await addMessageDatabaseUseCase.execute(messageModel);
     } catch (e) {
       console.log(e);
       throw e;

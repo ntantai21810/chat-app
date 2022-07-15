@@ -21,19 +21,19 @@ export interface IDatabase {
     transaction: string | string[],
     objectStore: string,
     document: T
-  ): void;
+  ): Promise<void>;
 
   update<T>(
     transaction: string | string[],
     objectStore: string,
     document: T
-  ): void;
+  ): Promise<void>;
 
   delete<T>(
     transaction: string | string[],
     objectStore: string,
     key: IDBValidKey | IDBKeyRange
-  ): void;
+  ): Promise<void>;
 
   count<T>(
     transaction: string | string[],
@@ -285,39 +285,69 @@ export class IndexedDB implements IDatabase {
     transaction: string | string[],
     objectStore: string,
     document: T
-  ): void {
-    if (this.db) {
-      this.db
-        .transaction(transaction, "readwrite")
-        .objectStore(objectStore)
-        .add(document);
-    }
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.db) {
+        const request = this.db
+          .transaction(transaction, "readwrite")
+          .objectStore(objectStore)
+          .add(document);
+
+        request.onsuccess = (event) => {
+          resolve();
+        };
+
+        request.onerror = (event) => {
+          reject();
+        };
+      } else resolve();
+    });
   }
 
   public update<T>(
     transaction: string | string[],
     objectStore: string,
     document: T
-  ): void {
-    if (this.db) {
-      this.db
-        .transaction(transaction, "readwrite")
-        .objectStore(objectStore)
-        .put(document);
-    }
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.db) {
+        const request = this.db
+          .transaction(transaction, "readwrite")
+          .objectStore(objectStore)
+          .put(document);
+
+        request.onsuccess = (event) => {
+          resolve();
+        };
+
+        request.onerror = (event) => {
+          reject();
+        };
+      } else resolve();
+    });
   }
 
   public delete<T>(
     transaction: string | string[],
     objectStore: string,
     key: IDBValidKey | IDBKeyRange
-  ): void {
-    if (this.db) {
-      this.db
-        .transaction(transaction, "readwrite")
-        .objectStore(objectStore)
-        .delete(key);
-    }
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.db) {
+        const request = this.db
+          .transaction(transaction, "readwrite")
+          .objectStore(objectStore)
+          .delete(key);
+
+        request.onsuccess = (event) => {
+          resolve();
+        };
+
+        request.onerror = (event) => {
+          reject();
+        };
+      } else resolve();
+    });
   }
 
   public count<T>(

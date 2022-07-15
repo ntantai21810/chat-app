@@ -8,7 +8,7 @@ import { IAddFriendRepo, IGetAllFriendRepo } from "../../useCases";
 
 export interface IFriendStorageDataSource {
   getAllFriend(): Promise<IUser[]>;
-  addFriend(friend: IUser): void;
+  addFriend(friend: IUser): Promise<void>;
 }
 
 export class FriendStorageRepository
@@ -33,9 +33,9 @@ export class FriendStorageRepository
     return friendModels;
   }
 
-  addFriend(friendModel: UserModel): void {
+  addFriend(friendModel: UserModel) {
     const friend = normalizeUserData(friendModel);
 
-    this.dataSource.addFriend(friend);
+    return this.dataSource.addFriend(friend);
   }
 }

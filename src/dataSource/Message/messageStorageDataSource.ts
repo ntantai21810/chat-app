@@ -1,7 +1,6 @@
 import { IFile, IMessage, MessageType } from "../../domains";
 import { tokenizer } from "../../helper";
 import { IDatabase } from "../../storage";
-import { parserWorker } from "../../views/pages/Chat";
 
 export class MessageStorageDataSource {
   private database: IDatabase;
@@ -33,20 +32,11 @@ export class MessageStorageDataSource {
       limit
     );
 
-    parserWorker.postMessage({
-      type: "phone-detect-messages",
-      messages: res,
-    });
     return res;
   }
 
   async addMessage(message: IMessage): Promise<void> {
     this.database.add<IMessage>("message", "message", message);
-
-    parserWorker.postMessage({
-      type: "phone-detect-messages",
-      messages: [message],
-    });
 
     //Add to search DB
     const tokens = tokenizer(
@@ -83,17 +73,12 @@ export class MessageStorageDataSource {
     }
   }
 
-  updateMessage(message: IMessage): void {
-    this.database.update<IMessage>("message", "message", message);
-
-    parserWorker.postMessage({
-      type: "phone-detect-messages",
-      messages: [message],
-    });
+  updateMessage(message: IMessage) {
+    return this.database.update<IMessage>("message", "message", message);
   }
 
-  deleteMessage(message: IMessage): void {
-    this.database.delete<IMessage>("message", "message", [
+  deleteMessage(message: IMessage) {
+    return this.database.delete<IMessage>("message", "message", [
       message.fromId,
       message.toId,
       message.clientId,

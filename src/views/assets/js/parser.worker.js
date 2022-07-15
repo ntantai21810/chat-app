@@ -1,15 +1,7 @@
-import { MessageType } from "../../../domains";
-
 /* eslint-disable */
 if ("function" === typeof self.importScripts) {
   self.addEventListener("message", (event) => {
     switch (event.data.type) {
-      case "phone-detect-messages":
-        postMessage({
-          type: "phone-detect-messages-result",
-          messages: detectPhoneMessages(event.data.messages),
-        });
-        break;
       case "phone-detect":
         postMessage({
           type: "phone-detect-result",
@@ -17,52 +9,45 @@ if ("function" === typeof self.importScripts) {
         });
         break;
 
-      case "url-detect-messages":
-        postMessage({
-          type: "url-detect-messages-result",
-          messages: detectUrlMessages(event.data.messages),
-        });
-        break;
       case "url-detect":
         postMessage({
           type: "url-detect-result",
           text: processUrl(event.data.text),
         });
         break;
+
+      case "email-detect":
+        postMessage({
+          type: "email-detect-result",
+          text: processEmail(event.data.text),
+        });
+        break;
     }
   });
 }
 
-function normalizeHTMLTag(text) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/>/g, "&gt;")
-    .replace(/</g, "&lt;")
-    .replace(/"/g, "&quot;");
-}
-
-function processPhoneNumber(text, className) {
-  let result = "";
+function processPhoneNumber(text) {
+  const position = [];
 
   for (let i = 0; i < text.length; i++) {
     if (
       ["0", "3", "5", "7", "8", "9"].includes(text[i]) &&
       /(84|0[3|5|7|8|9])+([0-9]{8})\b/.test(text.slice(i, i + 10))
     ) {
-      result += `<span class="${className}" data-phone="${text.slice(
-        i,
-        i + 10
-      )}">${text.slice(i, i + 10)}</span>`;
+      position.push({
+        start: i,
+        length: 10,
+      });
 
       i += 9;
-    } else result += normalizeHTMLTag(text[i]);
+    }
   }
 
-  return result;
+  return position;
 }
 
-function processUrl(text, className) {
-  let result = "";
+function processUrl(text) {
+  const position = [];
 
   for (let i = 0; i < text.length; i++) {
     const regex = /\bhttps?:\/\/\S+/i;
@@ -70,37 +55,29 @@ function processUrl(text, className) {
     const url = text.slice(i).match(regex);
 
     if (url && url[0] === text.slice(i, i + url[0].length)) {
-      result += `<span class="${className}" data-url="${url[0]}">${url[0]}</span>`;
+      position.push({ start: i, length: url[0].length });
 
       i += url[0].length - 1;
-
-      continue;
     }
-
-    result += normalizeHTMLTag(text[i]);
   }
 
-  return result;
+  return position;
 }
 
-function detectPhoneMessages(messages) {
-  return messages.map((message) =>
-    message.type === MessageType.TEXT
-      ? {
-          ...message,
-          content: processPhoneNumber(message.content, "highlight phone"),
-        }
-      : message
-  );
-}
+function processEmail(text) {
+  const position = [];
 
-function detectUrlMessages(messages) {
-  return messages.map((message) =>
-    message.type === MessageType.TEXT
-      ? {
-          ...message,
-          content: processUrl(message.content, "highlight url"),
-        }
-      : message
-  );
+  for (let i = 0; i < text.length; i++) {
+    const regex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi;
+
+    const email = text.slice(i).match(regex);
+
+    if (email && email[0] === text.slice(i, i + email[0].length)) {
+      position.push({ start: i, length: email[0].length });
+
+      i += email[0].length - 1;
+    }
+  }
+
+  return position;
 }

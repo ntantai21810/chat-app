@@ -6,6 +6,7 @@ import {
   DatabaseController,
   FriendController,
   UserController,
+  CommonController,
 } from "./controller";
 import {
   AuthPresenter,
@@ -27,3 +28,4 @@ export const databaseController = new DatabaseController(
 );
 export const friendController = new FriendController(new FriendPresenter());
 export const userController = new UserController();
+export const commonController = new CommonController();

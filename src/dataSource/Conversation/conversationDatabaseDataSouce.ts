@@ -21,16 +21,16 @@ export class ConversationDatabaseDataSource {
     );
   }
 
-  addConversation(conversation: IConversation): void {
-    this.database.add<IConversation>(
+  addConversation(conversation: IConversation): Promise<void> {
+    return this.database.add<IConversation>(
       "conversation",
       "conversation",
       conversation
     );
   }
 
-  updateConversation(conversation: IConversation): void {
-    this.database.update<IConversation>(
+  updateConversation(conversation: IConversation): Promise<void> {
+    return this.database.update<IConversation>(
       "conversation",
       "conversation",
       conversation

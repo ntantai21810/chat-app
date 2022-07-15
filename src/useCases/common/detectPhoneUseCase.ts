@@ -1,5 +1,7 @@
+import { IPosition } from ".";
+
 export interface IDetectPhoneRepo {
-  detectPhone(text: string): Promise<string>;
+  detectPhone(text: string): Promise<IPosition[]>;
 }
 
 export class DetectPhoneUseCase {
@@ -9,7 +11,7 @@ export class DetectPhoneUseCase {
     this.repository = repository;
   }
 
-  async execute(text: string) {
+  async execute(text: string): Promise<IPosition[]> {
     try {
       const res = await this.repository.detectPhone(text);
 

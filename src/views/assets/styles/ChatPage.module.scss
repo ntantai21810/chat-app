@@ -77,8 +77,7 @@
       position: relative;
 
       :global {
-        .phone-number-message,
-        .url {
+        .highlight {
           color: $primary;
           text-decoration: underline;
           cursor: pointer;
@@ -183,14 +182,7 @@
           margin: 0.4rem 0;
         }
 
-        .misspelled {
-          color: red;
-          text-decoration: underline;
-          cursor: pointer;
-        }
-
-        .phone,
-        .url {
+        .highlight {
           color: $primary;
           text-decoration: underline;
           cursor: pointer;

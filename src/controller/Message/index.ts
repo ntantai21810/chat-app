@@ -35,7 +35,7 @@ export class MessageController {
     toMessage?: IMessage,
     limit?: number,
     exceptBound?: boolean
-  ) {
+  ): Promise<IMessage[]> {
     let result: MessageModel[] = [];
 
     const fromMessageModel = fromMessage
@@ -80,7 +80,7 @@ export class MessageController {
     conversationId: string,
     toMessage: IMessage,
     limit: number = 15
-  ) {
+  ): Promise<IMessage[]> {
     try {
       const getMessageFromDBUseCase = new GetMessageByConversationUseCase(
         new MessageStorageRepository(
@@ -99,7 +99,13 @@ export class MessageController {
         true
       );
 
-      return res;
+      const messages: IMessage[] = [];
+
+      for (let messageModel of res) {
+        messages.push(normalizeMessageData(messageModel));
+      }
+
+      return messages;
     } catch (e) {
       console.log(e);
       return [];
@@ -135,13 +141,13 @@ export class MessageController {
 
       const messageModel = modelMessageData(message);
 
-      sendMessageUseCase.execute(messageModel);
+      await sendMessageUseCase.execute(messageModel);
     } catch (e) {
       console.log(e);
     }
   }
 
-  receiveMessage(message: IMessage, show: boolean) {
+  async receiveMessage(message: IMessage, show: boolean) {
     try {
       const receiveMessageUseCase = new ReceiveMessageUseCase(
         show ? undefined : this.presenter
@@ -149,7 +155,7 @@ export class MessageController {
 
       const messageModel = modelMessageData(message);
 
-      receiveMessageUseCase.execute(messageModel);
+      await receiveMessageUseCase.execute(messageModel);
     } catch (e) {
       console.log(e);
     }

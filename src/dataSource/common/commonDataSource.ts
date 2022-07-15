@@ -1,5 +1,5 @@
-import { IMessage } from "../../domains";
 import { ICommonDataSource } from "../../repository";
+import { IPosition } from "../../useCases";
 
 export class CommonDataSource implements ICommonDataSource {
   private worker: Worker;
@@ -8,7 +8,7 @@ export class CommonDataSource implements ICommonDataSource {
     this.worker = worker;
   }
 
-  detectPhone(text: string): Promise<string> {
+  detectPhone(text: string): Promise<IPosition[]> {
     return new Promise((resolve, reject) => {
       this.worker.postMessage({
         type: "phone-detect",
@@ -26,17 +26,35 @@ export class CommonDataSource implements ICommonDataSource {
     });
   }
 
-  detectPhoneMessages(messages: IMessage[]): Promise<IMessage[]> {
+  detectUrl(text: string): Promise<IPosition[]> {
     return new Promise((resolve, reject) => {
       this.worker.postMessage({
-        type: "phone-detect-messages",
-        messages: messages,
+        type: "url-detect",
+        text: text,
       });
 
       const handleDetect = (ev: MessageEvent<any>) => {
-        if (ev.data.type === "phone-detect-messages-result") {
+        if (ev.data.type === "url-detect-result") {
           this.worker.removeEventListener("message", handleDetect);
-          resolve(ev.data.messages);
+          resolve(ev.data.text);
+        }
+      };
+
+      this.worker.addEventListener("message", handleDetect);
+    });
+  }
+
+  detectEmail(text: string): Promise<IPosition[]> {
+    return new Promise((resolve, reject) => {
+      this.worker.postMessage({
+        type: "email-detect",
+        text: text,
+      });
+
+      const handleDetect = (ev: MessageEvent<any>) => {
+        if (ev.data.type === "email-detect-result") {
+          this.worker.removeEventListener("message", handleDetect);
+          resolve(ev.data.text);
         }
       };
 

@@ -11,6 +11,7 @@ import {
   useMessage,
 } from "../../../adapter/redux";
 import {
+  commonController,
   conversationController,
   databaseController,
   friendController,
@@ -62,6 +63,14 @@ export const parserWorker = new Worker(
 );
 
 const PAGE_SIZE = 20;
+
+function normalizeHTMLTag(text: string) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/>/g, "&gt;")
+    .replace(/</g, "&lt;")
+    .replace(/"/g, "&quot;");
+}
 
 export default function ChatPage(props: IChatPageProps) {
   const conversations = useConversation();
@@ -142,6 +151,93 @@ export default function ChatPage(props: IChatPageProps) {
     searchRef.current = setTimeout(async () => setSearch(e.target.value), 200);
   };
 
+  const processMessages = async (messages: IMessage[]) => {
+    const textMsg = messages.filter((item) => item.type === MessageType.TEXT);
+    const updateInfo: {
+      fromId: string;
+      toId: string;
+      clientId: string;
+      content: string;
+    }[] = [];
+
+    for (let msg of textMsg) {
+      const phonePostion = await commonController.detectPhone(
+        msg.content as string
+      );
+      const urlPosition = await commonController.detectUrl(
+        msg.content as string
+      );
+      const emailPosition = await commonController.detectEmail(
+        msg.content as string
+      );
+
+      let content = "";
+
+      for (let i = 0; i < (msg.content as string).length; i++) {
+        const phonePos = phonePostion.find((item) => item.start === i);
+
+        if (phonePos) {
+          const phone = (msg.content as string).slice(
+            phonePos.start,
+            phonePos.start + phonePos.length
+          );
+          content += `<span class="highlight phone" data-phone="${phone}">${normalizeHTMLTag(
+            phone
+          )}</span>`;
+
+          i += phonePos.length - 1;
+
+          continue;
+        }
+
+        const urlPos = urlPosition.find((item) => item.start === i);
+
+        if (urlPos) {
+          const url = (msg.content as string).slice(
+            urlPos.start,
+            urlPos.start + urlPos.length
+          );
+
+          content += `<span class="highlight url" data-url="${url}">${normalizeHTMLTag(
+            url
+          )}</span>`;
+
+          i += urlPos.length - 1;
+
+          continue;
+        }
+
+        const emailPos = emailPosition.find((item) => item.start === i);
+
+        if (emailPos) {
+          const email = (msg.content as string).slice(
+            emailPos.start,
+            emailPos.start + emailPos.length
+          );
+
+          content += `<span class="highlight email" data-email="${email}">${normalizeHTMLTag(
+            email
+          )}</span>`;
+
+          i += emailPos.length - 1;
+
+          continue;
+        }
+
+        content += (msg.content as string)[i];
+      }
+
+      updateInfo.push({
+        fromId: msg.fromId,
+        toId: msg.toId,
+        clientId: msg.clientId,
+        content,
+      });
+    }
+
+    dispatch(updateManyMessage(updateInfo as any));
+  };
+
   const handleSubmitMessage = async (message: string) => {
     if (activeConversation) {
       if (message || files.length > 0) {
@@ -172,7 +268,7 @@ export default function ChatPage(props: IChatPageProps) {
           }
         }
 
-        messageController.sendMessage({
+        const newMessage: IMessage = {
           fromId: auth.auth.user._id,
           toId: activeConversation.user._id,
           type: MessageType.TEXT,
@@ -182,7 +278,11 @@ export default function ChatPage(props: IChatPageProps) {
           clientId: uuidv4(),
           status: MessageStatus.PENDING,
           thumb: thumb,
-        });
+        };
+
+        await messageController.sendMessage(newMessage);
+
+        processMessages([newMessage]);
       }
 
       if (files.length > 0) {
@@ -324,7 +424,7 @@ export default function ChatPage(props: IChatPageProps) {
     }
   };
 
-  const handleClickOnConversation = (conversation: IConversation) => {
+  const handleClickOnConversation = async (conversation: IConversation) => {
     if (conversation.userId !== activeConversation?.user._id) {
       setIsFullMessage(false);
       setIsTyping(false);
@@ -339,12 +439,14 @@ export default function ChatPage(props: IChatPageProps) {
         dispatch(removeAllMessage());
       }
 
-      messageController.getMessagesByConversation(
+      const res = await messageController.getMessagesByConversation(
         conversation.id,
         undefined,
         undefined,
         PAGE_SIZE
       );
+
+      processMessages(res);
     }
   };
 
@@ -386,12 +488,14 @@ export default function ChatPage(props: IChatPageProps) {
       dispatch(removeAllMessage());
     }
 
-    messageController.getMessagesByConversation(
+    const res = await messageController.getMessagesByConversation(
       conversationId,
       undefined,
       undefined,
       PAGE_SIZE
     );
+
+    processMessages(res);
   };
 
   const handleScrollToTop = React.useCallback(async () => {
@@ -401,16 +505,20 @@ export default function ChatPage(props: IChatPageProps) {
         messages[0],
         PAGE_SIZE
       );
+
       if (res.length <= 1) {
         setIsFullMessage(true);
       }
+
       setScrollTargetTopMessage(
         `message-${
           messages[0].fromId + messages[0].toId + messages[0].clientId
         }`
       );
+
+      processMessages(res);
     }
-  }, [messages, activeConversation, isFullMessage]);
+  }, [messages, activeConversation, isFullMessage, dispatch]);
 
   const handleConversationContentScroll: React.UIEventHandler =
     React.useCallback(
@@ -453,6 +561,7 @@ export default function ChatPage(props: IChatPageProps) {
 
   const handleClickOnSearchMessage = async (message: IMessage) => {
     dispatch(removeAllMessage());
+    const result: IMessage[] = [];
 
     const res = await messageController.getMessagesByConversation(
       message.conversationId,
@@ -461,6 +570,8 @@ export default function ChatPage(props: IChatPageProps) {
       undefined,
       undefined
     );
+
+    result.push(...res);
 
     setScrollTargetTopMessage(
       `message-${message.fromId + message.toId + message.clientId}`
@@ -471,13 +582,15 @@ export default function ChatPage(props: IChatPageProps) {
     );
 
     if (res.length <= 15) {
-      messageController.getMessagesByConversation(
+      const resMore = await messageController.getMessagesByConversation(
         message.conversationId,
         undefined,
         message,
         10,
         true
       );
+
+      result.push(...resMore);
     }
 
     setActiveConversation({
@@ -488,6 +601,8 @@ export default function ChatPage(props: IChatPageProps) {
           (message.toId === auth.auth.user._id ? message.fromId : message.toId)
       )!,
     });
+
+    processMessages(result);
   };
 
   //Connect datasource
@@ -550,15 +665,6 @@ export default function ChatPage(props: IChatPageProps) {
         type: "error",
         message: "Tải xuống thất bại",
       });
-    });
-
-    parserWorker.addEventListener("message", (ev) => {
-      switch (ev.data.type) {
-        case "phone-detect-messages-result": {
-          dispatch(updateManyMessage(ev.data.messages));
-          break;
-        }
-      }
     });
   }, []);
 
@@ -623,23 +729,26 @@ export default function ChatPage(props: IChatPageProps) {
 
       socketController.listen(
         SOCKET_CONSTANTS.CHAT_MESSAGE,
-        (message: IMessage) => {
+        async (message: IMessage) => {
           message.status = MessageStatus.RECEIVED;
 
-          messageController.receiveMessage(
+          await messageController.receiveMessage(
             message,
             !activeConversation ||
               activeConversation.user._id !== message.fromId
           );
 
           socketController.send(SOCKET_CONSTANTS.ACK_MESSAGE, message);
+
+          processMessages([message]);
         }
       );
 
       socketController.listen(
         SOCKET_CONSTANTS.UPDATE_MESSAGE,
-        (message: IMessage) => {
+        async (message: IMessage) => {
           messageController.updateMessage(message);
+          processMessages([message]);
         }
       );
 
@@ -661,7 +770,7 @@ export default function ChatPage(props: IChatPageProps) {
         }
       );
     }
-  }, [activeConversation, common.isSocketConnected]);
+  }, [activeConversation, common.isSocketConnected, dispatch]);
 
   // Add listener event for phone detect
   React.useEffect(() => {
@@ -669,9 +778,7 @@ export default function ChatPage(props: IChatPageProps) {
     let urlMessages: NodeListOf<Element>;
 
     if (conversationContentRef.current) {
-      phoneMessages = conversationContentRef.current.querySelectorAll(
-        ".phone-number-message"
-      );
+      phoneMessages = conversationContentRef.current.querySelectorAll(".phone");
 
       urlMessages = conversationContentRef.current.querySelectorAll(".url");
 

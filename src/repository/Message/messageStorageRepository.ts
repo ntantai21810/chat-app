@@ -20,9 +20,9 @@ export interface IMessageStorageDataSouce {
     limit?: number,
     exceptBound?: boolean
   ): Promise<IMessage[]>;
-  addMessage(message: IMessage): void;
-  updateMessage(message: IMessage): void;
-  deleteMessage(message: IMessage): void;
+  addMessage(message: IMessage): Promise<void>;
+  updateMessage(message: IMessage): Promise<void>;
+  deleteMessage(message: IMessage): Promise<void>;
   searchMessage(text: string): Promise<IMessage[]>;
 }
 
@@ -71,22 +71,22 @@ export class MessageStorageRepository
     return messageModels;
   }
 
-  addMessage(messageModel: MessageModel): void {
+  addMessage(messageModel: MessageModel): Promise<void> {
     const message = normalizeMessageData(messageModel);
 
-    this.dataSource.addMessage(message);
+    return this.dataSource.addMessage(message);
   }
 
-  updateMessage(messageModel: MessageModel): void {
+  updateMessage(messageModel: MessageModel): Promise<void> {
     const message = normalizeMessageData(messageModel);
 
-    this.dataSource.updateMessage(message);
+    return this.dataSource.updateMessage(message);
   }
 
-  deleteMessage(messageModel: MessageModel): void {
+  deleteMessage(messageModel: MessageModel): Promise<void> {
     const message = normalizeMessageData(messageModel);
 
-    this.dataSource.deleteMessage(message);
+    return this.dataSource.deleteMessage(message);
   }
 
   async searchMessage(text: string): Promise<MessageModel[]> {

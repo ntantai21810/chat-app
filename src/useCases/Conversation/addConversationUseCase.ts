@@ -2,7 +2,7 @@ import { ConversationModel } from "../../domains";
 import { IConversationPresenter } from "../../presenter";
 
 export interface IAddConversationRepo {
-  addConversation(conversationModel: ConversationModel): void;
+  addConversation(conversationModel: ConversationModel): Promise<void>;
 }
 
 export class AddConversationUseCase {
@@ -18,9 +18,9 @@ export class AddConversationUseCase {
     this.presenter = presenter;
   }
 
-  execute(conversationModel: ConversationModel) {
+  async execute(conversationModel: ConversationModel) {
     try {
-      this.repository.addConversation(conversationModel);
+      await this.repository.addConversation(conversationModel);
 
       this.presenter.addConversation(conversationModel);
     } catch (e) {

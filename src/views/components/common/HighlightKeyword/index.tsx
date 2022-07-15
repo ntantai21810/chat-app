@@ -113,8 +113,6 @@ export default function HighlightKeyword(props: IHighlightKeywordProps) {
         return item.word;
       });
 
-    console.log(result);
-
     if (ref.current) {
       ref.current.innerHTML = result.join(" ");
     }

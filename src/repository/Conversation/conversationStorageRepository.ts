@@ -16,8 +16,8 @@ export interface IConversationStorageDataSource {
   getConversations(): Promise<IConversation[]>;
   getConversationByUserId(userId: string): Promise<IConversation | null>;
   getConversationById(id: string): Promise<IConversation | null>;
-  addConversation(conversation: IConversation): void;
-  updateConversation(conversation: IConversation): void;
+  addConversation(conversation: IConversation): Promise<void>;
+  updateConversation(conversation: IConversation): Promise<void>;
 }
 
 export class ConversationStorageRepository
@@ -60,16 +60,18 @@ export class ConversationStorageRepository
     } else return null;
   }
 
-  addConversation(conversationModel: ConversationModel): void {
+  async addConversation(conversationModel: ConversationModel): Promise<void> {
     const conversation = normalizeConversationData(conversationModel);
 
-    this.dataSource.addConversation(conversation);
+    return this.dataSource.addConversation(conversation);
   }
 
-  updateConversation(conversationModel: ConversationModel): void {
+  async updateConversation(
+    conversationModel: ConversationModel
+  ): Promise<void> {
     const conversation = normalizeConversationData(conversationModel);
 
-    this.dataSource.updateConversation(conversation);
+    return this.dataSource.updateConversation(conversation);
   }
 
   async getConversationById(userId: string): Promise<ConversationModel | null> {

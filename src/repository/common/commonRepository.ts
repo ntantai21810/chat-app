@@ -1,18 +1,17 @@
-import { IDetectPhoneMessagesRepo } from "./../../useCases/common/detectPhoneMessagesUseCase";
-import { IDetectPhoneRepo } from "../../useCases";
 import {
-  IMessage,
-  MessageModel,
-  modelMessageData,
-  normalizeMessageData,
-} from "../../domains";
+  IDetectEmailRepo,
+  IDetectPhoneRepo,
+  IDetectUrlRepo,
+  IPosition,
+} from "../../useCases";
 
 export interface ICommonDataSource {
-  detectPhone(text: string): Promise<string>;
-  detectPhoneMessages(messages: IMessage[]): Promise<IMessage[]>;
+  detectPhone(text: string): Promise<IPosition[]>;
+  detectUrl(text: string): Promise<IPosition[]>;
+  detectEmail(text: string): Promise<IPosition[]>;
 }
 export class CommonRepository
-  implements IDetectPhoneRepo, IDetectPhoneMessagesRepo
+  implements IDetectPhoneRepo, IDetectUrlRepo, IDetectEmailRepo
 {
   private dataSource: ICommonDataSource;
 
@@ -20,27 +19,15 @@ export class CommonRepository
     this.dataSource = dataSource;
   }
 
-  detectPhone(text: string): Promise<string> {
+  detectPhone(text: string): Promise<IPosition[]> {
     return this.dataSource.detectPhone(text);
   }
 
-  async detectPhoneMessages(
-    messageModels: MessageModel[]
-  ): Promise<MessageModel[]> {
-    const messages: IMessage[] = [];
+  detectUrl(text: string): Promise<IPosition[]> {
+    return this.dataSource.detectUrl(text);
+  }
 
-    for (let messageModel of messageModels) {
-      messages.push(normalizeMessageData(messageModel));
-    }
-
-    const res = await this.dataSource.detectPhoneMessages(messages);
-
-    const result: MessageModel[] = [];
-
-    for (let message of res) {
-      result.push(modelMessageData(message));
-    }
-
-    return result;
+  detectEmail(text: string): Promise<IPosition[]> {
+    return this.dataSource.detectEmail(text);
   }
 }

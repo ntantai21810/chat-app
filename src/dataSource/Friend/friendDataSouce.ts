@@ -13,7 +13,7 @@ export class FriendDataSource implements IFriendStorageDataSource {
     return this.database.get("friend", "friend");
   }
 
-  addFriend(friend: IUser): void {
-    this.database.add("friend", "friend", friend);
+  addFriend(friend: IUser) {
+    return this.database.add("friend", "friend", friend);
   }
 }

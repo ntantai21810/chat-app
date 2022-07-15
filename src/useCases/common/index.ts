@@ -1,2 +1,8 @@
+export interface IPosition {
+  start: number;
+  length: number;
+}
+
 export * from "./detectPhoneUseCase";
-export * from "./detectPhoneMessagesUseCase";
+export * from "./detecEmailUseCase";
+export * from "./detectUrlUseCase";

@@ -78,7 +78,7 @@ export class SendMessageUseCase {
         messageModel.setConversationId(updatedConversationModel.getId());
         updatedConversationModel.setLastMessage(messageModel);
 
-        updateConversationUseCase.execute(updatedConversationModel);
+        await updateConversationUseCase.execute(updatedConversationModel);
       } else {
         //Get chatting user info
 
@@ -97,7 +97,7 @@ export class SendMessageUseCase {
         messageModel.setConversationId(newConversationModel.getId());
         newConversationModel.setLastMessage(messageModel);
 
-        addConversationUseCase.execute(newConversationModel);
+        await addConversationUseCase.execute(newConversationModel);
 
         const getUserByIdUseCase = new GetUserByIdUseCase(
           new UserAPIRepository(new UserAPIDataSource(API.getIntance()))
@@ -114,7 +114,7 @@ export class SendMessageUseCase {
           new FriendPresenter()
         );
 
-        if (userModel) addFriendUseCase.execute(userModel);
+        if (userModel) await addFriendUseCase.execute(userModel);
       }
 
       const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
@@ -123,7 +123,7 @@ export class SendMessageUseCase {
         )
       );
 
-      addMessageDatabaseUseCase.execute(messageModel);
+      await addMessageDatabaseUseCase.execute(messageModel);
     } catch (e) {
       console.log("Add message database error: ", e);
       throw e;

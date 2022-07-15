@@ -1,17 +1,15 @@
 import { CommonDataSource } from "../../dataSource";
-import {
-  IMessage,
-  MessageModel,
-  modelMessageData,
-  normalizeMessageData,
-} from "../../domains";
 import { CommonRepository } from "../../repository";
-import { DetectPhoneMessagesUseCase } from "../../useCases";
+import {
+  DetectEmailUseCase,
+  DetectUrlUseCase,
+  IPosition,
+} from "../../useCases";
 import { parserWorker } from "../../views/pages/Chat";
 import { DetectPhoneUseCase } from "./../../useCases/common/detectPhoneUseCase";
 
 export class CommonController {
-  async detectPhone(text: string): Promise<string> {
+  async detectPhone(text: string): Promise<IPosition[]> {
     try {
       const detectPhoneUseCase = new DetectPhoneUseCase(
         new CommonRepository(new CommonDataSource(parserWorker))
@@ -25,27 +23,29 @@ export class CommonController {
     }
   }
 
-  async detectPhoneMessages(messages: IMessage[]): Promise<IMessage[]> {
+  async detectUrl(text: string): Promise<IPosition[]> {
     try {
-      const detectPhoneMessagesUseCase = new DetectPhoneMessagesUseCase(
+      const detectUrlUseCase = new DetectUrlUseCase(
         new CommonRepository(new CommonDataSource(parserWorker))
       );
 
-      const transforms: MessageModel[] = [];
+      const res = await detectUrlUseCase.execute(text);
 
-      for (let message of messages) {
-        transforms.push(modelMessageData(message));
-      }
+      return res;
+    } catch (e) {
+      throw e;
+    }
+  }
 
-      const res = await detectPhoneMessagesUseCase.execute(transforms);
+  async detectEmail(text: string): Promise<IPosition[]> {
+    try {
+      const detectEmailUseCase = new DetectEmailUseCase(
+        new CommonRepository(new CommonDataSource(parserWorker))
+      );
 
-      const result: IMessage[] = [];
+      const res = await detectEmailUseCase.execute(text);
 
-      for (let messageModel of res) {
-        result.push(normalizeMessageData(messageModel));
-      }
-
-      return result;
+      return res;
     } catch (e) {
       throw e;
     }

@@ -27,20 +27,28 @@ const messageSlice = createSlice({
 
     updateOne(state, action: PayloadAction<IMessage>) {
       return state.map((item) =>
-        item.clientId === action.payload.clientId ? action.payload : item
+        item.clientId === action.payload.clientId
+          ? { ...item, ...action.payload }
+          : item
       );
     },
 
     updateMany(state, action: PayloadAction<IMessage[]>) {
-      return state.map(
-        (item) =>
-          action.payload.find(
-            (m) =>
-              m.clientId === item.clientId &&
-              m.fromId === item.fromId &&
-              m.toId === item.toId
-          ) ?? item
-      );
+      return state.map((item) => {
+        const message = action.payload.find(
+          (m) =>
+            m.clientId === item.clientId &&
+            m.fromId === item.fromId &&
+            m.toId === item.toId
+        );
+
+        if (message) {
+          return {
+            ...item,
+            ...message,
+          };
+        } else return item;
+      });
     },
 
     removeOne(state, action: PayloadAction<IMessage>) {

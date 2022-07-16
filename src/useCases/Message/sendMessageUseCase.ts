@@ -140,7 +140,7 @@ export class SendMessageUseCase {
         this.presenter
       );
 
-      sendMessageSocketUseCase.execute(messageModel);
+      await sendMessageSocketUseCase.execute(messageModel);
     } catch (e) {
       throw e;
     }

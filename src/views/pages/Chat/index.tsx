@@ -742,7 +742,7 @@ export default function ChatPage(props: IChatPageProps) {
 
       socketController.listen(
         SOCKET_CONSTANTS.CHAT_MESSAGE,
-        async (message: IMessage) => {
+        async (message: IMessage, callback: any) => {
           message.status = MessageStatus.RECEIVED;
 
           await messageController.receiveMessage(
@@ -752,6 +752,8 @@ export default function ChatPage(props: IChatPageProps) {
           );
 
           socketController.send(SOCKET_CONSTANTS.ACK_MESSAGE, message);
+
+          callback({ status: 200 });
 
           processMessages([message]);
         }

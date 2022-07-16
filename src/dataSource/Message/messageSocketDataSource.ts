@@ -4,7 +4,7 @@ import { IMessageSocketDataSouce } from "../../repository";
 import { SOCKET_CONSTANTS } from "./../../helper/constants/index";
 
 export interface IMessageSocket {
-  sendMessage(message: IMessage): void;
+  sendMessage(message: IMessage): Promise<void>;
   ackMessage(message: IMessage): void;
 }
 
@@ -15,8 +15,21 @@ export class MessageSocketDataSource implements IMessageSocketDataSouce {
     this.socket = socket;
   }
 
-  sendMessage(message: IMessage): void {
-    this.socket.send(SOCKET_CONSTANTS.CHAT_MESSAGE, message);
+  sendMessage(message: IMessage): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.socket.sendWithTimout(
+        SOCKET_CONSTANTS.CHAT_MESSAGE,
+        message,
+        5000,
+        (err, res) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res);
+          }
+        }
+      );
+    });
   }
 
   ackMessage(message: IMessage): void {

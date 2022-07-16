@@ -6,7 +6,7 @@ import { IndexedDB } from "../../storage";
 import { UpdateMessageUseCase } from "./updateMessageUseCase";
 
 export interface ISendMessageRepo {
-  sendMessage(messageModel: MessageModel): void;
+  sendMessage(messageModel: MessageModel): Promise<void>;
 }
 
 export class SendMessageSocketUseCase {
@@ -20,7 +20,7 @@ export class SendMessageSocketUseCase {
 
   async execute(messageModel: MessageModel) {
     try {
-      this.repository.sendMessage(messageModel);
+      await this.repository.sendMessage(messageModel);
     } catch (e) {
       const updateMessageUseCase = new UpdateMessageUseCase(
         new MessageStorageRepository(

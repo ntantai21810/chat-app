@@ -4,8 +4,14 @@ import { SOCKET_CONSTANTS } from "../../helper";
 export interface ISocket {
   connect(userId: string, accessToken: string): void;
   disconnect(): void;
-  listen(channel: string, callback: (data: any) => any): void;
+  listen(channel: string, handler: (data: any) => any): void;
   send(channel: string, data: any): void;
+  sendWithTimout(
+    channel: string,
+    data: any,
+    timeout: number,
+    callback: (err: any, res: any) => void
+  ): void;
   removeListen(
     channel: string,
     listener?: (...args: any[]) => void | undefined
@@ -59,8 +65,8 @@ export class Socket implements ISocket {
     }
   }
 
-  listen(channel: string, callback: (data: any) => any): void {
-    if (this.socket) this.socket.on(channel, callback);
+  listen(channel: string, handler: (data: any, callback: any) => any): void {
+    if (this.socket) this.socket.on(channel, handler);
   }
 
   send(channel: string, data: any): void {
@@ -69,6 +75,19 @@ export class Socket implements ISocket {
     }
 
     if (this.socket) this.socket.emit(channel, data);
+  }
+
+  sendWithTimout(
+    channel: string,
+    data: any,
+    timeout: number,
+    callback: (err: any, res: any) => void
+  ): void {
+    if (!this.isConnected || !this.socket) {
+      throw "Socket error";
+    }
+
+    this.socket.timeout(timeout).emit(channel, data, callback);
   }
 
   disconnect(): void {

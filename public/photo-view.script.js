@@ -1,5 +1,9 @@
-const render = (imgUrl) => {
+let index = 0;
+let imgUrls = [];
+
+const render = (imgUrl, urls) => {
   const imgContainer = document.getElementById("imgContainer");
+  const imgList = document.getElementById("imgList");
   const imgElement = document.createElement("img");
 
   imgElement.className = "img";
@@ -35,14 +39,55 @@ const render = (imgUrl) => {
     }
   });
 
+  imgList.innerHTML = "";
+
+  for (let i = 0; i < urls.length; i++) {
+    const el = document.createElement("div");
+    const img = document.createElement("img");
+
+    el.className = "imgItem" + (i === index ? " active" : "");
+
+    img.classList = "img";
+    img.src = urls[i];
+    img.alt = "Photo view image";
+
+    el.appendChild(img);
+
+    el.addEventListener("click", () => {
+      index = i;
+      render(urls[index], urls);
+    });
+
+    imgList.append(el);
+
+    if (i === index) {
+      imgList.scrollTop = el.offsetTop;
+    }
+  }
+
   downloadElement.addEventListener("click", () => {
     window.photoViewAPI.download(imgUrl);
   });
 };
 
 window.addEventListener("DOMContentLoaded", () => {
-  window.photoViewAPI.onReceiveImgUrl((_event, url) => {
-    render(url);
+  window.addEventListener("keydown", (e) => {
+    switch (e.code) {
+      case "ArrowUp":
+        index = index - 1 < 0 ? 0 : index - 1;
+        break;
+      case "ArrowDown":
+        index = index + 1 > imgUrls.length - 1 ? imgUrls.length - 1 : index + 1;
+        break;
+    }
+
+    render(imgUrls[index], imgUrls);
+  });
+
+  window.photoViewAPI.onReceiveImgUrl((_event, { idx, urls }) => {
+    index = idx;
+    imgUrls = urls;
+    render(urls[idx], urls);
   });
 
   window.addEventListener("keydown", (e) => {

@@ -4,6 +4,20 @@
   box-sizing: border-box;
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+  height: 2px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #eee;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  border-radius: 32px;
+}
+
 body {
   width: 100vw;
   height: 100vh;
@@ -11,16 +25,65 @@ body {
 }
 
 #root {
-  width: 60%;
   height: 100%;
   margin: 0 auto;
 }
 
-#root #imgContainer {
-  position: relative;
+#root #content {
   overflow: hidden;
+  display: flex;
+  justify-content: space-between;
 
   height: calc(100% - 48px);
+}
+
+#root #content #imgContainer {
+  overflow: hidden;
+  height: 100%;
+
+  width: 60%;
+  flex-grow: 0;
+  margin: 0 auto;
+
+  position: relative;
+}
+
+#root #content #imgList {
+  overflow-y: scroll;
+  width: 150px;
+  height: 100%;
+  padding: 1.2rem 1rem 1.2rem 0;
+}
+
+#root #content #imgList .imgItem {
+  width: 100%;
+  height: 80px;
+
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+#root #content #imgList .imgItem.active {
+  border: 2px solid #fff;
+}
+
+#root #content #imgList .imgItem:not(:last-child) {
+  margin-bottom: 1.2rem;
+}
+
+#root #content #imgList .imgItem .img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
 }
 
 #root #imgAction {

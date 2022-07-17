@@ -1,6 +1,7 @@
 import {
   IMessage,
   MessageModel,
+  MessageType,
   modelMessageData,
   normalizeMessageData,
 } from "../../domains";
@@ -11,6 +12,7 @@ import {
   ISearchMessageRepo,
   IUpdateMessageRepo,
 } from "../../useCases";
+import { IGetMessageTypeRepo } from "../../useCases/Message/getMessageTypeByConversationUseCase";
 
 export interface IMessageStorageDataSouce {
   getMessagesByConversation(
@@ -19,6 +21,12 @@ export interface IMessageStorageDataSouce {
     toMessage?: IMessage,
     limit?: number,
     exceptBound?: boolean
+  ): Promise<IMessage[]>;
+  getMessagesTypeByConversation(
+    conversationId: string,
+    type: MessageType,
+    fromMessage: IMessage,
+    limit?: number
   ): Promise<IMessage[]>;
   addMessage(message: IMessage): Promise<void>;
   updateMessage(message: IMessage): Promise<void>;
@@ -32,7 +40,8 @@ export class MessageStorageRepository
     IAddMessageRepo,
     IUpdateMessageRepo,
     IDeleteMessageRepo,
-    ISearchMessageRepo
+    ISearchMessageRepo,
+    IGetMessageTypeRepo
 {
   private dataSource: IMessageStorageDataSouce;
 
@@ -91,6 +100,30 @@ export class MessageStorageRepository
 
   async searchMessage(text: string): Promise<MessageModel[]> {
     const res = await this.dataSource.searchMessage(text);
+
+    const messageModels: MessageModel[] = [];
+
+    for (let message of res) {
+      messageModels.push(modelMessageData(message));
+    }
+
+    return messageModels;
+  }
+
+  async getMessagesTypeByConversation(
+    conversationId: string,
+    type: MessageType,
+    fromMessageModel: MessageModel,
+    limit?: number | undefined
+  ): Promise<MessageModel[]> {
+    const fromMessage = normalizeMessageData(fromMessageModel);
+
+    const res = await this.dataSource.getMessagesTypeByConversation(
+      conversationId,
+      type,
+      fromMessage,
+      limit
+    );
 
     const messageModels: MessageModel[] = [];
 

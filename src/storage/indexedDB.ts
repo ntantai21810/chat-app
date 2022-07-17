@@ -7,7 +7,8 @@ export interface IDatabase {
     objectStore: string,
     key?: IDBValidKey | IDBKeyRange | null,
     index?: string,
-    limit?: number
+    limit?: number,
+    direction?: "prev" | "next"
   ): Promise<T[]>;
 
   getOne<T>(
@@ -70,48 +71,91 @@ export class IndexedDB implements IDatabase {
         request.onerror = (event: Event) => {
           reject(event);
         };
+
         request.onsuccess = (event: Event) => {
           this.db = (event.target as IDBOpenDBRequest).result;
           resolve();
         };
         request.onupgradeneeded = (event) => {
           const db = (event.target as IDBOpenDBRequest).result;
-          // Conversation
-          const conversationObjectStore = db.createObjectStore("conversation", {
-            keyPath: "id",
-          });
-          conversationObjectStore.createIndex("userId", "userId", {
+          const txn = (event.target as IDBOpenDBRequest).transaction;
+
+          if (!db || !txn) return;
+
+          const storeCreateIndex = (
+            objectStore: IDBObjectStore,
+            name: string,
+            keyPath: string | Iterable<string>,
+            options?: IDBIndexParameters
+          ) => {
+            if (!objectStore.indexNames.contains(name)) {
+              objectStore.createIndex(name, keyPath, options);
+            }
+          };
+
+          let conversationItem,
+            friendItem,
+            messageItem,
+            keywordItem,
+            keywordIdxItem;
+
+          if (event.newVersion !== event.oldVersion) {
+            conversationItem = txn.objectStore("conversation");
+
+            friendItem = txn.objectStore("friend");
+
+            messageItem = txn.objectStore("message");
+
+            keywordItem = txn.objectStore("keyword");
+
+            keywordIdxItem = txn.objectStore("keywordIdx");
+          } else {
+            conversationItem = db.createObjectStore("conversation", {
+              keyPath: "id",
+            });
+
+            friendItem = db.createObjectStore("friend", {
+              keyPath: "_id",
+            });
+
+            messageItem = db.createObjectStore("message", {
+              keyPath: ["fromId", "toId", "clientId"],
+            });
+
+            keywordItem = db.createObjectStore("keyword", {
+              autoIncrement: true,
+            });
+
+            keywordIdxItem = db.createObjectStore("keywordIdx", {
+              autoIncrement: true,
+            });
+          }
+
+          storeCreateIndex(conversationItem, "userId", "userId", {
             unique: true,
           });
-          db.createObjectStore("friend", {
-            keyPath: "_id",
-          });
-          // Message
-          const messageObjectStore = db.createObjectStore("message", {
-            keyPath: ["fromId", "toId", "clientId"],
-          });
-          messageObjectStore.createIndex("conversationId", "conversationId", {
+
+          storeCreateIndex(messageItem, "conversationId", "conversationId", {
             unique: false,
           });
-          messageObjectStore.createIndex(
+          storeCreateIndex(
+            messageItem,
             "messageSendTime",
             ["conversationId", "sendTime"],
             {
               unique: true,
             }
           );
+          storeCreateIndex(
+            messageItem,
+            "messageType",
+            ["conversationId", "type", "sendTime"],
+            { unique: true }
+          );
 
-          //Full text search
-          const keywordObjectStore = db.createObjectStore("keyword", {
-            autoIncrement: true,
-          });
-          keywordObjectStore.createIndex("keywordId", "keyword");
+          storeCreateIndex(keywordItem, "keywordId", "keyword");
 
-          const keywordIdxObjectStore = db.createObjectStore("keywordIdx", {
-            autoIncrement: true,
-          });
-
-          keywordIdxObjectStore.createIndex("search", ["keywordId", "freq"]);
+          storeCreateIndex(keywordIdxItem, "search", ["keywordId", "freq"]);
         };
       } else {
         resolve();
@@ -132,7 +176,8 @@ export class IndexedDB implements IDatabase {
     objectStore: string,
     key?: IDBValidKey | IDBKeyRange | null,
     index?: string,
-    limit?: number
+    limit?: number,
+    direction: "prev" | "next" = "prev"
   ): Promise<T[]> {
     return new Promise((resolve, reject) => {
       if (this.db) {
@@ -146,7 +191,7 @@ export class IndexedDB implements IDatabase {
               .transaction(transaction)
               .objectStore(objectStore)
               .index(index)
-              .openCursor(key, "prev");
+              .openCursor(key, direction);
 
             request.onsuccess = (event) => {
               const cursor = (event.target as IDBRequest)
@@ -192,7 +237,7 @@ export class IndexedDB implements IDatabase {
             const request = this.db
               .transaction(transaction)
               .objectStore(objectStore)
-              .openCursor(key, "prev");
+              .openCursor(key, direction);
 
             request.onsuccess = (event) => {
               const cursor = (event.target as IDBRequest)

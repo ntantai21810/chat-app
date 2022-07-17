@@ -8,8 +8,11 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.send("download", url);
   },
 
-  viewPhoto: (url) => {
-    ipcRenderer.send("viewPhoto", url);
+  viewPhoto: (urls, idx) => {
+    ipcRenderer.send("viewPhoto", {
+      idx,
+      urls,
+    });
   },
 
   openLink: (url) => {

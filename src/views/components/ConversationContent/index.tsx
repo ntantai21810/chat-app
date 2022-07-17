@@ -17,7 +17,7 @@ export interface IConversationContentProps {
   onScroll?: UIEventHandler;
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
-  onImageClick?: (image: IFile) => any;
+  onImageClick?: (image: IFile, message: IMessage) => any;
 }
 
 function ConversationContent(props: IConversationContentProps) {

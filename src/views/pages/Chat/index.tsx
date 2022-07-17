@@ -305,9 +305,47 @@ export default function ChatPage(props: IChatPageProps) {
     setFiles([]);
   };
 
-  const handleImageClick = React.useCallback((image: IFile) => {
-    (window as any).electronAPI.viewPhoto(image.data);
-  }, []);
+  const handleImageMessageClick = React.useCallback(
+    async (image: IFile, message: IMessage) => {
+      const res = await messageController.getMessagesTypeByConversation(
+        message.conversationId,
+        MessageType.IMAGE,
+        message,
+        10
+      );
+
+      let idx = 0;
+
+      const resReverse = res.reverse();
+
+      for (let msg of resReverse) {
+        if (
+          msg.fromId === message.fromId &&
+          msg.toId === message.toId &&
+          msg.clientId === message.clientId
+        ) {
+          idx +=
+            (msg.content as IFile[]).length -
+            1 -
+            (msg.content as IFile[]).findIndex(
+              (item) => item.data === image.data
+            ) +
+            (idx === 0 ? 0 : 1);
+
+          break;
+        } else {
+          idx += (msg.content as IFile[]).length - 1;
+        }
+      }
+
+      const urls = resReverse
+        .map((item) => (item.content as IFile[]).map((f) => f.data).reverse())
+        .flat();
+
+      (window as any).electronAPI.viewPhoto(urls, idx);
+    },
+    []
+  );
 
   const handleSubmitFiles = (files: IFile[]) => {
     if (activeConversation && files.length > 0) {
@@ -551,6 +589,7 @@ export default function ChatPage(props: IChatPageProps) {
   }, []);
 
   const handleDownloadFile = React.useCallback((url: string) => {
+    setScrollTargetTopMessage("#");
     setPercentFileDownloading({
       url: url,
       percent: 0,
@@ -920,7 +959,7 @@ export default function ChatPage(props: IChatPageProps) {
                 onScrollToTop={handleScrollToTop}
                 onRetry={handleRetry}
                 onDownloadFile={handleDownloadFile}
-                onImageClick={handleImageClick}
+                onImageClick={handleImageMessageClick}
                 percentFileDownloading={percentFileDownloading}
                 scrollToElement={scrollToTargetMessage}
                 highlightElement={highlightMessage}
@@ -941,7 +980,9 @@ export default function ChatPage(props: IChatPageProps) {
               {showScrollBtn && (
                 <div
                   className={styles.scrollIcon}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     setScrollTargetTopMessage("");
                     forceRender({});
                   }}

@@ -13,6 +13,7 @@ import { FileRepository, MessageStorageRepository } from "../../repository";
 import { IndexedDB } from "../../storage";
 import {
   GetMessageByConversationUseCase,
+  GetMessageTypeByConversationUseCase,
   ReceiveMessageUseCase,
   RetryMessageUseCase,
   SearchMessageUseCase,
@@ -61,6 +62,43 @@ export class MessageController {
         toMessageModel,
         limit,
         exceptBound
+      );
+    } catch (e) {
+      console.log(e);
+      return [];
+    }
+
+    const messages: IMessage[] = [];
+
+    for (let messageModel of result) {
+      messages.push(normalizeMessageData(messageModel));
+    }
+
+    return messages;
+  }
+
+  async getMessagesTypeByConversation(
+    conversationId: string,
+    type: MessageType,
+    fromMessage: IMessage,
+    limit?: number
+  ): Promise<IMessage[]> {
+    let result: MessageModel[] = [];
+
+    const fromMessageModel = modelMessageData(fromMessage);
+
+    try {
+      const getMessageFromDBUseCase = new GetMessageTypeByConversationUseCase(
+        new MessageStorageRepository(
+          new MessageStorageDataSource(IndexedDB.getInstance())
+        )
+      );
+
+      result = await getMessageFromDBUseCase.execute(
+        conversationId,
+        type,
+        fromMessageModel,
+        limit
       );
     } catch (e) {
       console.log(e);

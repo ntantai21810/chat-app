@@ -1,8 +1,9 @@
 import { IFile, IMessage, MessageType } from "../../domains";
 import { tokenizer } from "../../helper";
+import { IMessageStorageDataSouce } from "../../repository";
 import { IDatabase } from "../../storage";
 
-export class MessageStorageDataSource {
+export class MessageStorageDataSource implements IMessageStorageDataSouce {
   private database: IDatabase;
 
   constructor(database: IDatabase) {
@@ -190,5 +191,46 @@ export class MessageStorageDataSource {
     ) as IMessage[];
 
     return messages;
+  }
+
+  async getMessagesTypeByConversation(
+    conversationId: string,
+    type: MessageType,
+    fromMessage: IMessage,
+    limit?: number | undefined
+  ): Promise<IMessage[]> {
+    const result: IMessage[] = [];
+
+    const lowerMsg = await this.database.get<IMessage>(
+      "message",
+      "message",
+      IDBKeyRange.bound(
+        [conversationId, type, fromMessage.sendTime],
+        [conversationId, type, new Date().toISOString()],
+        true,
+        true
+      ),
+      "messageType",
+      limit,
+      "next"
+    );
+    const upperMsg = await this.database.get<IMessage>(
+      "message",
+      "message",
+      IDBKeyRange.bound(
+        [conversationId, type, new Date(-8640000000000000).toISOString()],
+        [conversationId, type, fromMessage.sendTime],
+        false,
+        false
+      ),
+      "messageType",
+      limit,
+      "prev"
+    );
+
+    result.unshift(...upperMsg);
+    result.push(...lowerMsg);
+
+    return result;
   }
 }

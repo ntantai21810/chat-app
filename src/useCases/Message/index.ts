@@ -11,3 +11,4 @@ export * from "./sendMessageUseCase";
 export * from "./syncMessageUseCase";
 export * from "./updateMessageUseCase";
 export * from "./searchMessageUseCase";
+export * from "./getMessageTypeByConversationUseCase";

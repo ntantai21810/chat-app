@@ -18,7 +18,7 @@ export interface IChatMessageProps {
   highlight?: boolean;
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
-  onImageClick?: (message: IFile) => any;
+  onImageClick?: (image: IFile, message: IMessage) => any;
 }
 
 function ChatMessage(props: IChatMessageProps) {
@@ -72,7 +72,9 @@ function ChatMessage(props: IChatMessageProps) {
                 <div
                   className={styles.imageItem}
                   key={index}
-                  onClick={() => (onImageClick ? onImageClick(item) : "")}
+                  onClick={() =>
+                    onImageClick ? onImageClick(item, message) : ""
+                  }
                 >
                   <Image
                     width="36rem"

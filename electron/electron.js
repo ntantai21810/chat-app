@@ -5,6 +5,8 @@ const { app, BrowserWindow, ipcMain, webContents, shell } = require("electron");
 const path = require("path");
 const isDev = require("electron-is-dev");
 
+let photoViewWindow = null;
+
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -72,25 +74,35 @@ const createWindow = () => {
     shell.openExternal(url);
   });
 
-  ipcMain.on("viewPhoto", (event, url) => {
-    const photoWindow = new BrowserWindow({
-      width: 800,
-      height: 600,
-      minWidth: 400,
-      webPreferences: {
-        preload: path.join(__dirname, "photo-view.preload.js"),
-      },
-    });
+  ipcMain.on("viewPhoto", (event, { idx, urls }) => {
+    if (!photoViewWindow) {
+      photoViewWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        minWidth: 400,
+        webPreferences: {
+          preload: path.join(__dirname, "photo-view.preload.js"),
+        },
+      });
 
-    photoWindow.loadURL(
-      isDev
-        ? `file://${path.join(__dirname, "/../public/photo-view.html")}`
-        : `file://${path.join(__dirname, "photo-view.html")}`
-    );
+      photoViewWindow.loadURL(
+        isDev
+          ? `file://${path.join(__dirname, "/../public/photo-view.html")}`
+          : `file://${path.join(__dirname, "photo-view.html")}`
+      );
 
-    photoWindow.webContents.once("dom-ready", () => {
-      photoWindow.webContents.send("img-src", url);
-    });
+      photoViewWindow.on("close", () => {
+        photoViewWindow = null;
+      });
+
+      photoViewWindow.webContents.once("dom-ready", () => {
+        photoViewWindow.webContents.send("img-src", { idx, urls });
+      });
+    } else {
+      photoViewWindow.webContents.send("img-src", { idx, urls });
+    }
+
+    photoViewWindow.focus();
   });
 
   // and load the index.html of the app.

@@ -22,6 +22,7 @@ import {
 } from "../../repository";
 import { IndexedDB } from "../../storage";
 import {
+  DeleteMessageUseCase,
   GetMessageByConversationUseCase,
   GetMessageTypeByConversationUseCase,
   PreviewLinkUseCase,
@@ -243,6 +244,25 @@ export class MessageController {
     } catch (e) {
       console.log(e);
       return;
+    }
+  }
+
+  async deleteMessage(message: IMessage) {
+    let messageModel: MessageModel;
+
+    try {
+      const deleteMessageUseCase = new DeleteMessageUseCase(
+        new MessageStorageRepository(
+          new MessageStorageDataSource(IndexedDB.getInstance())
+        ),
+        this.presenter
+      );
+
+      messageModel = modelMessageData(message);
+
+      await deleteMessageUseCase.execute(messageModel);
+    } catch (e) {
+      console.log(e);
     }
   }
 

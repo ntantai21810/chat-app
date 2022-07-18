@@ -2,7 +2,7 @@ import { MessageModel } from "../../domains";
 import { IMessagePresenter } from "../../presenter";
 
 export interface IDeleteMessageRepo {
-  deleteMessage(messageModel: MessageModel): void;
+  deleteMessage(messageModel: MessageModel): Promise<void>;
 }
 
 export class DeleteMessageUseCase {
@@ -15,9 +15,9 @@ export class DeleteMessageUseCase {
     if (presenter) this.presenter = presenter;
   }
 
-  execute(messageModel: MessageModel) {
+  async execute(messageModel: MessageModel): Promise<void> {
     try {
-      this.repository.deleteMessage(messageModel);
+      await this.repository.deleteMessage(messageModel);
 
       if (this.presenter) this.presenter.deleteMessage(messageModel);
     } catch (e) {

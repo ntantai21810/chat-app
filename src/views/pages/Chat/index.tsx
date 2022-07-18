@@ -593,6 +593,10 @@ export default function ChatPage(props: IChatPageProps) {
           console.log(e);
           setNotification({ type: "error", message: "Không tìm thấy file" });
           dispatch(setShowNotification(true));
+
+          //delete message
+          messageController.deleteMessage(message);
+          return;
         }
       }
     }

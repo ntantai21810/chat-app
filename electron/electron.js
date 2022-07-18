@@ -4,6 +4,7 @@
 const { app, BrowserWindow, ipcMain, webContents, shell } = require("electron");
 const path = require("path");
 const isDev = require("electron-is-dev");
+const fs = require("fs");
 
 let photoViewWindow = null;
 
@@ -74,6 +75,16 @@ const createWindow = () => {
     shell.openExternal(url);
   });
 
+  ipcMain.handle("openFile", async (event, path) => {
+    try {
+      const res = await fs.promises.readFile(path, { encoding: "base64" });
+
+      return res;
+    } catch (e) {
+      throw e;
+    }
+  });
+
   ipcMain.on("viewPhoto", (event, { idx, urls }) => {
     if (!photoViewWindow) {
       photoViewWindow = new BrowserWindow({
@@ -124,6 +135,8 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  app.setAppUserModelId("Chat app");
+
   if (isDev) {
     const {
       default: installExtension,

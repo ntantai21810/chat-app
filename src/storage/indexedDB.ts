@@ -99,7 +99,7 @@ export class IndexedDB implements IDatabase {
             keywordItem,
             keywordIdxItem;
 
-          if (event.newVersion !== event.oldVersion) {
+          if (event.newVersion !== event.oldVersion && event.oldVersion !== 0) {
             conversationItem = txn.objectStore("conversation");
 
             friendItem = txn.objectStore("friend");

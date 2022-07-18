@@ -12,4 +12,5 @@ export interface IFile {
   size: number;
   type: string;
   data: string;
+  path: string;
 }

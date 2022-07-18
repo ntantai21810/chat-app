@@ -1,8 +1,8 @@
 import * as React from "react";
-import styles from "../../assets/styles/ConversationAction.module.scss";
 import { BsImage } from "react-icons/bs";
 import { GrAttachment } from "react-icons/gr";
 import { IFile } from "../../../domains/common/helper";
+import styles from "../../assets/styles/ConversationAction.module.scss";
 
 export interface IConversationActionProps {
   onFileChange: (files: IFile[]) => void;
@@ -53,6 +53,7 @@ export default function ConversationAction(props: IConversationActionProps) {
             size: file.size,
             type: file.type,
             data: reader.result,
+            path: file.path,
           });
         }
 

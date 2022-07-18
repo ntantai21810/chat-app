@@ -32,11 +32,21 @@ const messageSlice = createSlice({
           delete (action.payload as any)[key]
       );
 
-      return state.map((item) =>
-        item.clientId === action.payload.clientId
-          ? { ...item, ...action.payload }
-          : item
-      );
+      if (
+        !state.find(
+          (item) =>
+            item.fromId === action.payload.fromId &&
+            item.toId === action.payload.toId &&
+            item.clientId === action.payload.clientId
+        )
+      ) {
+        state.push(action.payload);
+      } else
+        return state.map((item) =>
+          item.clientId === action.payload.clientId
+            ? { ...item, ...action.payload }
+            : item
+        );
     },
 
     updateMany(state, action: PayloadAction<IMessage[]>) {

@@ -1,11 +1,18 @@
 import { v4 as uuidv4 } from "uuid";
-import { MessageStorageDataSource } from "../../dataSource";
+import {
+  MessageSocketDataSource,
+  MessageStorageDataSource,
+} from "../../dataSource";
 import { MessageModel, MessageStatus } from "../../domains";
+import { Socket } from "../../network";
 import { IMessagePresenter } from "../../presenter";
-import { MessageStorageRepository } from "../../repository";
+import {
+  MessageSocketRepository,
+  MessageStorageRepository,
+} from "../../repository";
 import { IndexedDB } from "../../storage";
 import { DeleteMessageUseCase } from "./deleteMessageUseCase";
-import { SendMessageUseCase } from "./sendMessageUseCase";
+import { SendMessageSocketUseCase } from "./sendMessageSocketUseCase";
 
 export class RetryMessageUseCase {
   private presenter: IMessagePresenter;
@@ -16,7 +23,11 @@ export class RetryMessageUseCase {
 
   async execute(messageModel: MessageModel) {
     try {
-      const sendMessageUseCase = new SendMessageUseCase(this.presenter);
+      const sendMessageSocketUseCase = new SendMessageSocketUseCase(
+        new MessageSocketRepository(
+          new MessageSocketDataSource(Socket.getIntance())
+        )
+      );
 
       const newMessageModel = new MessageModel(
         messageModel.getFromId(),
@@ -29,7 +40,7 @@ export class RetryMessageUseCase {
         MessageStatus.PENDING
       );
 
-      sendMessageUseCase.execute(newMessageModel);
+      await sendMessageSocketUseCase.execute(newMessageModel, false);
 
       const deleteMessageUseCase = new DeleteMessageUseCase(
         new MessageStorageRepository(

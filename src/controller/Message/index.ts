@@ -8,6 +8,7 @@ import {
   IFile,
   IMessage,
   MessageModel,
+  MessageStatus,
   MessageType,
   modelMessageData,
   normalizeMessageData,
@@ -162,37 +163,52 @@ export class MessageController {
   }
 
   async sendMessage(message: IMessage) {
-    try {
-      if (
-        message.type === MessageType.IMAGE ||
-        message.type === MessageType.FILE
-      ) {
-        const uploadFileUseCase = new UploadFileUseCase(
-          new FileRepository(new FileDataSource(API.getIntance()))
-        );
+    const uploadFileUseCase = new UploadFileUseCase(
+      new FileRepository(new FileDataSource(API.getIntance()))
+    );
 
-        const imageUrls = await uploadFileUseCase.execute(
+    const sendMessageUseCase = new SendMessageUseCase(this.presenter);
+
+    if (
+      message.type === MessageType.IMAGE ||
+      message.type === MessageType.FILE
+    ) {
+      try {
+        const urls = await uploadFileUseCase.execute(
           message.content as IFile[]
         );
 
         message.content = (message.content as IFile[]).map((item, index) => ({
           ...item,
-          data: imageUrls[index],
+          data: urls[index],
         }));
+
+        const messageModel = modelMessageData(message);
+
+        sendMessageUseCase.execute(messageModel);
+      } catch (e) {
+        if (message.type === MessageType.FILE) {
+          for (let file of message.content as IFile[]) {
+            file.data = "";
+          }
+        }
+
+        message.status = MessageStatus.ERROR;
+
+        const messageModel = modelMessageData(message);
+
+        sendMessageUseCase.execute(messageModel, false);
+
+        this.presenter.setShowNotification(true);
       }
-    } catch (e) {
-      this.presenter.setShowNotification(true);
-      return;
-    }
-
-    try {
-      const sendMessageUseCase = new SendMessageUseCase(this.presenter);
-
+    } else {
       const messageModel = modelMessageData(message);
 
-      await sendMessageUseCase.execute(messageModel);
-    } catch (e) {
-      console.log(e);
+      try {
+        await sendMessageUseCase.execute(messageModel);
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
@@ -240,15 +256,15 @@ export class MessageController {
     }
   }
 
-  retryMessage(message: IMessage) {
+  async retryMessage(message: IMessage) {
     try {
       const retryMessageUseCase = new RetryMessageUseCase(this.presenter);
 
       const messageModel = modelMessageData(message);
 
-      retryMessageUseCase.execute(messageModel);
+      await retryMessageUseCase.execute(messageModel);
     } catch (e) {
-      console.log(e);
+      throw e;
     }
   }
 
@@ -302,6 +318,7 @@ export class MessageController {
                 fromId: message.fromId,
                 toId: message.toId,
                 clientId: message.clientId,
+                conversationId: message.conversationId,
                 thumb,
               } as any);
 

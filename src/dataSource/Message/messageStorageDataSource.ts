@@ -81,14 +81,18 @@ export class MessageStorageDataSource implements IMessageStorageDataSouce {
       message.clientId,
     ]);
 
-    Object.keys(message).forEach(
-      (key) =>
-        (message as any)[key] === undefined && delete (message as any)[key]
-    );
+    if (res) {
+      Object.keys(message).forEach(
+        (key) =>
+          (message as any)[key] === undefined && delete (message as any)[key]
+      );
 
-    const update = Object.assign(res!, message);
+      const update = Object.assign(res!, message);
 
-    return this.database.update<IMessage>("message", "message", update);
+      return this.database.update<IMessage>("message", "message", update);
+    } else {
+      return this.database.add<IMessage>("message", "message", message);
+    }
   }
 
   deleteMessage(message: IMessage) {

@@ -1,6 +1,10 @@
 let index = 0;
 let imgUrls = [];
 
+const handleDownloadImage = () => {
+  window.photoViewAPI.download(imgUrls[index]);
+};
+
 const render = (imgUrl, urls) => {
   const imgContainer = document.getElementById("imgContainer");
   const imgList = document.getElementById("imgList");
@@ -18,6 +22,9 @@ const render = (imgUrl, urls) => {
   const zoomInElement = document.getElementById("zoom-in");
   const zoomOutElement = document.getElementById("zoom-out");
   const downloadElement = document.getElementById("download");
+
+  downloadElement.removeEventListener("click", handleDownloadImage);
+  downloadElement.addEventListener("click", handleDownloadImage);
 
   zoomInElement.addEventListener("click", () => {
     if (imgElement) {
@@ -64,10 +71,6 @@ const render = (imgUrl, urls) => {
       imgList.scrollTop = el.offsetTop;
     }
   }
-
-  downloadElement.addEventListener("click", () => {
-    window.photoViewAPI.download(imgUrl);
-  });
 };
 
 window.addEventListener("DOMContentLoaded", () => {

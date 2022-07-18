@@ -37,7 +37,7 @@ export class SendMessageUseCase {
     this.presenter = presenter;
   }
 
-  async execute(messageModel: MessageModel) {
+  async execute(messageModel: MessageModel, sendSocket: boolean = true) {
     /* 
     --- Add to DB
       if chatted (has conversation)
@@ -131,18 +131,20 @@ export class SendMessageUseCase {
 
     this.presenter.addMessage(messageModel);
 
-    //Send socket
-    try {
-      const sendMessageSocketUseCase = new SendMessageSocketUseCase(
-        new MessageSocketRepository(
-          new MessageSocketDataSource(Socket.getIntance())
-        ),
-        this.presenter
-      );
+    if (sendSocket) {
+      //Send socket
+      try {
+        const sendMessageSocketUseCase = new SendMessageSocketUseCase(
+          new MessageSocketRepository(
+            new MessageSocketDataSource(Socket.getIntance())
+          ),
+          this.presenter
+        );
 
-      await sendMessageSocketUseCase.execute(messageModel);
-    } catch (e) {
-      throw e;
+        await sendMessageSocketUseCase.execute(messageModel);
+      } catch (e) {
+        throw e;
+      }
     }
   }
 }

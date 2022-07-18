@@ -19,6 +19,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.send("openLink", url);
   },
 
+  openFile: (path) => ipcRenderer.invoke("openFile", path),
+
   onDownloadFileProgress: (callback) => {
     ipcRenderer.on("downloadProgress", (_event, bytes) => callback(bytes));
   },

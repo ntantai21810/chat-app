@@ -13,25 +13,28 @@ export class SendMessageSocketUseCase {
   private repository: ISendMessageRepo;
   private presenter: IMessagePresenter;
 
-  constructor(repository: ISendMessageRepo, presenter: IMessagePresenter) {
+  constructor(repository: ISendMessageRepo, presenter?: IMessagePresenter) {
     this.repository = repository;
-    this.presenter = presenter;
+
+    if (presenter) this.presenter = presenter;
   }
 
-  async execute(messageModel: MessageModel) {
+  async execute(messageModel: MessageModel, updateDB: boolean = true) {
     try {
       await this.repository.sendMessage(messageModel);
     } catch (e) {
-      const updateMessageUseCase = new UpdateMessageUseCase(
-        new MessageStorageRepository(
-          new MessageStorageDataSource(IndexedDB.getInstance())
-        ),
-        this.presenter
-      );
+      if (updateDB) {
+        const updateMessageUseCase = new UpdateMessageUseCase(
+          new MessageStorageRepository(
+            new MessageStorageDataSource(IndexedDB.getInstance())
+          ),
+          this.presenter
+        );
 
-      messageModel.setStatus(MessageStatus.ERROR);
+        messageModel.setStatus(MessageStatus.ERROR);
 
-      updateMessageUseCase.execute(messageModel);
+        updateMessageUseCase.execute(messageModel);
+      }
 
       throw e;
     }

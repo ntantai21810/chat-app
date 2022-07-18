@@ -26,6 +26,12 @@ const messageSlice = createSlice({
     },
 
     updateOne(state, action: PayloadAction<IMessage>) {
+      Object.keys(action.payload).forEach(
+        (key) =>
+          (action.payload as any)[key] === undefined &&
+          delete (action.payload as any)[key]
+      );
+
       return state.map((item) =>
         item.clientId === action.payload.clientId
           ? { ...item, ...action.payload }
@@ -43,6 +49,12 @@ const messageSlice = createSlice({
         );
 
         if (message) {
+          Object.keys(message).forEach(
+            (key) =>
+              (message as any)[key] === undefined &&
+              delete (message as any)[key]
+          );
+
           return {
             ...item,
             ...message,

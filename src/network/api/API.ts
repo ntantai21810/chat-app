@@ -1,8 +1,8 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { CONSTANTS } from "../../helper";
 
 export interface IAPI {
-  get(url: string, params?: any): Promise<any>;
+  get(url: string, params?: any, options?: AxiosRequestConfig): Promise<any>;
   post(url: string, data?: any, options?: any): Promise<any>;
   put(url: string, data?: any): Promise<any>;
   delete(url: string, params?: any): Promise<any>;
@@ -50,9 +50,13 @@ export class API implements IAPI {
     );
   }
 
-  async get(url: string, params?: any): Promise<any> {
+  async get(
+    url: string,
+    params?: any,
+    options?: AxiosRequestConfig
+  ): Promise<any> {
     try {
-      return await this.axios.get(url, { params });
+      return await this.axios.get(url, { params, ...options });
     } catch (e) {
       throw e.response?.data?.error?.message || CONSTANTS.SERVER_ERROR;
     }

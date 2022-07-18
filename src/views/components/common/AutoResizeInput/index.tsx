@@ -1,5 +1,6 @@
 import * as React from "react";
-import { API } from "../../../../network";
+import { commonController } from "../../../../bootstrap";
+import { IMessageThumb } from "../../../../domains";
 import styles from "../../../assets/styles/AutoResizeInput.module.scss";
 import PreviewLink from "../PreviewLink";
 
@@ -10,6 +11,7 @@ export interface IAutoResizeInputProps {
   onPaste?: React.ClipboardEventHandler<HTMLSpanElement>;
   value?: string;
   onDrop?: React.DragEventHandler<HTMLInputElement>;
+  onThumbDone?: (thumb: IMessageThumb | undefined) => any;
   previewLink?: boolean;
 }
 
@@ -25,6 +27,7 @@ function AutoResizeInput(
     value,
     onDrop,
     previewLink = true,
+    onThumbDone,
   } = props;
 
   const [urlMetadata, setUrlMetadata] = React.useState<{
@@ -36,6 +39,7 @@ function AutoResizeInput(
 
   const innerRef = React.useRef<HTMLSpanElement | null>(null);
   const posRef = React.useRef(0);
+  const abortControllerRef = React.useRef<AbortController>();
 
   const handleInput: React.FormEventHandler<HTMLSpanElement> = () => {
     if (onChange) {
@@ -62,13 +66,54 @@ function AutoResizeInput(
       ) {
         innerRef.current.innerText = "";
 
+        if (abortControllerRef.current) abortControllerRef.current.abort();
+
         onChange("");
       }
     }
   };
 
+  const handlePaste: React.ClipboardEventHandler<HTMLSpanElement> = async (
+    e
+  ) => {
+    const data = e.clipboardData.getData("text");
+
+    let url = "";
+
+    if (data) {
+      const match = data.match(/\bhttps?:\/\/\S+/i);
+
+      if (match && match[0]) url = match[0];
+    }
+
+    if (url) {
+      try {
+        abortControllerRef.current = new AbortController();
+
+        const thumb = await commonController.previewLink(
+          url,
+
+          { signal: abortControllerRef.current.signal }
+        );
+
+        setUrlMetadata(thumb);
+
+        if (onThumbDone) onThumbDone(thumb);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    if (onPaste) onPaste(e);
+  };
+
   React.useImperativeHandle(ref, () => ({
     oninput: () => (handleInput as any)(),
+    reset: () => {
+      setUrlMetadata(undefined);
+      if (innerRef.current) innerRef.current.innerHTML = "";
+      if (onThumbDone) onThumbDone(undefined);
+    },
   }));
 
   React.useEffect(() => {
@@ -77,35 +122,11 @@ function AutoResizeInput(
         innerRef.current.innerHTML = value;
 
         setCaretPosition(innerRef.current, posRef.current);
-
-        const urlNode = innerRef.current.querySelector(".url");
-
-        if (urlNode) {
-          const url = (urlNode as any).dataset?.url;
-
-          if (url && !urlMetadata) {
-            try {
-              const metadata = await API.getIntance().get("/preview-link", {
-                url,
-              });
-
-              setUrlMetadata(metadata);
-            } catch (e) {
-              console.log(e);
-            }
-          }
-        }
       }
     };
 
     handleValueChange();
   }, [value]);
-
-  React.useEffect(() => {
-    if (innerRef.current && innerRef.current.innerHTML === "") {
-      setUrlMetadata(undefined);
-    }
-  });
 
   React.useEffect(() => {
     posRef.current = getSelectionCharacterOffsetWithin(innerRef.current!).start;
@@ -131,11 +152,13 @@ function AutoResizeInput(
           ref={innerRef}
           contentEditable
           onInput={handleInput}
-          onPaste={onPaste}
+          onPaste={handlePaste}
           onDrop={onDrop}
           onKeyDown={(e) => {
-            if (e.code === "Enter" && onSubmit)
+            if (e.code === "Enter" && onSubmit) {
               onSubmit((innerRef.current as any).innerText);
+              setUrlMetadata(undefined);
+            }
           }}
         ></span>
 

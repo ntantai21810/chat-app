@@ -74,8 +74,21 @@ export class MessageStorageDataSource implements IMessageStorageDataSouce {
     }
   }
 
-  updateMessage(message: IMessage) {
-    return this.database.update<IMessage>("message", "message", message);
+  async updateMessage(message: IMessage) {
+    const res = await this.database.getOne<IMessage>("message", "message", [
+      message.fromId,
+      message.toId,
+      message.clientId,
+    ]);
+
+    Object.keys(message).forEach(
+      (key) =>
+        (message as any)[key] === undefined && delete (message as any)[key]
+    );
+
+    const update = Object.assign(res!, message);
+
+    return this.database.update<IMessage>("message", "message", update);
   }
 
   deleteMessage(message: IMessage) {

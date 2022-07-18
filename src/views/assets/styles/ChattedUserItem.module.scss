@@ -41,9 +41,24 @@
       margin-right: 0.6rem;
       overflow: hidden;
 
-      .title {
-        margin-left: 0;
-        margin-bottom: 0.8rem;
+      .info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.4rem;
+
+        .title {
+          margin-left: 0;
+          margin-bottom: 0.8rem;
+        }
+
+        .time {
+          font-size: 1.4rem;
+          width: 6rem;
+          max-width: 6rem;
+          min-width: 5.6rem;
+          text-align: end;
+        }
       }
 
       .message {
@@ -54,15 +69,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
-    }
-
-    .time {
-      flex-shrink: 0;
-      flex-grow: 0;
-      font-size: 1.4rem;
-      width: 5.6rem;
-      min-width: 5.6rem;
-      text-align: end;
     }
   }
 }

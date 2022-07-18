@@ -22,7 +22,7 @@ function normalizeHTMLTag(text: string) {
     .replace(/"/g, "&quot;");
 }
 
-const NUMBER_OF_WORDS = 5;
+const NUMBER_OF_WORDS = 8;
 
 export default function HighlightKeyword(props: IHighlightKeywordProps) {
   const { text, keyword } = props;

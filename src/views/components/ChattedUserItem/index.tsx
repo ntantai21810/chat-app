@@ -40,7 +40,12 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
 
       <div className={styles.right}>
         <div className={styles.content}>
-          <p className={styles.title}>{user?.fullName || ""}</p>
+          <div className={styles.info}>
+            <p className={styles.title}>{user?.fullName || ""}</p>
+            <p className={styles.time}>
+              {getRemainingTime(new Date(lastMessage.sendTime).getTime())}
+            </p>
+          </div>
 
           <div className={styles.message}>
             {lastMessage?.type === MessageType.TEXT &&
@@ -66,9 +71,6 @@ export default function ChattedUserItem(props: IChattedUserItemProps) {
               ))}
           </div>
         </div>
-        <p className={styles.time}>
-          {getRemainingTime(new Date(lastMessage.sendTime).getTime())}
-        </p>
       </div>
     </div>
   );

@@ -88,6 +88,7 @@ export default function ChatPage(props: IChatPageProps) {
   const [searchConversations, setSearchConversations] = React.useState<
     IConversation[]
   >([]);
+  const [thumb, setThumb] = React.useState<IMessageThumb>();
   const [searchMessages, setSearchMessages] = React.useState<IMessage[]>([]);
   const [activeConversation, setActiveConversation] = React.useState<{
     id: string;
@@ -250,24 +251,6 @@ export default function ChatPage(props: IChatPageProps) {
         message.trim() !== "" &&
         message.trim().charCodeAt(0) !== 10
       ) {
-        let thumb: IMessageThumb | undefined = undefined;
-
-        const regex = /\bhttps?:\/\/\S+/i;
-
-        const url = message.replace(/\u00a0/g, " ").match(regex);
-
-        if (url) {
-          try {
-            const metadata = await API.getIntance().get("/preview-link", {
-              url: url[0],
-            });
-
-            thumb = metadata;
-          } catch (e) {
-            console.log(e);
-          }
-        }
-
         const newMessage: IMessage = {
           fromId: auth.auth.user._id,
           toId: activeConversation.user._id,
@@ -283,6 +266,7 @@ export default function ChatPage(props: IChatPageProps) {
         await messageController.sendMessage(newMessage);
 
         processMessages([newMessage]);
+        messageController.createMessageThumb([newMessage]);
       }
 
       if (files.length > 0) {
@@ -485,6 +469,7 @@ export default function ChatPage(props: IChatPageProps) {
       );
 
       processMessages(res);
+      messageController.createMessageThumb(res);
     }
   };
 
@@ -534,6 +519,7 @@ export default function ChatPage(props: IChatPageProps) {
     );
 
     processMessages(res);
+    messageController.createMessageThumb(res);
   };
 
   const handleScrollToTop = React.useCallback(async () => {
@@ -555,6 +541,7 @@ export default function ChatPage(props: IChatPageProps) {
       );
 
       processMessages(res);
+      messageController.createMessageThumb(res);
     }
   }, [messages, activeConversation, isFullMessage, dispatch]);
 
@@ -642,6 +629,7 @@ export default function ChatPage(props: IChatPageProps) {
     });
 
     processMessages(result);
+    messageController.createMessageThumb(result);
   };
 
   //Connect datasource
@@ -795,6 +783,7 @@ export default function ChatPage(props: IChatPageProps) {
           callback({ status: 200 });
 
           processMessages([message]);
+          messageController.createMessageThumb([message]);
         }
       );
 
@@ -830,6 +819,10 @@ export default function ChatPage(props: IChatPageProps) {
   React.useEffect(() => {
     let phoneMessages: NodeListOf<Element>;
     let urlMessages: NodeListOf<Element>;
+
+    if (inputRef.current) {
+      (inputRef.current as any).reset();
+    }
 
     if (conversationContentRef.current) {
       phoneMessages = conversationContentRef.current.querySelectorAll(".phone");
@@ -1018,6 +1011,7 @@ export default function ChatPage(props: IChatPageProps) {
                 onPaste={handlePaste}
                 onDrop={handleDrop}
                 ref={inputRef}
+                onThumbDone={(thumb) => setThumb(thumb)}
               />
 
               {files.length > 0 && (

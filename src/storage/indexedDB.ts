@@ -138,6 +138,7 @@ export class IndexedDB implements IDatabase {
           storeCreateIndex(messageItem, "conversationId", "conversationId", {
             unique: false,
           });
+
           storeCreateIndex(
             messageItem,
             "messageSendTime",

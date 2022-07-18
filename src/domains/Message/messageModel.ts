@@ -21,7 +21,7 @@ export class MessageModel {
     content: string | IFile[],
     clientId: string,
     sendTime: string,
-    status: MessageStatus = MessageStatus.PENDING,
+    status: MessageStatus,
     id?: string,
     thumb?: IMessageThumb
   ) {

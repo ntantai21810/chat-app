@@ -6,3 +6,4 @@ export interface IPosition {
 export * from "./detectPhoneUseCase";
 export * from "./detecEmailUseCase";
 export * from "./detectUrlUseCase";
+export * from "./previewLinkUseCase";

@@ -1,4 +1,9 @@
-import { FileDataSource, MessageStorageDataSource } from "../../dataSource";
+import { getDispatch } from "../../adapter/frameworkAdapter";
+import {
+  CommonDataSource,
+  FileDataSource,
+  MessageStorageDataSource,
+} from "../../dataSource";
 import {
   IFile,
   IMessage,
@@ -7,13 +12,18 @@ import {
   modelMessageData,
   normalizeMessageData,
 } from "../../domains";
-import { API } from "../../network";
+import { updateOneMessage } from "../../framework/redux";
 import { IMessagePresenter } from "../../presenter";
-import { FileRepository, MessageStorageRepository } from "../../repository";
+import {
+  CommonRepository,
+  FileRepository,
+  MessageStorageRepository,
+} from "../../repository";
 import { IndexedDB } from "../../storage";
 import {
   GetMessageByConversationUseCase,
   GetMessageTypeByConversationUseCase,
+  PreviewLinkUseCase,
   ReceiveMessageUseCase,
   RetryMessageUseCase,
   SearchMessageUseCase,
@@ -22,6 +32,7 @@ import {
   UpdateMessageUseCase,
   UploadFileUseCase,
 } from "../../useCases";
+import { API } from "./../../network/api/API";
 
 export class MessageController {
   private presenter: IMessagePresenter;
@@ -263,6 +274,55 @@ export class MessageController {
     } catch (e) {
       console.log(e);
       return [];
+    }
+  }
+
+  async createMessageThumb(messages: IMessage[]): Promise<void> {
+    try {
+      const previewLinkUseCase = new PreviewLinkUseCase(
+        new CommonRepository(new CommonDataSource(API.getIntance()))
+      );
+      const updateMessageUseCase = new UpdateMessageUseCase(
+        new MessageStorageRepository(
+          new MessageStorageDataSource(IndexedDB.getInstance())
+        )
+      );
+      const dispatch = getDispatch();
+
+      for (let message of messages) {
+        if (message.type === MessageType.TEXT) {
+          const match = (message.content as string).match(/\bhttps?:\/\/\S+/i);
+
+          const url = match && match[0] ? match[0] : "";
+
+          if (url && !message.thumb) {
+            try {
+              const thumb = await previewLinkUseCase.execute(url);
+              const messageModel = modelMessageData({
+                fromId: message.fromId,
+                toId: message.toId,
+                clientId: message.clientId,
+                thumb,
+              } as any);
+
+              dispatch(
+                updateOneMessage({
+                  fromId: message.fromId,
+                  toId: message.toId,
+                  clientId: message.clientId,
+                  thumb,
+                } as any)
+              );
+
+              updateMessageUseCase.execute(messageModel);
+            } catch (e) {
+              console.log(e);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.log(e);
     }
   }
 }

@@ -36,7 +36,7 @@ import {
   removeAllMessage,
   updateManyMessage,
 } from "../../../framework/redux/message";
-import { SOCKET_CONSTANTS, tokenizer } from "../../../helper";
+import { normalizeHTMLTag, SOCKET_CONSTANTS, tokenizer } from "../../../helper";
 import styles from "../../assets/styles/ChatPage.module.scss";
 import ChattedUserList from "../../components/ChattedUserList";
 import AutoResizeInput from "../../components/common/AutoResizeInput";
@@ -62,14 +62,6 @@ export const parserWorker = new Worker(
 );
 
 const PAGE_SIZE = 20;
-
-function normalizeHTMLTag(text: string) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/>/g, "&gt;")
-    .replace(/</g, "&lt;")
-    .replace(/"/g, "&quot;");
-}
 
 export default function ChatPage(props: IChatPageProps) {
   const conversations = useConversation();
@@ -225,7 +217,7 @@ export default function ChatPage(props: IChatPageProps) {
           continue;
         }
 
-        content += (msg.content as string)[i];
+        content += normalizeHTMLTag((msg.content as string)[i]);
       }
 
       updateInfo.push({

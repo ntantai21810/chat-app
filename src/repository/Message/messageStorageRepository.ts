@@ -101,9 +101,11 @@ export class MessageStorageRepository
   async searchMessage(text: string): Promise<MessageModel[]> {
     const res = await this.dataSource.searchMessage(text);
 
+    const filter = res.filter((item) => item !== undefined);
+
     const messageModels: MessageModel[] = [];
 
-    for (let message of res) {
+    for (let message of filter) {
       messageModels.push(modelMessageData(message));
     }
 

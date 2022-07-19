@@ -8,6 +8,7 @@ import Image from "../common/Image";
 import MessageItem from "../Message";
 import styles from "../../assets/styles/ChatMessage.module.scss";
 import { memo } from "react";
+import { humanFileSize } from "../../../helper";
 
 export interface IChatMessageProps {
   reverse?: boolean;
@@ -103,7 +104,7 @@ function ChatMessage(props: IChatMessageProps) {
                 </div>
                 <div className={styles.info}>
                   <p className={styles.name}>{item.name}</p>
-                  <p className={styles.size}>{`${item.size} KB`}</p>
+                  <p className={styles.size}>{humanFileSize(item.size)}</p>
                 </div>
                 <div
                   className={styles.downloadIcon}

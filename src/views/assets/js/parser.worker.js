@@ -5,21 +5,30 @@ if ("function" === typeof self.importScripts) {
       case "phone-detect":
         postMessage({
           type: "phone-detect-result",
-          text: processPhoneNumber(event.data.text),
+          result: {
+            text: processPhoneNumber(event.data.text.text),
+            id: event.data.text.id,
+          },
         });
         break;
 
       case "url-detect":
         postMessage({
           type: "url-detect-result",
-          text: processUrl(event.data.text),
+          result: {
+            text: processUrl(event.data.text.text),
+            id: event.data.text.id,
+          },
         });
         break;
 
       case "email-detect":
         postMessage({
           type: "email-detect-result",
-          text: processEmail(event.data.text),
+          result: {
+            text: processEmail(event.data.text.text),
+            id: event.data.text.id,
+          },
         });
         break;
     }

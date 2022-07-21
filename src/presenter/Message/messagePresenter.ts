@@ -1,10 +1,5 @@
 import { getDispatch } from "../../adapter/frameworkAdapter";
-import {
-  IMessage,
-  MessageModel,
-  MessageType,
-  normalizeMessageData,
-} from "../../domains";
+import { IMessage, MessageModel, normalizeMessageData } from "../../domains";
 import {
   addManyMessage,
   addOneMessage,
@@ -13,7 +8,6 @@ import {
   setShowNotification,
   updateOneMessage,
 } from "../../framework/redux";
-import { normalizeHTMLTag } from "../../helper";
 import { IMessagePresenter } from "./IMessagePresenter";
 
 export class MessagePresenter implements IMessagePresenter {
@@ -29,10 +23,6 @@ export class MessagePresenter implements IMessagePresenter {
     for (let messageModel of messageModels) {
       const message = normalizeMessageData(messageModel);
 
-      if (message.type === MessageType.TEXT) {
-        message.content = normalizeHTMLTag(message.content as string);
-      }
-
       messages.push(message);
     }
 
@@ -41,10 +31,6 @@ export class MessagePresenter implements IMessagePresenter {
 
   addMessage(messageModel: MessageModel): void {
     const message = normalizeMessageData(messageModel);
-
-    if (message.type === MessageType.TEXT) {
-      message.content = normalizeHTMLTag(message.content as string);
-    }
 
     this.dispatch(addOneMessage(message));
   }

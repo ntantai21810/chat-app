@@ -74,7 +74,14 @@ const messageSlice = createSlice({
     },
 
     removeOne(state, action: PayloadAction<IMessage>) {
-      return state.filter((item) => item.clientId !== action.payload.clientId);
+      return state.filter(
+        (item) =>
+          !(
+            item.fromId === action.payload.fromId &&
+            item.toId === action.payload.toId &&
+            item.clientId === action.payload.clientId
+          )
+      );
     },
   },
 });

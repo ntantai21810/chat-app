@@ -107,10 +107,6 @@ export class ReceiveMessageUseCase {
 
       messageModel.setConversationId(conversationId);
 
-      if (this.presenter) {
-        this.presenter.addMessage(messageModel);
-      }
-
       const addMessageDatabaseUseCase = new AddMessageDatabaseUseCase(
         new MessageStorageRepository(
           new MessageStorageDataSource(IndexedDB.getInstance())
@@ -118,6 +114,10 @@ export class ReceiveMessageUseCase {
       );
 
       await addMessageDatabaseUseCase.execute(messageModel);
+
+      if (this.presenter) {
+        this.presenter.addMessage(messageModel);
+      }
     } catch (e) {
       console.log(e);
       throw e;

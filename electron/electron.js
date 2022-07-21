@@ -75,11 +75,11 @@ const createWindow = () => {
     shell.openExternal(url);
   });
 
-  ipcMain.handle("openFile", async (event, path) => {
+  ipcMain.handle("openFile", async (event, { path, type }) => {
     try {
       const res = await fs.promises.readFile(path, { encoding: "base64" });
 
-      return res;
+      return `data:${type};base64,` + res;
     } catch (e) {
       throw e;
     }

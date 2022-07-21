@@ -1,7 +1,7 @@
 import { IPosition } from ".";
 
 export interface IDetectPhoneRepo {
-  detectPhone(text: string): Promise<IPosition[]>;
+  detectPhone(id: string, text: string): Promise<IPosition[]>;
 }
 
 export class DetectPhoneUseCase {
@@ -11,9 +11,9 @@ export class DetectPhoneUseCase {
     this.repository = repository;
   }
 
-  async execute(text: string): Promise<IPosition[]> {
+  async execute(id: string, text: string): Promise<IPosition[]> {
     try {
-      const res = await this.repository.detectPhone(text);
+      const res = await this.repository.detectPhone(id, text);
 
       return res;
     } catch (error) {

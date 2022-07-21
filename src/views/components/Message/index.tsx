@@ -1,9 +1,11 @@
 import classNames from "classnames";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { commonController } from "../../../bootstrap";
 import { IMessage, MessageStatus } from "../../../domains/Message";
-import { API } from "../../../network";
+import { normalizeHTMLTag } from "../../../helper";
 import styles from "../../assets/styles/Message.module.scss";
 import PreviewLink from "../common/PreviewLink";
+import { v4 as uuidv4 } from "uuid";
 
 export interface IMessageProps {
   bgColor?: string;
@@ -12,6 +14,67 @@ export interface IMessageProps {
   highlight?: boolean;
   onRetry?: (message: IMessage) => any;
 }
+
+const processMessage = async (text: string) => {
+  const phonePostion = await commonController.detectPhone(uuidv4(), text);
+  const urlPosition = await commonController.detectUrl(uuidv4(), text);
+  const emailPosition = await commonController.detectEmail(uuidv4(), text);
+
+  let content = "";
+
+  for (let i = 0; i < text.length; i++) {
+    const phonePos = phonePostion.find((item) => item.start === i);
+
+    if (phonePos) {
+      const phone = text.slice(
+        phonePos.start,
+        phonePos.start + phonePos.length
+      );
+      content += `<span class="highlight phone" data-phone="${phone}">${normalizeHTMLTag(
+        phone
+      )}</span>`;
+
+      i += phonePos.length - 1;
+
+      continue;
+    }
+
+    const urlPos = urlPosition.find((item) => item.start === i);
+
+    if (urlPos) {
+      const url = text.slice(urlPos.start, urlPos.start + urlPos.length);
+
+      content += `<span class="highlight url" data-url="${url}">${normalizeHTMLTag(
+        url
+      )}</span>`;
+
+      i += urlPos.length - 1;
+
+      continue;
+    }
+
+    const emailPos = emailPosition.find((item) => item.start === i);
+
+    if (emailPos) {
+      const email = text.slice(
+        emailPos.start,
+        emailPos.start + emailPos.length
+      );
+
+      content += `<span class="highlight email" data-email="${email}">${normalizeHTMLTag(
+        email
+      )}</span>`;
+
+      i += emailPos.length - 1;
+
+      continue;
+    }
+
+    content += normalizeHTMLTag(text[i]);
+  }
+
+  return content;
+};
 
 export default function Message(props: IMessageProps) {
   const { bgColor = "#fff", message, showStatus, onRetry, highlight } = props;
@@ -25,10 +88,9 @@ export default function Message(props: IMessageProps) {
   useEffect(() => {
     const handleValueChange = async () => {
       if (ref.current) {
-        ref.current.innerHTML = (message.content as string).replace(
-          /\u00a0/g,
-          " "
-        );
+        ref.current.innerHTML = (
+          await processMessage(message.content as string)
+        ).replace(/\u00a0/g, " ");
       }
     };
 
@@ -42,7 +104,7 @@ export default function Message(props: IMessageProps) {
       })}
       style={{ backgroundColor: highlight ? "rgb(255 199 0)" : bgColor }}
     >
-      <div ref={ref}></div>
+      <div ref={ref}>{message.content as string}</div>
 
       {message.thumb && (
         <div className={styles.previewLink}>

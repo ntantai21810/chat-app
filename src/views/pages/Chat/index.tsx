@@ -32,11 +32,8 @@ import {
   setShowNotification,
   setSocketConnect,
 } from "../../../framework/redux/common";
-import {
-  removeAllMessage,
-  updateManyMessage,
-} from "../../../framework/redux/message";
-import { normalizeHTMLTag, SOCKET_CONSTANTS, tokenizer } from "../../../helper";
+import { removeAllMessage } from "../../../framework/redux/message";
+import { SOCKET_CONSTANTS, tokenizer } from "../../../helper";
 import styles from "../../assets/styles/ChatPage.module.scss";
 import ChattedUserList from "../../components/ChattedUserList";
 import AutoResizeInput from "../../components/common/AutoResizeInput";
@@ -144,93 +141,6 @@ export default function ChatPage(props: IChatPageProps) {
     searchRef.current = setTimeout(async () => setSearch(e.target.value), 200);
   };
 
-  const processMessages = async (messages: IMessage[]) => {
-    const textMsg = messages.filter((item) => item.type === MessageType.TEXT);
-    const updateInfo: {
-      fromId: string;
-      toId: string;
-      clientId: string;
-      content: string;
-    }[] = [];
-
-    for (let msg of textMsg) {
-      const phonePostion = await commonController.detectPhone(
-        msg.content as string
-      );
-      const urlPosition = await commonController.detectUrl(
-        msg.content as string
-      );
-      const emailPosition = await commonController.detectEmail(
-        msg.content as string
-      );
-
-      let content = "";
-
-      for (let i = 0; i < (msg.content as string).length; i++) {
-        const phonePos = phonePostion.find((item) => item.start === i);
-
-        if (phonePos) {
-          const phone = (msg.content as string).slice(
-            phonePos.start,
-            phonePos.start + phonePos.length
-          );
-          content += `<span class="highlight phone" data-phone="${phone}">${normalizeHTMLTag(
-            phone
-          )}</span>`;
-
-          i += phonePos.length - 1;
-
-          continue;
-        }
-
-        const urlPos = urlPosition.find((item) => item.start === i);
-
-        if (urlPos) {
-          const url = (msg.content as string).slice(
-            urlPos.start,
-            urlPos.start + urlPos.length
-          );
-
-          content += `<span class="highlight url" data-url="${url}">${normalizeHTMLTag(
-            url
-          )}</span>`;
-
-          i += urlPos.length - 1;
-
-          continue;
-        }
-
-        const emailPos = emailPosition.find((item) => item.start === i);
-
-        if (emailPos) {
-          const email = (msg.content as string).slice(
-            emailPos.start,
-            emailPos.start + emailPos.length
-          );
-
-          content += `<span class="highlight email" data-email="${email}">${normalizeHTMLTag(
-            email
-          )}</span>`;
-
-          i += emailPos.length - 1;
-
-          continue;
-        }
-
-        content += normalizeHTMLTag((msg.content as string)[i]);
-      }
-
-      updateInfo.push({
-        fromId: msg.fromId,
-        toId: msg.toId,
-        clientId: msg.clientId,
-        content,
-      });
-    }
-
-    dispatch(updateManyMessage(updateInfo as any));
-  };
-
   const handleSubmitMessage = async (message: string) => {
     if (activeConversation) {
       if (message || files.length > 0) {
@@ -255,24 +165,36 @@ export default function ChatPage(props: IChatPageProps) {
           thumb: thumb,
         };
 
-        await messageController.sendMessage(newMessage);
+        try {
+          await messageController.sendMessage(newMessage);
 
-        processMessages([newMessage]);
-        messageController.createMessageThumb([newMessage]);
+          await messageController.createMessageThumb([newMessage]);
+        } catch (e) {
+          setNotification({ type: "error", message: "Gửi tin nhắn thất bại" });
+          dispatch(setShowNotification(true));
+        }
       }
 
       if (files.length > 0) {
         for (let file of files) {
-          messageController.sendMessage({
-            fromId: auth.auth.user._id,
-            toId: activeConversation.user._id,
-            type: MessageType.IMAGE,
-            content: [file],
-            sendTime: new Date().toISOString(),
-            conversationId: "",
-            clientId: uuidv4(),
-            status: MessageStatus.PENDING,
-          });
+          try {
+            await messageController.sendMessage({
+              fromId: auth.auth.user._id,
+              toId: activeConversation.user._id,
+              type: MessageType.IMAGE,
+              content: [file],
+              sendTime: new Date().toISOString(),
+              conversationId: "",
+              clientId: uuidv4(),
+              status: MessageStatus.PENDING,
+            });
+          } catch (e) {
+            setNotification({
+              type: "error",
+              message: "Gửi tin nhắn thất bại",
+            });
+            dispatch(setShowNotification(true));
+          }
         }
 
         setScrollTargetTopMessage("");
@@ -325,36 +247,52 @@ export default function ChatPage(props: IChatPageProps) {
     []
   );
 
-  const handleSubmitFiles = (files: IFile[]) => {
+  const handleSubmitFiles = async (files: IFile[]) => {
     if (activeConversation && files.length > 0) {
       setScrollTargetTopMessage("");
       setHighlightMessage("");
 
       if (files[0].type.startsWith("image/")) {
         for (let file of files) {
-          messageController.sendMessage({
-            fromId: auth.auth.user._id,
-            toId: activeConversation.user._id,
-            type: MessageType.IMAGE,
-            content: [file],
-            sendTime: new Date().toISOString(),
-            conversationId: "",
-            clientId: uuidv4(),
-            status: MessageStatus.PENDING,
-          });
+          try {
+            await messageController.sendMessage({
+              fromId: auth.auth.user._id,
+              toId: activeConversation.user._id,
+              type: MessageType.IMAGE,
+              content: [file],
+              sendTime: new Date().toISOString(),
+              conversationId: "",
+              clientId: uuidv4(),
+              status: MessageStatus.PENDING,
+            });
+          } catch (e) {
+            setNotification({
+              type: "error",
+              message: "Gửi tin nhắn thất bại",
+            });
+            dispatch(setShowNotification(true));
+          }
         }
       } else {
         for (let file of files) {
-          messageController.sendMessage({
-            fromId: auth.auth.user._id,
-            toId: activeConversation.user._id,
-            type: MessageType.FILE,
-            content: [file],
-            sendTime: new Date().toISOString(),
-            conversationId: "",
-            clientId: uuidv4(),
-            status: MessageStatus.PENDING,
-          });
+          try {
+            await messageController.sendMessage({
+              fromId: auth.auth.user._id,
+              toId: activeConversation.user._id,
+              type: MessageType.FILE,
+              content: [file],
+              sendTime: new Date().toISOString(),
+              conversationId: "",
+              clientId: uuidv4(),
+              status: MessageStatus.PENDING,
+            });
+          } catch (e) {
+            setNotification({
+              type: "error",
+              message: "Gửi tin nhắn thất bại",
+            });
+            dispatch(setShowNotification(true));
+          }
         }
       }
     }
@@ -468,7 +406,6 @@ export default function ChatPage(props: IChatPageProps) {
         PAGE_SIZE
       );
 
-      processMessages(res);
       messageController.createMessageThumb(res);
     }
   };
@@ -518,7 +455,6 @@ export default function ChatPage(props: IChatPageProps) {
       PAGE_SIZE
     );
 
-    processMessages(res);
     messageController.createMessageThumb(res);
   };
 
@@ -540,7 +476,6 @@ export default function ChatPage(props: IChatPageProps) {
         }`
       );
 
-      processMessages(res);
       messageController.createMessageThumb(res);
     }
   }, [messages, activeConversation, isFullMessage, dispatch]);
@@ -578,7 +513,10 @@ export default function ChatPage(props: IChatPageProps) {
     if (clonedMsg.type === MessageType.FILE) {
       for (let file of clonedMsg.content as IFile[]) {
         try {
-          const res = await (window as any).electronAPI.openFile(file.path);
+          const res = await (window as any).electronAPI.openFile(
+            file.path,
+            file.type
+          );
 
           file.data = res;
         } catch (e) {
@@ -655,7 +593,6 @@ export default function ChatPage(props: IChatPageProps) {
       )!,
     });
 
-    processMessages(result);
     messageController.createMessageThumb(result);
   };
 
@@ -756,6 +693,7 @@ export default function ChatPage(props: IChatPageProps) {
       );
 
       const phonePos = await commonController.detectPhone(
+        uuidv4(),
         search.replace(/[^\w]/gi, "")
       );
 
@@ -797,58 +735,62 @@ export default function ChatPage(props: IChatPageProps) {
       socketController.listen(
         SOCKET_CONSTANTS.CHAT_MESSAGE,
         async (message: IMessage, callback: any) => {
-          message.status = MessageStatus.RECEIVED;
+          try {
+            message.status = MessageStatus.RECEIVED;
 
-          await messageController.receiveMessage(
-            message,
-            !activeConversation ||
-              activeConversation.user._id !== message.fromId
-          );
-
-          socketController.send(SOCKET_CONSTANTS.ACK_MESSAGE, message);
-
-          if (lastNotiRef.current) lastNotiRef.current.close();
-
-          lastNotiRef.current = new Notification(
-            friend.find((item) => item._id === message.fromId)!.fullName,
-            {
-              body:
-                message.type === MessageType.FILE
-                  ? "Đã gửi file"
-                  : message.type === MessageType.IMAGE
-                  ? "Đã gửi ảnh"
-                  : (message.content as string),
-            }
-          );
-
-          lastNotiRef.current.onclick = async () => {
-            setActiveConversation({
-              id: conversations.find((item) => item.userId === message.fromId)!
-                .id,
-              user: friend.find((item) => item._id === message.fromId)!,
-            });
-            setScrollTargetTopMessage("");
-            setHighlightMessage("");
-
-            if (messages.length > 0) {
-              dispatch(removeAllMessage());
-            }
-
-            const res = await messageController.getMessagesByConversation(
-              conversations.find((item) => item.userId === message.fromId)!.id,
-              undefined,
-              undefined,
-              PAGE_SIZE
+            await messageController.receiveMessage(
+              message,
+              !activeConversation ||
+                activeConversation.user._id !== message.fromId
             );
 
-            processMessages(res);
-            messageController.createMessageThumb(res);
-          };
+            socketController.send(SOCKET_CONSTANTS.ACK_MESSAGE, message);
 
-          callback({ status: 200 });
+            if (lastNotiRef.current) lastNotiRef.current.close();
 
-          processMessages([message]);
-          messageController.createMessageThumb([message]);
+            lastNotiRef.current = new Notification(
+              friend.find((item) => item._id === message.fromId)!.fullName,
+              {
+                body:
+                  message.type === MessageType.FILE
+                    ? "Đã gửi file"
+                    : message.type === MessageType.IMAGE
+                    ? "Đã gửi ảnh"
+                    : (message.content as string),
+              }
+            );
+
+            lastNotiRef.current.onclick = async () => {
+              setActiveConversation({
+                id: conversations.find(
+                  (item) => item.userId === message.fromId
+                )!.id,
+                user: friend.find((item) => item._id === message.fromId)!,
+              });
+              setScrollTargetTopMessage("");
+              setHighlightMessage("");
+
+              if (messages.length > 0) {
+                dispatch(removeAllMessage());
+              }
+
+              const res = await messageController.getMessagesByConversation(
+                conversations.find((item) => item.userId === message.fromId)!
+                  .id,
+                undefined,
+                undefined,
+                PAGE_SIZE
+              );
+
+              messageController.createMessageThumb(res);
+            };
+
+            callback({ status: 200 });
+
+            messageController.createMessageThumb([message]);
+          } catch (e) {
+            console.log(e);
+          }
         }
       );
 
@@ -856,7 +798,7 @@ export default function ChatPage(props: IChatPageProps) {
         SOCKET_CONSTANTS.UPDATE_MESSAGE,
         async (message: IMessage) => {
           messageController.updateMessage(message);
-          processMessages([message]);
+          // processMessages([message]);
         }
       );
 

@@ -201,6 +201,8 @@ export class MessageController {
         sendMessageUseCase.execute(messageModel, false);
 
         this.presenter.setShowNotification(true);
+
+        throw e;
       }
     } else {
       const messageModel = modelMessageData(message);
@@ -209,6 +211,7 @@ export class MessageController {
         await sendMessageUseCase.execute(messageModel);
       } catch (e) {
         console.log(e);
+        throw e;
       }
     }
   }
@@ -224,6 +227,7 @@ export class MessageController {
       await receiveMessageUseCase.execute(messageModel);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 
@@ -279,6 +283,36 @@ export class MessageController {
   async retryMessage(message: IMessage) {
     try {
       const retryMessageUseCase = new RetryMessageUseCase(this.presenter);
+
+      const uploadFileUseCase = new UploadFileUseCase(
+        new FileRepository(new FileDataSource(API.getIntance()))
+      );
+
+      if (
+        message.type === MessageType.IMAGE ||
+        message.type === MessageType.FILE
+      ) {
+        try {
+          const urls = await uploadFileUseCase.execute(
+            message.content as IFile[]
+          );
+
+          message.content = (message.content as IFile[]).map((item, index) => ({
+            ...item,
+            data: urls[index],
+          }));
+        } catch (e) {
+          if (message.type === MessageType.FILE) {
+            for (let file of message.content as IFile[]) {
+              file.data = "";
+            }
+          }
+
+          message.status = MessageStatus.ERROR;
+
+          throw e;
+        }
+      }
 
       const messageModel = modelMessageData(message);
 

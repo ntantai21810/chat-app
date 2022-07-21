@@ -11,20 +11,23 @@ export class CommonDataSource implements ICommonDataSource {
     this.datasource = worker;
   }
 
-  detectPhone(text: string): Promise<IPosition[]> {
+  detectPhone(id: string, text: string): Promise<IPosition[]> {
     return new Promise((resolve, reject) => {
       (this.datasource as Worker).postMessage({
         type: "phone-detect",
-        text: text,
+        text: { text, id },
       });
 
       const handleDetect = (ev: MessageEvent<any>) => {
-        if (ev.data.type === "phone-detect-result") {
+        if (
+          ev.data.type === "phone-detect-result" &&
+          ev.data.result.id === id
+        ) {
           (this.datasource as Worker).removeEventListener(
             "message",
             handleDetect
           );
-          resolve(ev.data.text);
+          resolve(ev.data.result.text);
         }
       };
 
@@ -32,20 +35,20 @@ export class CommonDataSource implements ICommonDataSource {
     });
   }
 
-  detectUrl(text: string): Promise<IPosition[]> {
+  detectUrl(id: string, text: string): Promise<IPosition[]> {
     return new Promise((resolve, reject) => {
       (this.datasource as Worker).postMessage({
         type: "url-detect",
-        text: text,
+        text: { text, id },
       });
 
       const handleDetect = (ev: MessageEvent<any>) => {
-        if (ev.data.type === "url-detect-result") {
+        if (ev.data.type === "url-detect-result" && ev.data.result.id === id) {
           (this.datasource as Worker).removeEventListener(
             "message",
             handleDetect
           );
-          resolve(ev.data.text);
+          resolve(ev.data.result.text);
         }
       };
 
@@ -53,20 +56,23 @@ export class CommonDataSource implements ICommonDataSource {
     });
   }
 
-  detectEmail(text: string): Promise<IPosition[]> {
+  detectEmail(id: string, text: string): Promise<IPosition[]> {
     return new Promise((resolve, reject) => {
       (this.datasource as Worker).postMessage({
         type: "email-detect",
-        text: text,
+        text: { text, id },
       });
 
       const handleDetect = (ev: MessageEvent<any>) => {
-        if (ev.data.type === "email-detect-result") {
+        if (
+          ev.data.type === "email-detect-result" &&
+          ev.data.result.id === id
+        ) {
           (this.datasource as Worker).removeEventListener(
             "message",
             handleDetect
           );
-          resolve(ev.data.text);
+          resolve(ev.data.result.text);
         }
       };
 

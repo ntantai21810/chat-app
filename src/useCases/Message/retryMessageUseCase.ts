@@ -49,7 +49,7 @@ export class RetryMessageUseCase {
         this.presenter
       );
 
-      deleteMessageUseCase.execute(messageModel);
+      await deleteMessageUseCase.execute(messageModel);
     } catch (e) {
       console.log(e);
       throw e;

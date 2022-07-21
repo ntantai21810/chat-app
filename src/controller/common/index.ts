@@ -13,13 +13,13 @@ import { parserWorker } from "../../views/pages/Chat";
 import { DetectPhoneUseCase } from "./../../useCases/common/detectPhoneUseCase";
 
 export class CommonController {
-  async detectPhone(text: string): Promise<IPosition[]> {
+  async detectPhone(id: string, text: string): Promise<IPosition[]> {
     try {
       const detectPhoneUseCase = new DetectPhoneUseCase(
         new CommonRepository(new CommonDataSource(parserWorker))
       );
 
-      const res = await detectPhoneUseCase.execute(text);
+      const res = await detectPhoneUseCase.execute(id, text);
 
       return res;
     } catch (e) {
@@ -27,13 +27,13 @@ export class CommonController {
     }
   }
 
-  async detectUrl(text: string): Promise<IPosition[]> {
+  async detectUrl(id: string, text: string): Promise<IPosition[]> {
     try {
       const detectUrlUseCase = new DetectUrlUseCase(
         new CommonRepository(new CommonDataSource(parserWorker))
       );
 
-      const res = await detectUrlUseCase.execute(text);
+      const res = await detectUrlUseCase.execute(id, text);
 
       return res;
     } catch (e) {
@@ -41,13 +41,13 @@ export class CommonController {
     }
   }
 
-  async detectEmail(text: string): Promise<IPosition[]> {
+  async detectEmail(id: string, text: string): Promise<IPosition[]> {
     try {
       const detectEmailUseCase = new DetectEmailUseCase(
         new CommonRepository(new CommonDataSource(parserWorker))
       );
 
-      const res = await detectEmailUseCase.execute(text);
+      const res = await detectEmailUseCase.execute(id, text);
 
       return res;
     } catch (e) {

@@ -1,7 +1,7 @@
 import { IPosition } from ".";
 
 export interface IDetectUrlRepo {
-  detectUrl(text: string): Promise<IPosition[]>;
+  detectUrl(id: string, text: string): Promise<IPosition[]>;
 }
 
 export class DetectUrlUseCase {
@@ -11,9 +11,9 @@ export class DetectUrlUseCase {
     this.repository = repository;
   }
 
-  async execute(text: string): Promise<IPosition[]> {
+  async execute(id: string, text: string): Promise<IPosition[]> {
     try {
-      const res = await this.repository.detectUrl(text);
+      const res = await this.repository.detectUrl(id, text);
 
       return res;
     } catch (error) {

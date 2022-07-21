@@ -1,7 +1,7 @@
 import { IPosition } from ".";
 
 export interface IDetectEmailRepo {
-  detectEmail(text: string): Promise<IPosition[]>;
+  detectEmail(id: string, text: string): Promise<IPosition[]>;
 }
 
 export class DetectEmailUseCase {
@@ -11,9 +11,9 @@ export class DetectEmailUseCase {
     this.repository = repository;
   }
 
-  async execute(text: string): Promise<IPosition[]> {
+  async execute(id: string, text: string): Promise<IPosition[]> {
     try {
-      const res = await this.repository.detectEmail(text);
+      const res = await this.repository.detectEmail(id, text);
 
       return res;
     } catch (error) {

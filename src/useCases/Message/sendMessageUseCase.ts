@@ -143,7 +143,7 @@ export class SendMessageUseCase {
 
         await sendMessageSocketUseCase.execute(messageModel);
       } catch (e) {
-        throw e;
+        console.log(e);
       }
     }
   }

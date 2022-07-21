@@ -9,9 +9,9 @@ import {
 } from "../../useCases";
 
 export interface ICommonDataSource {
-  detectPhone(text: string): Promise<IPosition[]>;
-  detectUrl(text: string): Promise<IPosition[]>;
-  detectEmail(text: string): Promise<IPosition[]>;
+  detectPhone(id: string, text: string): Promise<IPosition[]>;
+  detectUrl(id: string, text: string): Promise<IPosition[]>;
+  detectEmail(id: string, text: string): Promise<IPosition[]>;
   previewLink(
     url: string,
     options?: AxiosRequestConfig
@@ -30,16 +30,16 @@ export class CommonRepository
     this.dataSource = dataSource;
   }
 
-  detectPhone(text: string): Promise<IPosition[]> {
-    return this.dataSource.detectPhone(text);
+  detectPhone(id: string, text: string): Promise<IPosition[]> {
+    return this.dataSource.detectPhone(id, text);
   }
 
-  detectUrl(text: string): Promise<IPosition[]> {
-    return this.dataSource.detectUrl(text);
+  detectUrl(id: string, text: string): Promise<IPosition[]> {
+    return this.dataSource.detectUrl(id, text);
   }
 
-  detectEmail(text: string): Promise<IPosition[]> {
-    return this.dataSource.detectEmail(text);
+  detectEmail(id: string, text: string): Promise<IPosition[]> {
+    return this.dataSource.detectEmail(id, text);
   }
 
   previewLink(

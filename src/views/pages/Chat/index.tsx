@@ -205,6 +205,28 @@ export default function ChatPage(props: IChatPageProps) {
     setFiles([]);
   };
 
+  const handleClickOnPhone = async (phone: string) => {
+    console.log("Phone click");
+
+    setIsLoadingUserModal(true);
+    const user = await userController.getOneUserByPhone(phone);
+    setIsLoadingUserModal(false);
+
+    if (user) {
+      setUserModal(user);
+    } else {
+      dispatch(setShowNotification(true));
+      setNotification({
+        type: "error",
+        message: "Không tìm thấy người dùng với số điện thoại này",
+      });
+    }
+  };
+
+  const handleClickOnLink = async (url: string) => {
+    (window as any).electronAPI.openLink(url);
+  };
+
   const handleImageMessageClick = React.useCallback(
     async (image: IFile, message: IMessage) => {
       const res = await messageController.getMessagesTypeByConversation(
@@ -828,64 +850,6 @@ export default function ChatPage(props: IChatPageProps) {
     conversations,
   ]);
 
-  // Add listener event for phone detect
-  React.useEffect(() => {
-    let phoneMessages: NodeListOf<Element>;
-    let urlMessages: NodeListOf<Element>;
-
-    if (inputRef.current) {
-      (inputRef.current as any).reset();
-    }
-
-    if (conversationContentRef.current) {
-      phoneMessages = conversationContentRef.current.querySelectorAll(".phone");
-
-      urlMessages = conversationContentRef.current.querySelectorAll(".url");
-
-      phoneMessages.forEach((message) =>
-        message.addEventListener("click", async () => {
-          setIsLoadingUserModal(true);
-          const phone = (message as any).dataset?.phone;
-
-          const user = await userController.getOneUserByPhone(phone);
-          setIsLoadingUserModal(false);
-
-          if (user) {
-            setUserModal(user);
-          } else {
-            dispatch(setShowNotification(true));
-            setNotification({
-              type: "error",
-              message: "Không tìm thấy người dùng với số điện thoại này",
-            });
-          }
-        })
-      );
-
-      urlMessages.forEach((message) =>
-        message.addEventListener("click", async () => {
-          const url = (message as any).dataset?.url;
-
-          (window as any).electronAPI.openLink(url);
-        })
-      );
-    }
-
-    return () => {
-      if (conversationContentRef.current && phoneMessages) {
-        phoneMessages.forEach((message) =>
-          message.replaceWith(message.cloneNode(true))
-        );
-      }
-
-      if (conversationContentRef.current && urlMessages) {
-        urlMessages.forEach((message) =>
-          message.replaceWith(message.cloneNode(true))
-        );
-      }
-    };
-  }, [messages]);
-
   return (
     <>
       <div className={styles.container}>
@@ -970,6 +934,8 @@ export default function ChatPage(props: IChatPageProps) {
                 scrollToElement={scrollToTargetMessage}
                 highlightElement={highlightMessage}
                 onScroll={handleConversationContentScroll}
+                onPhoneClick={handleClickOnPhone}
+                onUrlClick={handleClickOnLink}
               />
 
               {isTyping && (

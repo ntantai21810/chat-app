@@ -18,6 +18,8 @@ export interface IConversationContentProps {
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
   onImageClick?: (image: IFile, message: IMessage) => any;
+  onPhoneClick?: (phone: string) => any;
+  onUrlClick?: (url: string) => any;
 }
 
 function ConversationContent(props: IConversationContentProps) {
@@ -26,14 +28,16 @@ function ConversationContent(props: IConversationContentProps) {
     currentUserId,
     currentUserAvatar,
     chattingUserAvatar,
+    percentFileDownloading,
+    scrollToElement,
+    highlightElement,
     onScrollToTop,
     onRetry,
     onDownloadFile,
     onImageClick,
     onScroll,
-    percentFileDownloading,
-    scrollToElement,
-    highlightElement,
+    onPhoneClick,
+    onUrlClick,
   } = props;
 
   const ref = useRef<HTMLDivElement | null>(null);
@@ -112,6 +116,8 @@ function ConversationContent(props: IConversationContentProps) {
                 `message-${item.fromId + item.toId + item.clientId}` ===
                 highlightElement
               }
+              onPhoneClick={onPhoneClick}
+              onUrlClick={onUrlClick}
             />
           </div>
         );

@@ -20,6 +20,8 @@ export interface IChatMessageProps {
   onRetry?: (message: IMessage) => any;
   onDownloadFile?: (url: string) => any;
   onImageClick?: (image: IFile, message: IMessage) => any;
+  onPhoneClick?: (phone: string) => any;
+  onUrlClick?: (url: string) => any;
 }
 
 function ChatMessage(props: IChatMessageProps) {
@@ -29,10 +31,12 @@ function ChatMessage(props: IChatMessageProps) {
     message,
     showAvatar,
     highlight,
+    percentFileDownloading,
     onRetry,
     onDownloadFile,
     onImageClick,
-    percentFileDownloading,
+    onPhoneClick,
+    onUrlClick,
   } = props;
 
   return (
@@ -64,6 +68,8 @@ function ChatMessage(props: IChatMessageProps) {
             showStatus={reverse}
             onRetry={onRetry}
             highlight={highlight}
+            onPhoneClick={onPhoneClick}
+            onUrlClick={onUrlClick}
           />
         )}
         {message.type === MessageType.IMAGE && (

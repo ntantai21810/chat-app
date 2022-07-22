@@ -13,6 +13,8 @@ export interface IMessageProps {
   showStatus: boolean;
   highlight?: boolean;
   onRetry?: (message: IMessage) => any;
+  onPhoneClick?: (phone: string) => any;
+  onUrlClick?: (url: string) => any;
 }
 
 const processMessage = async (text: string) => {
@@ -77,7 +79,15 @@ const processMessage = async (text: string) => {
 };
 
 export default function Message(props: IMessageProps) {
-  const { bgColor = "#fff", message, showStatus, onRetry, highlight } = props;
+  const {
+    bgColor = "#fff",
+    message,
+    showStatus,
+    onRetry,
+    highlight,
+    onPhoneClick,
+    onUrlClick,
+  } = props;
 
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -96,6 +106,48 @@ export default function Message(props: IMessageProps) {
 
     handleValueChange();
   }, [message]);
+
+  // Add listener event for phone detect
+  useEffect(() => {
+    let phoneMessages: NodeListOf<Element>;
+    let urlMessages: NodeListOf<Element>;
+
+    if (ref.current) {
+      phoneMessages = ref.current.querySelectorAll(".phone");
+
+      urlMessages = ref.current.querySelectorAll(".url");
+
+      phoneMessages.forEach((message) =>
+        message.addEventListener("click", async () => {
+          const phone = (message as any).dataset?.phone;
+
+          if (onPhoneClick) onPhoneClick(phone);
+        })
+      );
+
+      urlMessages.forEach((message) =>
+        message.addEventListener("click", async () => {
+          const url = (message as any).dataset?.url;
+
+          if (onUrlClick) onUrlClick(url);
+        })
+      );
+    }
+
+    return () => {
+      if (ref.current && phoneMessages) {
+        phoneMessages.forEach((message) =>
+          message.replaceWith(message.cloneNode(true))
+        );
+      }
+
+      if (ref.current && urlMessages) {
+        urlMessages.forEach((message) =>
+          message.replaceWith(message.cloneNode(true))
+        );
+      }
+    };
+  }, [message, ref.current]);
 
   return (
     <div

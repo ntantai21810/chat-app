@@ -71,7 +71,7 @@ export default function ChatPage(props: IChatPageProps) {
   const [isTyping, setIsTyping] = React.useState(false);
   const [isFullMessage, setIsFullMessage] = React.useState(false);
   const [search, setSearch] = React.useState("");
-  const [files, setFiles] = React.useState<IFile[]>([]);
+  const [images, setImages] = React.useState<IFile[]>([]);
   const [searchUsers, setSearchUsers] = React.useState<IUser[]>([]);
   const [searchConversations, setSearchConversations] = React.useState<
     IConversation[]
@@ -143,7 +143,7 @@ export default function ChatPage(props: IChatPageProps) {
 
   const handleSubmitMessage = async (message: string) => {
     if (activeConversation) {
-      if (message || files.length > 0) {
+      if (message || images.length > 0) {
         setScrollTargetTopMessage("");
         setHighlightMessage("");
       }
@@ -175,14 +175,14 @@ export default function ChatPage(props: IChatPageProps) {
         }
       }
 
-      if (files.length > 0) {
-        for (let file of files) {
+      if (images.length > 0) {
+        for (let image of images) {
           try {
             await messageController.sendMessage({
               fromId: auth.auth.user._id,
               toId: activeConversation.user._id,
               type: MessageType.IMAGE,
-              content: [file],
+              content: [image],
               sendTime: new Date().toISOString(),
               conversationId: "",
               clientId: uuidv4(),
@@ -196,18 +196,13 @@ export default function ChatPage(props: IChatPageProps) {
             dispatch(setShowNotification(true));
           }
         }
-
-        setScrollTargetTopMessage("");
-        setHighlightMessage("");
       }
     }
 
-    setFiles([]);
+    setImages([]);
   };
 
-  const handleClickOnPhone = async (phone: string) => {
-    console.log("Phone click");
-
+  const handleClickOnPhone = React.useCallback(async (phone: string) => {
     setIsLoadingUserModal(true);
     const user = await userController.getOneUserByPhone(phone);
     setIsLoadingUserModal(false);
@@ -221,11 +216,11 @@ export default function ChatPage(props: IChatPageProps) {
         message: "Không tìm thấy người dùng với số điện thoại này",
       });
     }
-  };
+  }, []);
 
-  const handleClickOnLink = async (url: string) => {
+  const handleClickOnLink = React.useCallback(async (url: string) => {
     (window as any).electronAPI.openLink(url);
-  };
+  }, []);
 
   const handleImageMessageClick = React.useCallback(
     async (image: IFile, message: IMessage) => {
@@ -336,11 +331,14 @@ export default function ChatPage(props: IChatPageProps) {
           typeof reader.result === "string" &&
           file.type.startsWith("image/")
         ) {
-          const currentSize = files.reduce((size, file) => size + file.size, 0);
+          const currentSize = images.reduce(
+            (size, file) => size + file.size,
+            0
+          );
 
           //5mb
           if (currentSize + file.size <= 5000000) {
-            setFiles((state) => [
+            setImages((state) => [
               ...state,
               {
                 name: file.name,
@@ -365,7 +363,7 @@ export default function ChatPage(props: IChatPageProps) {
   const handleDrop: React.DragEventHandler<HTMLInputElement> = (e) => {
     if (!e.dataTransfer.files) return;
 
-    const currentSize = files.reduce((size, file) => size + file.size, 0);
+    const currentSize = images.reduce((size, file) => size + file.size, 0);
     const incomingSize = Array.from(e.dataTransfer.files).reduce(
       (size, file) => size + file.size,
       0
@@ -387,7 +385,7 @@ export default function ChatPage(props: IChatPageProps) {
           typeof reader.result === "string" &&
           file.type.startsWith("image/")
         ) {
-          setFiles((state) => [
+          setImages((state) => [
             ...state,
             {
               name: file.name,
@@ -433,7 +431,7 @@ export default function ChatPage(props: IChatPageProps) {
   };
 
   const handleCancleFile = (index: number) => {
-    setFiles((state) => {
+    setImages((state) => {
       return state.filter((_, i) => i !== index);
     });
   };
@@ -993,13 +991,13 @@ export default function ChatPage(props: IChatPageProps) {
                 onThumbDone={(thumb) => setThumb(thumb)}
               />
 
-              {files.length > 0 && (
+              {images.length > 0 && (
                 <div className={styles.images}>
                   <div className={styles.title}>
-                    <span>{files.length}</span> ảnh được chọn
+                    <span>{images.length}</span> ảnh được chọn
                   </div>
                   <div className={styles.imagesContainer}>
-                    {files.map((file, index) => (
+                    {images.map((file, index) => (
                       <div className={styles.image} key={index}>
                         <Image
                           src={file.data}

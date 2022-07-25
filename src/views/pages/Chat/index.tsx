@@ -213,6 +213,7 @@ export default function ChatPage(props: IChatPageProps) {
   };
 
   const handleClickOnPhone = React.useCallback(async (phone: string) => {
+    console.log("click: ", phone);
     setIsLoadingUserModal(true);
     const user = await userController.getOneUserByPhone(phone);
     setIsLoadingUserModal(false);
@@ -759,7 +760,7 @@ export default function ChatPage(props: IChatPageProps) {
     if (common.isDatabaseConnected && common.isSocketConnected) {
       messageController.syncMessage();
     }
-  }, [common.isDatabaseConnected, common.isSocketConnected]);
+  }, [common.isDatabaseConnected, common.isSocketConnected, auth.auth.user]);
 
   //Change conversation socket
   React.useEffect(() => {

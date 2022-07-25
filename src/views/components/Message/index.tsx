@@ -96,23 +96,16 @@ export default function Message(props: IMessageProps) {
   };
 
   useEffect(() => {
-    const handleValueChange = async () => {
-      if (ref.current) {
-        ref.current.innerHTML = (
-          await processMessage(message.content as string)
-        ).replace(/\u00a0/g, " ");
-      }
-    };
-
-    handleValueChange();
-  }, [message]);
-
-  // Add listener event for phone detect
-  useEffect(() => {
     let phoneMessages: NodeListOf<Element>;
     let urlMessages: NodeListOf<Element>;
 
-    if (ref.current) {
+    const handleValueChange = async () => {
+      if (!ref.current) return () => {};
+
+      ref.current.innerHTML = (
+        await processMessage(message.content as string)
+      ).replace(/\u00a0/g, " ");
+
       phoneMessages = ref.current.querySelectorAll(".phone");
 
       urlMessages = ref.current.querySelectorAll(".url");
@@ -132,7 +125,9 @@ export default function Message(props: IMessageProps) {
           if (onUrlClick) onUrlClick(url);
         })
       );
-    }
+    };
+
+    handleValueChange();
 
     return () => {
       if (ref.current && phoneMessages) {
@@ -147,7 +142,7 @@ export default function Message(props: IMessageProps) {
         );
       }
     };
-  }, [message, ref.current]);
+  }, [message]);
 
   return (
     <div

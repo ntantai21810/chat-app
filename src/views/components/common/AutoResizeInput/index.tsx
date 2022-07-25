@@ -158,6 +158,7 @@ function AutoResizeInput(
             if (e.code === "Enter" && onSubmit) {
               onSubmit((innerRef.current as any).innerText);
               setUrlMetadata(undefined);
+              if (innerRef.current) innerRef.current.innerText = "";
             }
           }}
         ></span>

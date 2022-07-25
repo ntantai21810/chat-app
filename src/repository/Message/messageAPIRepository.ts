@@ -6,7 +6,7 @@ import {
 
 export interface IMessageAPIDataSouce {
   getPendingMessages(): Promise<IMessage[]>;
-  deletePendingMessages(ids: string[]): void;
+  deletePendingMessages(ids: string[]): Promise<void>;
 }
 
 export class MessageAPIRepository
@@ -30,7 +30,7 @@ export class MessageAPIRepository
     return messageModels;
   }
 
-  deletePendingMessages(ids: string[]): void {
-    this.dataSource.deletePendingMessages(ids);
+  deletePendingMessages(ids: string[]) {
+    return this.dataSource.deletePendingMessages(ids);
   }
 }

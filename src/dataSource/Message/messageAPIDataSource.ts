@@ -13,7 +13,7 @@ export class MessageAPIDataSource implements IMessageAPIDataSouce {
     return this.api.get("/messages/pending");
   }
 
-  deletePendingMessages(ids: string[]): void {
-    this.api.put("/messages/pending/delete", ids);
+  deletePendingMessages(ids: string[]) {
+    return this.api.put("/messages/pending/delete", ids);
   }
 }

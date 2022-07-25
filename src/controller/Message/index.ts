@@ -224,7 +224,11 @@ export class MessageController {
 
       const messageModel = modelMessageData(message);
 
-      await receiveMessageUseCase.execute(messageModel);
+      const res = await receiveMessageUseCase.execute(messageModel);
+
+      const msg = normalizeMessageData(res);
+
+      return msg;
     } catch (e) {
       console.log(e);
       throw e;
@@ -368,13 +372,8 @@ export class MessageController {
           if (url && !message.thumb) {
             try {
               const thumb = await previewLinkUseCase.execute(url);
-              const messageModel = modelMessageData({
-                fromId: message.fromId,
-                toId: message.toId,
-                clientId: message.clientId,
-                conversationId: message.conversationId,
-                thumb,
-              } as any);
+              message.thumb = thumb;
+              const messageModel = modelMessageData(message);
 
               dispatch(
                 updateOneMessage({
@@ -385,7 +384,7 @@ export class MessageController {
                 } as any)
               );
 
-              updateMessageUseCase.execute(messageModel);
+              await updateMessageUseCase.execute(messageModel);
             } catch (e) {
               console.log(e);
             }

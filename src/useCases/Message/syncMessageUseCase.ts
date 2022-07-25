@@ -51,16 +51,16 @@ export class SyncMessageUseCase {
           if (messageModel.getStatus() === MessageStatus.SENT) {
             messageModel.setStatus(MessageStatus.RECEIVED);
 
-            receiveMessageUseCase.execute(messageModel);
+            await receiveMessageUseCase.execute(messageModel);
 
             try {
-              ackMessageUseCase.execute(messageModel);
+              await ackMessageUseCase.execute(messageModel);
             } catch (e) {
               deleteMessageUseCase.execute(messageModel);
               continue;
             }
           } else {
-            updateMessageUseCase.execute(messageModel);
+            await updateMessageUseCase.execute(messageModel);
           }
 
           doneMessageIds.push(messageModel.getId());
@@ -73,7 +73,7 @@ export class SyncMessageUseCase {
           new MessageAPIRepository(new MessageAPIDataSource(API.getIntance()))
         );
 
-        deletePendingMessageUseCase.execute(doneMessageIds);
+        await deletePendingMessageUseCase.execute(doneMessageIds);
       }
     } catch (e) {
       console.log(e);

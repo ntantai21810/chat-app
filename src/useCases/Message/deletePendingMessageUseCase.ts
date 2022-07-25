@@ -1,5 +1,5 @@
 export interface IDeletePendingMessageRepo {
-  deletePendingMessages(ids: string[]): void;
+  deletePendingMessages(ids: string[]): Promise<void>;
 }
 
 export class DeletePendingMessageUseCase {
@@ -9,9 +9,9 @@ export class DeletePendingMessageUseCase {
     this.repository = repository;
   }
 
-  execute(ids: string[]) {
+  async execute(ids: string[]) {
     try {
-      this.repository.deletePendingMessages(ids);
+      return this.repository.deletePendingMessages(ids);
     } catch (e) {
       console.log(e);
       throw e;

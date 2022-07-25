@@ -118,6 +118,8 @@ export class ReceiveMessageUseCase {
       if (this.presenter) {
         this.presenter.addMessage(messageModel);
       }
+
+      return messageModel;
     } catch (e) {
       console.log(e);
       throw e;

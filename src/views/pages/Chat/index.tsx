@@ -501,7 +501,7 @@ export default function ChatPage(props: IChatPageProps) {
         PAGE_SIZE
       );
 
-      if (res.length <= 1) {
+      if (res.length === 0) {
         setIsFullMessage(true);
       }
 
@@ -587,6 +587,7 @@ export default function ChatPage(props: IChatPageProps) {
 
   const handleClickOnSearchMessage = async (message: IMessage) => {
     dispatch(removeAllMessage());
+    setIsFullMessage(false);
     const result: IMessage[] = [];
 
     const res = await messageController.getMessagesByConversation(
@@ -773,7 +774,7 @@ export default function ChatPage(props: IChatPageProps) {
           try {
             message.status = MessageStatus.RECEIVED;
 
-            await messageController.receiveMessage(
+            const msg = await messageController.receiveMessage(
               message,
               !activeConversation ||
                 activeConversation.user._id !== message.fromId
@@ -804,6 +805,7 @@ export default function ChatPage(props: IChatPageProps) {
               });
               setScrollTargetTopMessage("");
               setHighlightMessage("");
+              setIsFullMessage(false);
 
               if (messages.length > 0) {
                 dispatch(removeAllMessage());
@@ -817,12 +819,12 @@ export default function ChatPage(props: IChatPageProps) {
                 PAGE_SIZE
               );
 
-              messageController.createMessageThumb(res);
+              await messageController.createMessageThumb(res);
             };
 
             callback({ status: 200 });
 
-            messageController.createMessageThumb([message]);
+            messageController.createMessageThumb([msg]);
           } catch (e) {
             console.log(e);
           }

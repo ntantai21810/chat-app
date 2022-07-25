@@ -24,8 +24,6 @@ export class UpdateMessageUseCase {
 
   async execute(messageModel: MessageModel) {
     try {
-      this.repository.updateMessage(messageModel);
-
       if (this.presenter) this.presenter.updateMessage(messageModel);
 
       const getConversationByUserIdUseCase = new GetConversationByIdUseCase(
@@ -39,6 +37,8 @@ export class UpdateMessageUseCase {
       );
 
       if (conversationModel) {
+        messageModel.setConversationId(conversationModel.getId());
+
         const updatedConversationModel = new ConversationModel(
           conversationModel.getUserId(),
           messageModel
@@ -53,10 +53,20 @@ export class UpdateMessageUseCase {
           new ConversationPresenter()
         );
 
-        messageModel.setConversationId(updatedConversationModel.getId());
+        this.repository.updateMessage(messageModel);
+
         updatedConversationModel.setLastMessage(messageModel);
 
-        updateConversationUseCase.execute(updatedConversationModel);
+        if (
+          messageModel.getFromId() ===
+            conversationModel.getLastMessage().getFromId() &&
+          messageModel.getToId() ===
+            conversationModel.getLastMessage().getToId() &&
+          messageModel.getClientId() ===
+            conversationModel.getLastMessage().getClientId()
+        ) {
+          updateConversationUseCase.execute(updatedConversationModel);
+        }
       }
     } catch (e) {
       console.log(e);

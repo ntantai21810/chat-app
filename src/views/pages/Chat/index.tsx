@@ -108,6 +108,7 @@ export default function ChatPage(props: IChatPageProps) {
   const conversationContentRef = React.useRef<HTMLDivElement | null>(null);
   const showScrollBtnRef = React.useRef(false);
   const lastNotiRef = React.useRef<Notification>();
+  const sendingMessage = React.useRef(false);
 
   //Handler
   const handleChangeMessage = (value: string) => {
@@ -142,52 +143,36 @@ export default function ChatPage(props: IChatPageProps) {
   };
 
   const handleSubmitMessage = async (message: string) => {
-    if (activeConversation) {
-      if (message || images.length > 0) {
-        setScrollTargetTopMessage("");
-        setHighlightMessage("");
-      }
+    if (!sendingMessage.current) {
+      sendingMessage.current = true;
 
-      if (
-        message &&
-        message.trim() !== "" &&
-        message.trim().charCodeAt(0) !== 10
-      ) {
-        const newMessage: IMessage = {
-          fromId: auth.auth.user._id,
-          toId: activeConversation.user._id,
-          type: MessageType.TEXT,
-          content: message.replace(/\u00a0/g, " "),
-          conversationId: "",
-          sendTime: new Date().toISOString(),
-          clientId: uuidv4(),
-          status: MessageStatus.PENDING,
-          thumb: thumb,
-        };
-
-        try {
-          await messageController.sendMessage(newMessage);
-
-          await messageController.createMessageThumb([newMessage]);
-        } catch (e) {
-          setNotification({ type: "error", message: "Gửi tin nhắn thất bại" });
-          dispatch(setShowNotification(true));
+      if (activeConversation) {
+        if (message || images.length > 0) {
+          setScrollTargetTopMessage("");
+          setHighlightMessage("");
         }
-      }
 
-      if (images.length > 0) {
-        for (let image of images) {
+        if (
+          message &&
+          message.trim() !== "" &&
+          message.trim().charCodeAt(0) !== 10
+        ) {
+          const newMessage: IMessage = {
+            fromId: auth.auth.user._id,
+            toId: activeConversation.user._id,
+            type: MessageType.TEXT,
+            content: message.replace(/\u00a0/g, " "),
+            conversationId: "",
+            sendTime: new Date().toISOString(),
+            clientId: uuidv4(),
+            status: MessageStatus.PENDING,
+            thumb: thumb,
+          };
+
           try {
-            await messageController.sendMessage({
-              fromId: auth.auth.user._id,
-              toId: activeConversation.user._id,
-              type: MessageType.IMAGE,
-              content: [image],
-              sendTime: new Date().toISOString(),
-              conversationId: "",
-              clientId: uuidv4(),
-              status: MessageStatus.PENDING,
-            });
+            await messageController.sendMessage(newMessage);
+
+            await messageController.createMessageThumb([newMessage]);
           } catch (e) {
             setNotification({
               type: "error",
@@ -196,10 +181,35 @@ export default function ChatPage(props: IChatPageProps) {
             dispatch(setShowNotification(true));
           }
         }
-      }
-    }
 
-    setImages([]);
+        if (images.length > 0) {
+          for (let image of images) {
+            try {
+              await messageController.sendMessage({
+                fromId: auth.auth.user._id,
+                toId: activeConversation.user._id,
+                type: MessageType.IMAGE,
+                content: [image],
+                sendTime: new Date().toISOString(),
+                conversationId: "",
+                clientId: uuidv4(),
+                status: MessageStatus.PENDING,
+              });
+            } catch (e) {
+              setNotification({
+                type: "error",
+                message: "Gửi tin nhắn thất bại",
+              });
+              dispatch(setShowNotification(true));
+            }
+          }
+        }
+      }
+
+      setImages([]);
+      setThumb(undefined);
+      sendingMessage.current = false;
+    }
   };
 
   const handleClickOnPhone = React.useCallback(async (phone: string) => {
@@ -265,53 +275,58 @@ export default function ChatPage(props: IChatPageProps) {
   );
 
   const handleSubmitFiles = async (files: IFile[]) => {
-    if (activeConversation && files.length > 0) {
-      setScrollTargetTopMessage("");
-      setHighlightMessage("");
+    if (!sendingMessage.current) {
+      sendingMessage.current = true;
+      if (activeConversation && files.length > 0) {
+        setScrollTargetTopMessage("");
+        setHighlightMessage("");
+        setThumb(undefined);
 
-      if (files[0].type.startsWith("image/")) {
-        for (let file of files) {
-          try {
-            await messageController.sendMessage({
-              fromId: auth.auth.user._id,
-              toId: activeConversation.user._id,
-              type: MessageType.IMAGE,
-              content: [file],
-              sendTime: new Date().toISOString(),
-              conversationId: "",
-              clientId: uuidv4(),
-              status: MessageStatus.PENDING,
-            });
-          } catch (e) {
-            setNotification({
-              type: "error",
-              message: "Gửi tin nhắn thất bại",
-            });
-            dispatch(setShowNotification(true));
+        if (files[0].type.startsWith("image/")) {
+          for (let file of files) {
+            try {
+              await messageController.sendMessage({
+                fromId: auth.auth.user._id,
+                toId: activeConversation.user._id,
+                type: MessageType.IMAGE,
+                content: [file],
+                sendTime: new Date().toISOString(),
+                conversationId: "",
+                clientId: uuidv4(),
+                status: MessageStatus.PENDING,
+              });
+            } catch (e) {
+              setNotification({
+                type: "error",
+                message: "Gửi tin nhắn thất bại",
+              });
+              dispatch(setShowNotification(true));
+            }
           }
-        }
-      } else {
-        for (let file of files) {
-          try {
-            await messageController.sendMessage({
-              fromId: auth.auth.user._id,
-              toId: activeConversation.user._id,
-              type: MessageType.FILE,
-              content: [file],
-              sendTime: new Date().toISOString(),
-              conversationId: "",
-              clientId: uuidv4(),
-              status: MessageStatus.PENDING,
-            });
-          } catch (e) {
-            setNotification({
-              type: "error",
-              message: "Gửi tin nhắn thất bại",
-            });
-            dispatch(setShowNotification(true));
+        } else {
+          for (let file of files) {
+            try {
+              await messageController.sendMessage({
+                fromId: auth.auth.user._id,
+                toId: activeConversation.user._id,
+                type: MessageType.FILE,
+                content: [file],
+                sendTime: new Date().toISOString(),
+                conversationId: "",
+                clientId: uuidv4(),
+                status: MessageStatus.PENDING,
+              });
+            } catch (e) {
+              setNotification({
+                type: "error",
+                message: "Gửi tin nhắn thất bại",
+              });
+              dispatch(setShowNotification(true));
+            }
           }
         }
       }
+      sendingMessage.current = false;
     }
   };
 

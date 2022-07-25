@@ -15,6 +15,8 @@ export interface IAutoResizeInputProps {
   previewLink?: boolean;
 }
 
+const MAX_SIZE = 1000;
+
 function AutoResizeInput(
   props: IAutoResizeInputProps,
   ref: React.MutableRefObject<Partial<HTMLSpanElement>>
@@ -41,7 +43,7 @@ function AutoResizeInput(
   const posRef = React.useRef(0);
   const abortControllerRef = React.useRef<AbortController>();
 
-  const handleInput: React.FormEventHandler<HTMLSpanElement> = () => {
+  const handleInput: React.FormEventHandler<HTMLSpanElement> = (e) => {
     if (onChange) {
       if (innerRef.current) {
         innerRef.current.scrollTop = innerRef.current.scrollHeight;
@@ -78,6 +80,20 @@ function AutoResizeInput(
   ) => {
     const data = e.clipboardData.getData("text");
 
+    if (data.length > MAX_SIZE) {
+      if (innerRef.current) {
+        innerRef.current.innerText = data.substring(0, MAX_SIZE);
+      }
+      e.preventDefault();
+      return;
+    }
+
+    if (innerRef.current) {
+      e.preventDefault();
+
+      document.execCommand("insertHTML", false, data);
+    }
+
     let url = "";
 
     if (data) {
@@ -105,6 +121,12 @@ function AutoResizeInput(
     }
 
     if (onPaste) onPaste(e);
+  };
+
+  const handleKeypress: React.KeyboardEventHandler = (e) => {
+    if (innerRef.current) {
+      if (innerRef.current.innerText.length >= MAX_SIZE) e.preventDefault();
+    }
   };
 
   React.useImperativeHandle(ref, () => ({
@@ -154,6 +176,7 @@ function AutoResizeInput(
           onInput={handleInput}
           onPaste={handlePaste}
           onDrop={onDrop}
+          onKeyPress={handleKeypress}
           onKeyDown={(e) => {
             if (e.code === "Enter" && onSubmit) {
               onSubmit((innerRef.current as any).innerText);

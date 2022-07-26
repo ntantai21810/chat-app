@@ -19,10 +19,7 @@ const messageSlice = createSlice({
     },
 
     addOne(state, action: PayloadAction<IMessage>) {
-      return [...state, action.payload].sort(
-        (m1, m2) =>
-          new Date(m1.sendTime).getTime() - new Date(m2.sendTime).getTime()
-      );
+      return [...state, action.payload];
     },
 
     updateOne(state, action: PayloadAction<IMessage>) {

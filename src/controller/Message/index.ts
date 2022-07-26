@@ -186,7 +186,7 @@ export class MessageController {
 
         const messageModel = modelMessageData(message);
 
-        sendMessageUseCase.execute(messageModel);
+        await sendMessageUseCase.execute(messageModel);
       } catch (e) {
         if (message.type === MessageType.FILE) {
           for (let file of message.content as IFile[]) {
@@ -198,7 +198,7 @@ export class MessageController {
 
         const messageModel = modelMessageData(message);
 
-        sendMessageUseCase.execute(messageModel, false);
+        await sendMessageUseCase.execute(messageModel, false);
 
         this.presenter.setShowNotification(true);
 

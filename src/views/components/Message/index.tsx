@@ -151,7 +151,9 @@ export default function Message(props: IMessageProps) {
       })}
       style={{ backgroundColor: highlight ? "rgb(255 199 0)" : bgColor }}
     >
-      <div ref={ref}>{message.content as string}</div>
+      <div ref={ref} className={styles.textContainer}>
+        {message.content as string}
+      </div>
 
       {message.thumb && (
         <div className={styles.previewLink}>

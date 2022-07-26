@@ -183,9 +183,9 @@ export default function ChatPage(props: IChatPageProps) {
         }
 
         if (images.length > 0) {
-          for (let image of images) {
+          for (let image of images.reverse()) {
             try {
-              await messageController.sendMessage({
+              messageController.sendMessage({
                 fromId: auth.auth.user._id,
                 toId: activeConversation.user._id,
                 type: MessageType.IMAGE,
@@ -284,9 +284,9 @@ export default function ChatPage(props: IChatPageProps) {
         setThumb(undefined);
 
         if (files[0].type.startsWith("image/")) {
-          for (let file of files) {
+          for (let file of files.reverse()) {
             try {
-              await messageController.sendMessage({
+              messageController.sendMessage({
                 fromId: auth.auth.user._id,
                 toId: activeConversation.user._id,
                 type: MessageType.IMAGE,
@@ -305,9 +305,9 @@ export default function ChatPage(props: IChatPageProps) {
             }
           }
         } else {
-          for (let file of files) {
+          for (let file of files.reverse()) {
             try {
-              await messageController.sendMessage({
+              messageController.sendMessage({
                 fromId: auth.auth.user._id,
                 toId: activeConversation.user._id,
                 type: MessageType.FILE,
@@ -760,7 +760,7 @@ export default function ChatPage(props: IChatPageProps) {
     if (common.isDatabaseConnected && common.isSocketConnected) {
       messageController.syncMessage();
     }
-  }, [common.isDatabaseConnected, common.isSocketConnected, auth.auth.user]);
+  }, [common.isDatabaseConnected, common.isSocketConnected, auth.auth]);
 
   //Change conversation socket
   React.useEffect(() => {

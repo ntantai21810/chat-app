@@ -33,7 +33,7 @@ export class SendMessageSocketUseCase {
 
         messageModel.setStatus(MessageStatus.ERROR);
 
-        updateMessageUseCase.execute(messageModel);
+        await updateMessageUseCase.execute(messageModel);
       }
 
       throw e;

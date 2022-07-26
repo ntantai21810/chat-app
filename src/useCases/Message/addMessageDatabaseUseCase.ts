@@ -1,7 +1,7 @@
 import { MessageModel } from "../../domains";
 
 export interface IAddMessageRepo {
-  addMessage(messageModel: MessageModel): void;
+  addMessage(messageModel: MessageModel): Promise<void>;
 }
 
 export class AddMessageDatabaseUseCase {
@@ -13,7 +13,7 @@ export class AddMessageDatabaseUseCase {
 
   async execute(messageModel: MessageModel) {
     try {
-      this.repository.addMessage(messageModel);
+      await this.repository.addMessage(messageModel);
     } catch (e) {
       console.log(e);
       throw e;

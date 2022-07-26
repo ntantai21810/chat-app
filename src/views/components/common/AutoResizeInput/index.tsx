@@ -41,6 +41,7 @@ function AutoResizeInput(
 
   const innerRef = React.useRef<HTMLSpanElement | null>(null);
   const posRef = React.useRef(0);
+  const parsingRef = React.useRef(false);
   const abortControllerRef = React.useRef<AbortController>();
 
   const handleInput: React.FormEventHandler<HTMLSpanElement> = (e) => {
@@ -102,7 +103,8 @@ function AutoResizeInput(
       if (match && match[0]) url = match[0];
     }
 
-    if (url) {
+    if (url && !parsingRef.current) {
+      parsingRef.current = true;
       try {
         abortControllerRef.current = new AbortController();
 
@@ -118,6 +120,7 @@ function AutoResizeInput(
       } catch (e) {
         console.log(e);
       }
+      parsingRef.current = false;
     }
 
     if (onPaste) onPaste(e);

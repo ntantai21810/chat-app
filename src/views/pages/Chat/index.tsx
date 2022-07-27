@@ -213,7 +213,6 @@ export default function ChatPage(props: IChatPageProps) {
   };
 
   const handleClickOnPhone = React.useCallback(async (phone: string) => {
-    console.log("click: ", phone);
     setIsLoadingUserModal(true);
     const user = await userController.getOneUserByPhone(phone);
     setIsLoadingUserModal(false);
@@ -430,6 +429,7 @@ export default function ChatPage(props: IChatPageProps) {
       });
       setScrollTargetTopMessage("");
       setHighlightMessage("");
+      if (inputRef.current) (inputRef.current as any).reset();
 
       if (messages.length > 0) {
         dispatch(removeAllMessage());
@@ -457,6 +457,7 @@ export default function ChatPage(props: IChatPageProps) {
     setHighlightMessage("");
     setIsFullMessage(false);
     setIsTyping(false);
+    if (inputRef.current) (inputRef.current as any).reset();
 
     let conversationId = "";
 
@@ -589,6 +590,8 @@ export default function ChatPage(props: IChatPageProps) {
   const handleClickOnSearchMessage = async (message: IMessage) => {
     dispatch(removeAllMessage());
     setIsFullMessage(false);
+    if (inputRef.current) (inputRef.current as any).reset();
+
     const result: IMessage[] = [];
 
     const res = await messageController.getMessagesByConversation(
@@ -807,6 +810,8 @@ export default function ChatPage(props: IChatPageProps) {
               setScrollTargetTopMessage("");
               setHighlightMessage("");
               setIsFullMessage(false);
+
+              if (inputRef.current) (inputRef.current as any).reset();
 
               if (messages.length > 0) {
                 dispatch(removeAllMessage());

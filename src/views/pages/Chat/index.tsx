@@ -783,6 +783,8 @@ export default function ChatPage(props: IChatPageProps) {
           try {
             message.status = MessageStatus.RECEIVED;
 
+            callback({ status: 200 });
+
             const msg = await messageController.receiveMessage(
               message,
               !activeConversation ||
@@ -832,8 +834,6 @@ export default function ChatPage(props: IChatPageProps) {
 
               await messageController.createMessageThumb(res);
             };
-
-            callback({ status: 200 });
 
             messageController.createMessageThumb([msg]);
           } catch (e) {

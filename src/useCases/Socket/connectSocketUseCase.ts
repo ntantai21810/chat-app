@@ -17,7 +17,6 @@ export class ConnectSocketUseCase {
   async execute(userId: string, accessToken: string) {
     try {
       this.repository.connect(userId, accessToken);
-      this.presenter.setConnect(true);
     } catch (e) {
       console.log(e);
       throw e;

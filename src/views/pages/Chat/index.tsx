@@ -143,65 +143,63 @@ export default function ChatPage(props: IChatPageProps) {
   };
 
   const handleSubmitMessage = async (message: string) => {
-    if (!sendingMessage.current) {
-      sendingMessage.current = true;
+    if (activeConversation) {
+      if (message || images.length > 0) {
+        setScrollTargetTopMessage("");
+        setHighlightMessage("");
+      }
 
-      if (activeConversation) {
-        if (message || images.length > 0) {
-          setScrollTargetTopMessage("");
-          setHighlightMessage("");
+      if (
+        message &&
+        message.trim() !== "" &&
+        message.trim().charCodeAt(0) !== 10
+      ) {
+        const newMessage: IMessage = {
+          fromId: auth.auth.user._id,
+          toId: activeConversation.user._id,
+          type: MessageType.TEXT,
+          content: message.replace(/\u00a0/g, " "),
+          conversationId: "",
+          sendTime: new Date().toISOString(),
+          clientId: uuidv4(),
+          status: MessageStatus.PENDING,
+          thumb: thumb,
+        };
+
+        try {
+          await messageController.sendMessage(newMessage);
+
+          await messageController.createMessageThumb([newMessage]);
+        } catch (e) {
+          setNotification({
+            type: "error",
+            message: "Gửi tin nhắn thất bại",
+          });
+          dispatch(setShowNotification(true));
         }
+      }
 
-        if (
-          message &&
-          message.trim() !== "" &&
-          message.trim().charCodeAt(0) !== 10
-        ) {
-          const newMessage: IMessage = {
-            fromId: auth.auth.user._id,
-            toId: activeConversation.user._id,
-            type: MessageType.TEXT,
-            content: message.replace(/\u00a0/g, " "),
-            conversationId: "",
-            sendTime: new Date().toISOString(),
-            clientId: uuidv4(),
-            status: MessageStatus.PENDING,
-            thumb: thumb,
-          };
+      if (images.length > 0 && !sendingMessage.current) {
+        sendingMessage.current = true;
 
+        for (let image of images.reverse()) {
           try {
-            await messageController.sendMessage(newMessage);
-
-            await messageController.createMessageThumb([newMessage]);
+            messageController.sendMessage({
+              fromId: auth.auth.user._id,
+              toId: activeConversation.user._id,
+              type: MessageType.IMAGE,
+              content: [image],
+              sendTime: new Date().toISOString(),
+              conversationId: "",
+              clientId: uuidv4(),
+              status: MessageStatus.PENDING,
+            });
           } catch (e) {
             setNotification({
               type: "error",
               message: "Gửi tin nhắn thất bại",
             });
             dispatch(setShowNotification(true));
-          }
-        }
-
-        if (images.length > 0) {
-          for (let image of images.reverse()) {
-            try {
-              messageController.sendMessage({
-                fromId: auth.auth.user._id,
-                toId: activeConversation.user._id,
-                type: MessageType.IMAGE,
-                content: [image],
-                sendTime: new Date().toISOString(),
-                conversationId: "",
-                clientId: uuidv4(),
-                status: MessageStatus.PENDING,
-              });
-            } catch (e) {
-              setNotification({
-                type: "error",
-                message: "Gửi tin nhắn thất bại",
-              });
-              dispatch(setShowNotification(true));
-            }
           }
         }
       }
@@ -668,7 +666,9 @@ export default function ChatPage(props: IChatPageProps) {
   }, [common.isDatabaseConnected]);
 
   React.useEffect(() => {
-    socketController.listen("connect", () => dispatch(setSocketConnect(true)));
+    socketController.listen("connect", (e: any) => {
+      dispatch(setSocketConnect(true));
+    });
     socketController.listen("disconnect", () =>
       dispatch(setSocketConnect(false))
     );

@@ -5,6 +5,7 @@ import {
 } from "../../dataSource";
 import { MessageStatus } from "../../domains";
 import { API, Socket } from "../../network";
+import { IMessagePresenter } from "../../presenter";
 import {
   MessageAPIRepository,
   MessageSocketRepository,
@@ -19,13 +20,18 @@ import { ReceiveMessageUseCase } from "./receiveMessageUseCase";
 import { UpdateMessageUseCase } from "./updateMessageUseCase";
 
 export class SyncMessageUseCase {
-  async execute() {
+  private presenter: IMessagePresenter;
+
+  constructor(presenter?: IMessagePresenter) {
+    if (presenter) this.presenter = presenter;
+  }
+
+  async execute(activeUserId: string) {
     try {
       const getPendingMessageUseCase = new GetPendingMessageUseCase(
         new MessageAPIRepository(new MessageAPIDataSource(API.getIntance()))
       );
 
-      const receiveMessageUseCase = new ReceiveMessageUseCase();
       const updateMessageUseCase = new UpdateMessageUseCase(
         new MessageStorageRepository(
           new MessageStorageDataSource(IndexedDB.getInstance())
@@ -47,6 +53,10 @@ export class SyncMessageUseCase {
       const doneMessageIds: string[] = [];
 
       for (let messageModel of messageModels) {
+        const receiveMessageUseCase = new ReceiveMessageUseCase(
+          activeUserId === messageModel.getFromId() ? this.presenter : undefined
+        );
+
         try {
           if (messageModel.getStatus() === MessageStatus.SENT) {
             messageModel.setStatus(MessageStatus.RECEIVED);

@@ -274,11 +274,11 @@ export class MessageController {
     }
   }
 
-  syncMessage() {
+  async syncMessage(activeUserId: string) {
     try {
-      const syncMessageUseCase = new SyncMessageUseCase();
+      const syncMessageUseCase = new SyncMessageUseCase(this.presenter);
 
-      syncMessageUseCase.execute();
+      await syncMessageUseCase.execute(activeUserId);
     } catch (e) {
       console.log(e);
     }

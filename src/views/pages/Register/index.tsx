@@ -4,7 +4,7 @@ import { getDispatch } from "../../../adapter/frameworkAdapter";
 import { useAuth } from "../../../adapter/redux";
 import { authController } from "../../../bootstrap";
 import { setAuthError } from "../../../framework/redux/auth";
-import Logo from "../../assets/images/Logo.png";
+import Logo from "../../assets/images/Logo.jpg";
 import Divider from "../../components/common/Divider";
 import RegisterForm, { IRegisterFormData } from "../../components/RegisterForm";
 import styles from "../../assets/styles/RegisterPage.module.scss";

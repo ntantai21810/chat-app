@@ -25,5 +25,7 @@ export function getRemainingTime(time: number): string {
     }
   }
 
-  return `${returnedTime.value} ${returnedTime.type}`;
+  return returnedTime.value === 0
+    ? "vài giây"
+    : `${returnedTime.value} ${returnedTime.type}`;
 }

@@ -21,9 +21,26 @@ export default function Image(props: IImageProps) {
     onClose,
   } = props;
 
+  const ref = React.useRef<HTMLImageElement | null>(null);
+  let retry = false;
+
+  const handleError: React.ReactEventHandler = (e) => {
+    if (ref.current && !retry) {
+      ref.current.src = src;
+      retry = true;
+    }
+  };
+
   return (
     <div style={{ width: width, height: height }} className={styles.container}>
-      <img className={styles.img} src={src} alt={alt} />
+      <img
+        ref={ref}
+        className={styles.img}
+        src={src}
+        alt={alt}
+        onError={handleError}
+      />
+
       {closable && (
         <div className={styles.closeIcon} onClick={onClose}>
           <AiOutlineClose fontSize="1.2rem" color="#fff" />
